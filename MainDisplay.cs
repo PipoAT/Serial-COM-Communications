@@ -753,7 +753,7 @@ namespace AT_SCC
                                             if (index < textBoxArray.Length)
                                             {
                                                 var receivedTextBox = textBoxArray[index];
-                                                receivedTextBox.Text = mySerialPort.ReadExisting();
+                                                receivedTextBox.Text = Convert.ToString(mySerialPort.ReadByte());
 
                                                 if (logging_check.Checked)
                                                 {
@@ -1052,11 +1052,6 @@ namespace AT_SCC
                                             textBoxLocationY += 20;
                                             index++;
 
-                                            if (textBoxLocationY >= textBoxesPanel2.Height - 20)
-                                            {
-                                                MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                                break;
-                                            }
                                         }
                                     }
                                 }
