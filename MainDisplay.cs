@@ -79,7 +79,7 @@ namespace AT_SCC
 
         public readonly string[] sendDelayOptions = new string[]
         {
-            "100","500","1000","5000"
+            "100","500","1000","2000","3000","4000","5000"
         };
 
         void OnReload()
@@ -638,7 +638,18 @@ namespace AT_SCC
                                             if (textBoxArray.Length > 0)
                                             {
                                                 var receivedTextBox = textBoxArray[currentTextBoxIndex];
-                                                receivedTextBox.Text = mySerialPort.ReadExisting();
+                                                var buffer = new byte[mySerialPort.ReadBufferSize];
+
+                                                int bytesRead = 0;
+                                                var sb = new StringBuilder();
+
+                                                while (mySerialPort.BytesToRead > 0)
+                                                {
+                                                    bytesRead = mySerialPort.Read(buffer, 0, buffer.Length);
+                                                    sb.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
+                                                }
+
+                                                receivedTextBox.Text = sb.ToString();
 
                                                 if (logging_check.Checked)
                                                 {
@@ -653,8 +664,8 @@ namespace AT_SCC
                                             {
                                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                             }
-
                                         }
+
                                     }
 
                                     textBoxesPanelIndex += Math.Min(inputValues.Count, MAX_BUFFER_SIZE); // increment the index for the next iteration
