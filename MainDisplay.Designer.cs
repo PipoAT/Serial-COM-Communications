@@ -41,7 +41,7 @@
             Size = this.ClientSize;
             BackgroundImage = Image.FromFile("AT-SCC_GUI_Background.png");
             FormBorderStyle = FormBorderStyle.FixedSingle;
-            ControlBox = false; MaximizeBox = false; MinimizeBox = false;
+            ControlBox = true; MaximizeBox = false; MinimizeBox = true;
 
 
             // DEFINE THE MENU BAR
@@ -313,7 +313,7 @@
             this.textBoxHANDSHAKE.Cursor = Cursors.Arrow;
             this.Controls.Add(this.textBoxHANDSHAKE);
 
-            AddLabel("DLEAY (ms):", new Point(20, 240), new Font("Arial", 8));
+            AddLabel("DELAY (ms):", new Point(20, 240), new Font("Arial", 8));
 
             this.textBoxDELAY = new System.Windows.Forms.TextBox();
             this.textBoxDELAY.Location = new Point(20, 260);
@@ -325,7 +325,7 @@
             this.textBoxDELAY.Cursor = Cursors.Arrow;
             this.Controls.Add(this.textBoxDELAY);
 
-            AddLabel("REPEAT:", new Point(110, 240), new Font("Arial", 8));
+            AddLabel("REPEAT TRANSMISSION:", new Point(110, 240), new Font("Arial", 8));
 
             this.textBoxRS = new System.Windows.Forms.TextBox();
             this.textBoxRS.Location = new Point(110, 260);
@@ -373,7 +373,7 @@
             this.Controls.Add(this.textBoxreceiveType);
 
             // Define the label and textbox controls
-            AddLabel("Bytes to Transfer:", new Point(250, 190), new Font("Arial", 8));
+            AddLabel("# OF SEND DATA ENTRIES:", new Point(250, 190), new Font("Arial", 8));
 
             this.textBoxBTT = new System.Windows.Forms.TextBox();
             this.textBoxBTT.Location = new Point(250, 210);
@@ -384,7 +384,7 @@
             this.textBoxBTT.TextChanged += TextBoxBTT_TextChanged; // Add event handler
             this.Controls.Add(this.textBoxBTT);
 
-            AddLabel("BUFFER:", new Point(250, 240), new Font("Arial", 8));
+            AddLabel("MAX RECEIVE BUFFER:", new Point(250, 240), new Font("Arial", 8));
 
             this.textBoxBUFFER = new System.Windows.Forms.TextBox();
             this.textBoxBUFFER.Location = new Point(250, 260);
