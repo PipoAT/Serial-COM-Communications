@@ -337,14 +337,6 @@
             stop.Click += StopButton_Click;
             this.Controls.Add(stop);
 
-            // this.textBoxRS = new System.Windows.Forms.TextBox();
-            // this.textBoxRS.Location = new Point(110, 260);
-            // this.textBoxRS.Width = 75;
-            // this.textBoxRS.TextAlign = HorizontalAlignment.Center;
-            // this.textBoxRS.BackColor = Color.Pink;
-            // this.textBoxRS.TextChanged += OnRepeatSend;
-            // this.Controls.Add(this.textBoxRS);
-
             AddLabel("MODE:", new Point(250, 40), new Font("Arial", 8));
 
             this.textBoxMODEDISP = new System.Windows.Forms.TextBox();

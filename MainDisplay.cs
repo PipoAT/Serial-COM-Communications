@@ -8,7 +8,7 @@ namespace AT_SCC
 
     public partial class MainDisplay : Form
     {                                           // declaring all variables associated with textboxes, menu/tool strip, strings, or int
-        private TextBox? textBoxCOM, textBoxBAUD, textBoxPARITY, textBoxDATABITS, textBoxSTOPBITS, textBoxRTIMEOUT, textBoxWTIMEOUT, textBoxHANDSHAKE, textBoxDELAY, textBoxBTT, textBoxMODEDISP, textBoxSENDTYPE, textBoxreceiveType, textBoxRS;
+        private TextBox? textBoxCOM, textBoxBAUD, textBoxPARITY, textBoxDATABITS, textBoxSTOPBITS, textBoxRTIMEOUT, textBoxWTIMEOUT, textBoxHANDSHAKE, textBoxDELAY, textBoxBTT, textBoxMODEDISP, textBoxSENDTYPE, textBoxreceiveType;
 
         private TextBox? clock, textBoxBUFFER;
 
@@ -212,28 +212,7 @@ namespace AT_SCC
         }
 
 
-        void OnRepeatSend(object? sender, EventArgs e)
-        {        // event to set number of times it will send data per user input
 
-            if (textBoxRS != null)
-            {
-                try
-                {
-                    currentRepeatint = int.Parse(textBoxRS.Text);
-                    if (currentRepeatint > 99)
-                    {
-                        MessageBox.Show("Requested Repeating Amount Exceeds Memory Allocation", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        textBoxRS.Text = "";
-                    }
-                    textBoxRS.BackColor = Color.LightGreen;
-                }
-                catch
-                {
-                    MessageBox.Show("Please input positive value", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-
-            }
-        }
 
 
         void OnSModeChange(object? sender, ToolStripItemClickedEventArgs e)
@@ -359,10 +338,10 @@ namespace AT_SCC
         }
 
         private void StopButton_Click(object sender, EventArgs e)
-            {
-                // Cancel the loop
-                cancellationTokenSource?.Cancel();
-            }
+        {
+            // Cancel the loop
+            cancellationTokenSource?.Cancel();
+        }
 
 
         private async void buttonRECEIVE_Click(object? sender, EventArgs e)
@@ -398,7 +377,8 @@ namespace AT_SCC
                             textBoxesPanel2.Controls.Add(textBoxArray[k]);
                         }
 
-                        if (!(repeat_check.Checked)) {
+                        if (!(repeat_check.Checked))
+                        {
 
                             var receivedByte = (byte)mySerialPort.ReadByte();
                             receivedBytes.Add(receivedByte);
@@ -413,7 +393,7 @@ namespace AT_SCC
 
                             if (textBoxArray.Length > 0)
                             {
-                              
+
                                 var receivedTextBox = textBoxArray[i];
                                 receivedTextBox.Text += $"{receivedByte:X2} ";
 
@@ -427,16 +407,17 @@ namespace AT_SCC
                             if (receivedBytes.Count >= MAX_BUFFER_SIZE)
                             {
                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                
+
                             }
-                            
+
 
 
                         }
 
-                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked) {
-                        
-                      
+                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
+                        {
+
+
                             var receivedByte = (byte)mySerialPort.ReadByte();
                             receivedBytes.Add(receivedByte);
 
@@ -465,7 +446,7 @@ namespace AT_SCC
                                 break;
                             }
                             i++;
-                        
+
                             await Task.Delay(2);
                         }
 
@@ -477,7 +458,7 @@ namespace AT_SCC
                     else if (currentMode == "Receive Mode" && currentRTOption == "String")
                     {
 
-                        int i = 0;  
+                        int i = 0;
                         var receivedString = new StringBuilder();
 
                         using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
@@ -499,11 +480,12 @@ namespace AT_SCC
                             textBoxesPanel2.Controls.Add(textBoxArray[k]);
                         }
 
-                        if (!(repeat_check.Checked)) {
-                               
+                        if (!(repeat_check.Checked))
+                        {
+
                             if (textBoxArray.Length > 0)
                             {
-                                
+
                                 var receivedTextBox = textBoxArray[i];
                                 receivedTextBox.Text = mySerialPort.ReadLine();
 
@@ -525,17 +507,17 @@ namespace AT_SCC
                             {
                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             }
-                            
+
 
 
                         }
 
                         while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
                         {
-                           
+
                             if (textBoxArray.Length > 0)
                             {
-                                
+
                                 var receivedTextBox = textBoxArray[i];
                                 receivedTextBox.Text = mySerialPort.ReadLine();
 
@@ -592,7 +574,8 @@ namespace AT_SCC
                             textBoxesPanel2.Controls.Add(textBoxArray[k]);
                         }
 
-                        if (!(repeat_check.Checked)) {
+                        if (!(repeat_check.Checked))
+                        {
                             if (textBoxArray.Length > 0)
                             {
                                 var receivedTextBox = textBoxArray[i];
@@ -616,7 +599,7 @@ namespace AT_SCC
                             if (receivedBytes.Count >= MAX_BUFFER_SIZE)
                             {
                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-     
+
                             }
                         }
 
@@ -670,8 +653,10 @@ namespace AT_SCC
         }
 
 
-        void buttonSEND_Click(object? sender, System.EventArgs e) // event to engage the send functionality
+        async void buttonSEND_Click(object? sender, System.EventArgs e) // event to engage the send functionality
         {
+
+            cancellationTokenSource = new CancellationTokenSource();
             if (textBoxBTT != null)
             {
                 int buffcheck = currentRepeatint * int.Parse(textBoxBTT.Text);
@@ -716,7 +701,79 @@ namespace AT_SCC
                                 var textBoxArray = new TextBox[MAX_BUFFER_SIZE];
                                 var textBoxesPanelIndex = 0; // keeps track of the index in the textboxesPanel2.Controls list
 
-                                for (var i = 0; i < (repeat_check.Checked ? currentRepeatint : 1); i++)
+                                if (!repeat_check.Checked)
+                                {
+
+                                    for (var j = 0; j < Math.Min(inputValues.Count, MAX_BUFFER_SIZE); j++)
+                                    {
+                                        var textBox = new TextBox
+                                        {
+                                            Location = new Point(10, (textBoxesPanelIndex + j) * 20),
+                                            Width = 100,
+                                            ReadOnly = true
+                                        };
+                                        textBoxesPanel2.Controls.Add(textBox);
+                                        textBoxArray[j] = textBox;
+                                    }
+
+                                    int currentTextBoxIndex = 0; // add this line to declare a variable to keep track of the current textbox index
+
+                                    foreach (var value in inputValues)
+                                    {
+                                        Console.WriteLine("Sending string: {0}", value);
+
+                                        if (logging_check.Checked)
+                                        {
+                                            var logFilePath = LogFilePath;
+
+                                            using var logFile = new StreamWriter(logFilePath, true);
+                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT STRING]: {value}");
+                                        }
+
+                                        mySerialPort.Write(value);
+                                        Thread.Sleep(currentDelayint);
+
+                                        if (receive_check.Checked)
+                                        {
+                                            if (textBoxArray.Length > 0)
+                                            {
+                                                var receivedTextBox = textBoxArray[currentTextBoxIndex];
+                                                var buffer = new byte[mySerialPort.ReadBufferSize];
+
+                                                int bytesRead = 0;
+                                                var sb = new StringBuilder();
+
+                                                while (mySerialPort.BytesToRead > 0)
+                                                {
+                                                    bytesRead = mySerialPort.Read(buffer, 0, buffer.Length);
+                                                    sb.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
+                                                }
+
+                                                receivedTextBox.Text = sb.ToString();
+
+                                                if (logging_check.Checked)
+                                                {
+                                                    var logFilePath = LogFilePath;
+                                                    using var logFile = new StreamWriter(logFilePath, true);
+                                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED STRING]: {receivedTextBox.Text}\n");
+                                                }
+
+                                                currentTextBoxIndex++; // increment the index of the current textbox
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                            }
+                                        }
+
+                                    }
+
+                                    textBoxesPanelIndex += Math.Min(inputValues.Count, MAX_BUFFER_SIZE); // increment the index for the next iteration
+
+                                }
+
+
+                                while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
                                 {
                                     // create textboxes for the current iteration and add them to the panel
                                     for (var j = 0; j < Math.Min(inputValues.Count, MAX_BUFFER_SIZE); j++)
@@ -784,6 +841,8 @@ namespace AT_SCC
                                     }
 
                                     textBoxesPanelIndex += Math.Min(inputValues.Count, MAX_BUFFER_SIZE); // increment the index for the next iteration
+
+                                    await Task.Delay(2);
                                 }
 
 
@@ -832,8 +891,9 @@ namespace AT_SCC
 
                                 if (!mySerialPort.IsOpen) mySerialPort.Open();
 
-                                for (var i = 0; i < (repeat_check.Checked ? currentRepeatint : 1); i++)
+                                if (!repeat_check.Checked)
                                 {
+                                    int i = 0;
                                     var textBoxArray = new TextBox[Math.Min(bytesToSend.Count, MAX_BUFFER_SIZE)];
                                     for (var j = 0; j < textBoxArray.Length; j++)
                                     {
@@ -886,6 +946,69 @@ namespace AT_SCC
                                             index++;
                                         }
                                     }
+                                    i++;
+
+
+                                }
+
+                                while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
+                                {
+                                    int i = 0;
+                                    var textBoxArray = new TextBox[Math.Min(bytesToSend.Count, MAX_BUFFER_SIZE)];
+                                    for (var j = 0; j < textBoxArray.Length; j++)
+                                    {
+                                        textBoxArray[j] = new TextBox
+                                        {
+                                            Location = new Point(10, j * 20 + i * 200),         // ADJUST THIS CODE LINE
+                                            Width = 100,
+                                            ReadOnly = true
+                                        };
+                                        textBoxesPanel2.Controls.Add(textBoxArray[j]);
+                                    }
+
+                                    var index = 0;
+
+                                    foreach (var byteValue in bytesToSend)
+                                    {
+                                        Console.WriteLine("Byte value: {0}", byteValue);
+
+                                        if (logging_check.Checked)
+                                        {
+                                            var logFilePath = LogFilePath;
+
+                                            using var logFile = new StreamWriter(logFilePath, true);
+                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE]: {byteValue}");
+                                        }
+
+                                        mySerialPort.Write(new[] { byteValue }, 0, 1);
+
+                                        Thread.Sleep(delay);
+                                        if (receive_check.Checked)
+                                        {
+                                            if (index < textBoxArray.Length)
+                                            {
+                                                var receivedTextBox = textBoxArray[index];
+                                                receivedTextBox.Text = Convert.ToString(mySerialPort.ReadByte());
+
+                                                if (logging_check.Checked)
+                                                {
+                                                    var logFilePath = LogFilePath;
+
+                                                    using var logFile = new StreamWriter(logFilePath, true);
+                                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE]: {receivedTextBox.Text}");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                            }
+
+                                            index++;
+                                        }
+                                    }
+                                    i++;
+
+                                    await Task.Delay(2);
                                 }
 
                                 mySerialPort.Close();
