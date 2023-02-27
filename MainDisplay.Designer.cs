@@ -149,7 +149,7 @@
 
             string[] buttonLabels = { "TRANSMIT DATA", "RECEIVE DATA" };
             Point[] buttonLocations = { new Point(410, 280), new Point(570, 280) };
-            Color[] buttonColors = { Color.LightGreen, Color.LightSalmon };
+            Color[] buttonColors = { Color.LightGreen, Color.Yellow };
             EventHandler[] buttonHandlers = { new EventHandler(buttonSEND_Click), new EventHandler(buttonRECEIVE_Click) };
 
             for (int i = 0; i < buttonLabels.Length; i++)
@@ -169,6 +169,8 @@
                 button.FlatAppearance.BorderSize = 2;
                 this.Controls.Add(button);
             }
+
+            
 
             // DEFINE INPUT AND OUTPUT PANELS
 
@@ -325,15 +327,23 @@
             this.textBoxDELAY.Cursor = Cursors.Arrow;
             this.Controls.Add(this.textBoxDELAY);
 
-            AddLabel("REPEAT TRANSMISSION:", new Point(110, 240), new Font("Arial", 8));
+            AddLabel("STOP REPEAT:", new Point(250, 240), new Font("Arial", 8));
 
-            this.textBoxRS = new System.Windows.Forms.TextBox();
-            this.textBoxRS.Location = new Point(110, 260);
-            this.textBoxRS.Width = 75;
-            this.textBoxRS.TextAlign = HorizontalAlignment.Center;
-            this.textBoxRS.BackColor = Color.Pink;
-            this.textBoxRS.TextChanged += OnRepeatSend;
-            this.Controls.Add(this.textBoxRS);
+            Button stop = new Button();
+            stop.Location = new Point(250,260);
+            stop.Width = 125;
+            stop.BackColor = Color.IndianRed;
+            stop.Text = "STOP";
+            stop.Click += StopButton_Click;
+            this.Controls.Add(stop);
+
+            // this.textBoxRS = new System.Windows.Forms.TextBox();
+            // this.textBoxRS.Location = new Point(110, 260);
+            // this.textBoxRS.Width = 75;
+            // this.textBoxRS.TextAlign = HorizontalAlignment.Center;
+            // this.textBoxRS.BackColor = Color.Pink;
+            // this.textBoxRS.TextChanged += OnRepeatSend;
+            // this.Controls.Add(this.textBoxRS);
 
             AddLabel("MODE:", new Point(250, 40), new Font("Arial", 8));
 
@@ -384,12 +394,12 @@
             this.textBoxBTT.TextChanged += TextBoxBTT_TextChanged; // Add event handler
             this.Controls.Add(this.textBoxBTT);
 
-            AddLabel("MAX RECEIVE BUFFER:", new Point(250, 240), new Font("Arial", 8));
+            AddLabel("MAX RECEIVE BUFFER:", new Point(110, 240), new Font("Arial", 8));
 
             this.textBoxBUFFER = new System.Windows.Forms.TextBox();
-            this.textBoxBUFFER.Location = new Point(250, 260);
+            this.textBoxBUFFER.Location = new Point(110, 260);
             this.textBoxBUFFER.Text = Convert.ToString(MAX_BUFFER_SIZE);
-            this.textBoxBUFFER.Width = 125;
+            this.textBoxBUFFER.Width = 75;
             this.textBoxBUFFER.TextAlign = HorizontalAlignment.Center;
             this.textBoxBUFFER.BackColor = Color.LightYellow;
             this.textBoxBUFFER.ReadOnly = true;
