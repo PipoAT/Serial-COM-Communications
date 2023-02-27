@@ -40,7 +40,7 @@ namespace AT_SCC
         CheckBox logging_check = new CheckBox(), repeat_check = new CheckBox(), receive_check = new CheckBox();
 
         private string LogFilePath = Path.GetFullPath("SerialLog.txt");
-        public int MAX_BUFFER_SIZE = 10;
+        public int MAX_BUFFER_SIZE = 100;
 
 
         // dictionaries/list of strings for user selection and input
@@ -455,7 +455,9 @@ namespace AT_SCC
                             if (receivedBytes.Count >= MAX_BUFFER_SIZE)
                             {
                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                break;
+                                i = -1;
+                                receivedBytes = new List<byte>();
+                                
                             }
                             i++;
 
@@ -546,14 +548,15 @@ namespace AT_SCC
                                 {
                                     receivedTextBox.Text = receivedTextBox.Text.Substring(receivedTextBox.TextLength - receivedTextBox.Width * 3);
                                 }
-                                i++;
+                                
                             }
 
-                            if (receivedString.Length >= MAX_BUFFER_SIZE)
+                            if (i >= MAX_BUFFER_SIZE - 1)
                             {
                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                break;
+                                i = -1;
                             }
+                            i++;
 
                             await Task.Delay(2);
                         }
@@ -639,14 +642,16 @@ namespace AT_SCC
                                     using var logFile = new StreamWriter(logFilePath, true);
                                     logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE COLLECTION]: {receivedTextBox.Text}");
                                 }
-                                i++;
+                                
                             }
 
-                            if (receivedBytes.Count >= MAX_BUFFER_SIZE)
+                            if (i >= MAX_BUFFER_SIZE - 1)
                             {
                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                break;
+                                i = -1;
+                                
                             }
+                            i++;
 
                             await Task.Delay(2);
                         }
@@ -670,7 +675,7 @@ namespace AT_SCC
         }
 
 
-        async void buttonSEND_Click(object? sender, System.EventArgs e) // event to engage the send functionality
+        private async void buttonSEND_Click(object? sender, System.EventArgs e) // event to engage the send functionality
         {
 
             cancellationTokenSource = new CancellationTokenSource();
