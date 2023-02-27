@@ -142,13 +142,15 @@ namespace AT_SCC
             {
                 using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                 {
-                    Handshake = currentHandshakevalue
-                    
+                    Handshake = currentHandshakevalue,
+                    ReadTimeout = int.Parse(currentReadTimeout),
+                    WriteTimeout = int.Parse(currentWriteTimeout)
+
                 };
 
                 if (e.ClickedItem.Text == "Open Port")
                 {
-                    
+
                     textBoxSTATUS.Text = "PORT OPEN";
                     mySerialPort.Open();
 
@@ -252,6 +254,33 @@ namespace AT_SCC
                 MessageBox.Show("Send Mode Not Active", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        void OnRTimeout(object? sender, ToolStripItemClickedEventArgs e)
+        {
+
+            if (e.ClickedItem != null && textBoxRTIMEOUT != null)
+            {
+
+                textBoxRTIMEOUT.Text = currentReadTimeout = e.ClickedItem.Text;
+                textBoxRTIMEOUT.BackColor = Color.LightGreen;
+            }
+        }
+
+
+        void OnWTimeout(object? sender, ToolStripItemClickedEventArgs e)
+        {
+
+            if (e.ClickedItem != null && textBoxWTIMEOUT != null)
+            {
+
+                textBoxWTIMEOUT.Text = currentReadTimeout = e.ClickedItem.Text;
+                textBoxWTIMEOUT.BackColor = Color.LightGreen;
+
+            }
+
+        }
+
+
 
         void OnClose()  // function to close the program
         {
@@ -382,8 +411,10 @@ namespace AT_SCC
 
                         using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                         {
-                            Handshake = currentHandshakevalue
-                            
+                            Handshake = currentHandshakevalue,
+                            ReadTimeout = int.Parse(currentReadTimeout),
+                            WriteTimeout = int.Parse(currentWriteTimeout)
+
                         };
 
                         if (!mySerialPort.IsOpen) mySerialPort.Open();
@@ -490,7 +521,9 @@ namespace AT_SCC
 
                         using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                         {
-                            Handshake = currentHandshakevalue
+                            Handshake = currentHandshakevalue,
+                            ReadTimeout = int.Parse(currentReadTimeout),
+                            WriteTimeout = int.Parse(currentWriteTimeout)
                         };
 
                         if (!mySerialPort.IsOpen) mySerialPort.Open();
@@ -586,7 +619,9 @@ namespace AT_SCC
 
                         using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                         {
-                            Handshake = currentHandshakevalue
+                            Handshake = currentHandshakevalue,
+                            ReadTimeout = int.Parse(currentReadTimeout),
+                            WriteTimeout = int.Parse(currentWriteTimeout)
                         };
 
                         if (!mySerialPort.IsOpen) mySerialPort.Open();
@@ -727,7 +762,9 @@ namespace AT_SCC
 
                                 using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                                 {
-                                    Handshake = currentHandshakevalue
+                                    Handshake = currentHandshakevalue,
+                                    ReadTimeout = int.Parse(currentReadTimeout),
+                                    WriteTimeout = int.Parse(currentWriteTimeout)
                                 };
 
                                 if (!mySerialPort.IsOpen) mySerialPort.Open();
@@ -928,7 +965,9 @@ namespace AT_SCC
 
                                 using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                                 {
-                                    Handshake = currentHandshakevalue
+                                    Handshake = currentHandshakevalue,
+                                    ReadTimeout = int.Parse(currentReadTimeout),
+                                    WriteTimeout = int.Parse(currentWriteTimeout)
                                 };
 
                                 if (!mySerialPort.IsOpen) mySerialPort.Open();
@@ -984,7 +1023,7 @@ namespace AT_SCC
                                             else
                                             {
                                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                                
+
                                             }
 
                                             index++;
@@ -1029,7 +1068,7 @@ namespace AT_SCC
                                         Thread.Sleep(currentDelayint);
                                         if (receive_check.Checked)
                                         {
-                                            if (index < textBoxArray.Length  && textBoxesPanel2.Controls.Count < MAX_BUFFER_SIZE)
+                                            if (index < textBoxArray.Length && textBoxesPanel2.Controls.Count < MAX_BUFFER_SIZE)
                                             {
                                                 var receivedTextBox = textBoxArray[index];
                                                 receivedTextBox.Text = Convert.ToString(mySerialPort.ReadByte());
@@ -1091,7 +1130,9 @@ namespace AT_SCC
 
                                 using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                                 {
-                                    Handshake = currentHandshakevalue
+                                    Handshake = currentHandshakevalue,
+                                    ReadTimeout = int.Parse(currentReadTimeout),
+                                    WriteTimeout = int.Parse(currentWriteTimeout)
                                 };
 
                                 if (!mySerialPort.IsOpen) mySerialPort.Open();
@@ -1251,7 +1292,9 @@ namespace AT_SCC
 
                                 using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                                 {
-                                    Handshake = currentHandshakevalue
+                                    Handshake = currentHandshakevalue,
+                                    ReadTimeout = int.Parse(currentReadTimeout),
+                                    WriteTimeout = int.Parse(currentWriteTimeout)
                                 };
 
                                 if (!mySerialPort.IsOpen) mySerialPort.Open();
@@ -1424,7 +1467,9 @@ namespace AT_SCC
 
                                 using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                                 {
-                                    Handshake = currentHandshakevalue
+                                    Handshake = currentHandshakevalue,
+                                    ReadTimeout = int.Parse(currentReadTimeout),
+                                    WriteTimeout = int.Parse(currentWriteTimeout)
                                 };
 
                                 if (!mySerialPort.IsOpen) mySerialPort.Open();

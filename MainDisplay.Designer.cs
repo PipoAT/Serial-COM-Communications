@@ -107,9 +107,13 @@
 
 
             readTimeoutItem = new ToolStripMenuItem("&Read Timeout");
+            readTimeoutItem.DropDownItems.Add("0");
             readTimeoutItem.DropDownItems.Add("500");
             writeTimeoutItem = new ToolStripMenuItem("&Write Timeout");
+            writeTimeoutItem.DropDownItems.Add("0");
             writeTimeoutItem.DropDownItems.Add("500");
+            readTimeoutItem.DropDownItemClicked += OnRTimeout;
+            writeTimeoutItem.DropDownItemClicked += OnWTimeout;
 
 
             handshakeItem = new ToolStripMenuItem("&Handshake");
@@ -291,7 +295,7 @@
             this.textBoxRTIMEOUT.Location = new Point(110, 160);
             this.textBoxRTIMEOUT.Width = 75;
             this.textBoxRTIMEOUT.TextAlign = HorizontalAlignment.Center;
-            this.textBoxRTIMEOUT.BackColor = Color.LightGreen;
+            this.textBoxRTIMEOUT.BackColor = Color.LightYellow;
             this.textBoxRTIMEOUT.ReadOnly = true;
             this.textBoxRTIMEOUT.Cursor = Cursors.Arrow;
             this.textBoxRTIMEOUT.Text = currentReadTimeout;
@@ -303,7 +307,7 @@
             this.textBoxWTIMEOUT.Location = new Point(20, 210);
             this.textBoxWTIMEOUT.Width = 75;
             this.textBoxWTIMEOUT.TextAlign = HorizontalAlignment.Center;
-            this.textBoxWTIMEOUT.BackColor = Color.LightGreen;
+            this.textBoxWTIMEOUT.BackColor = Color.LightYellow;
             this.textBoxWTIMEOUT.ReadOnly = true;
             this.textBoxWTIMEOUT.Cursor = Cursors.Arrow;
             this.textBoxWTIMEOUT.Text = currentWriteTimeout;
