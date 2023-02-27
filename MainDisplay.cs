@@ -1287,15 +1287,6 @@ namespace AT_SCC
                                     return;
                                 }
 
-                                // var hexBytes = new List<byte>();
-                                // foreach (var value in inputValues)
-                                // {
-                                //     if (byte.TryParse(value, System.Globalization.NumberStyles.HexNumber, null, out var hexByte))
-                                //     {
-                                //         hexBytes.Add(hexByte);
-                                //     }
-                                // }
-
                                 var asciiBytes = new List<byte>();
                                 foreach (var value in inputValues)
                                 {
