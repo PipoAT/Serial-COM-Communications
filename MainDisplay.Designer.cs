@@ -107,10 +107,10 @@
 
 
             readTimeoutItem = new ToolStripMenuItem("&Read Timeout");
-            readTimeoutItem.DropDownItems.Add("0");
+            readTimeoutItem.DropDownItems.Add("-1");
             readTimeoutItem.DropDownItems.Add("500");
             writeTimeoutItem = new ToolStripMenuItem("&Write Timeout");
-            writeTimeoutItem.DropDownItems.Add("0");
+            writeTimeoutItem.DropDownItems.Add("-1");
             writeTimeoutItem.DropDownItems.Add("500");
             readTimeoutItem.DropDownItemClicked += OnRTimeout;
             writeTimeoutItem.DropDownItemClicked += OnWTimeout;
