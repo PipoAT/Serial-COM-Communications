@@ -1052,7 +1052,68 @@ namespace AT_SCC
                                 var textBoxList = new List<TextBox>();
                                 var textBoxIndex = 0;
 
-                                for (var i = 0; i < (repeat_check.Checked ? currentRepeatint : 1); i++)
+                                if (!repeat_check.Checked)
+                                {
+
+                                    var textBoxArray = new TextBox[Math.Min(byteCollections.Count, MAX_BUFFER_SIZE)];
+                                    for (var j = 0; j < textBoxArray.Length; j++)
+                                    {
+                                        var textBox = new TextBox
+                                        {
+                                            Location = new Point(10, (textBoxIndex + j) * 20),
+                                            Width = 100,
+                                            ReadOnly = true
+                                        };
+                                        textBoxList.Add(textBox);
+                                        textBoxesPanel2.Controls.Add(textBox);
+                                    }
+
+                                    var index = 0;
+
+                                    foreach (var byteCollection in byteCollections)
+                                    {
+                                        Console.WriteLine("Byte collection: {0}", BitConverter.ToString(byteCollection));
+
+                                        if (logging_check.Checked)
+                                        {
+                                            var logFilePath = LogFilePath;
+
+                                            using var logFile = new StreamWriter(logFilePath, true);
+                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE]: {BitConverter.ToString(byteCollection)}");
+                                        }
+
+                                        mySerialPort.Write(byteCollection, 0, byteCollection.Length);
+
+                                        Thread.Sleep(delay);
+                                        if (receive_check.Checked)
+                                        {
+                                            if (index < textBoxArray.Length)
+                                            {
+                                                var receivedTextBox = textBoxList[textBoxIndex + index];
+                                                receivedTextBox.Text = mySerialPort.ReadExisting();
+
+                                                if (logging_check.Checked)
+                                                {
+                                                    var logFilePath = LogFilePath;
+
+                                                    using var logFile = new StreamWriter(logFilePath, true);
+                                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE]: {receivedTextBox.Text}");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                            }
+
+                                            index++;
+                                        }
+                                    }
+
+                                    textBoxIndex += textBoxArray.Length;
+
+                                }
+
+                                while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
                                 {
                                     var textBoxArray = new TextBox[Math.Min(byteCollections.Count, MAX_BUFFER_SIZE)];
                                     for (var j = 0; j < textBoxArray.Length; j++)
@@ -1109,11 +1170,12 @@ namespace AT_SCC
                                     }
 
                                     textBoxIndex += textBoxArray.Length;
+
+                                    await Task.Delay(2);
                                 }
 
                                 mySerialPort.Close();
                             }
-
 
                             else if (currentMode == "Send Mode" && currentSTOption == "ASCII (SEND ONLY)")
                             {
@@ -1143,8 +1205,9 @@ namespace AT_SCC
 
                                 if (!mySerialPort.IsOpen) mySerialPort.Open();
 
-                                for (var i = 0; i < (repeat_check.Checked ? currentRepeatint : 1); i++)
+                                if (!repeat_check.Checked)
                                 {
+                                    int i = 0;
                                     var textBoxArray = new TextBox[Math.Min(inputValues.Count, MAX_BUFFER_SIZE)];
                                     for (var j = 0; j < textBoxArray.Length; j++)
                                     {
@@ -1202,6 +1265,73 @@ namespace AT_SCC
                                             }
                                         }
                                     }
+                                    i++;
+
+                                }
+
+                                while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
+                                {
+                                    int i = 0;
+                                    var textBoxArray = new TextBox[Math.Min(inputValues.Count, MAX_BUFFER_SIZE)];
+                                    for (var j = 0; j < textBoxArray.Length; j++)
+                                    {
+                                        textBoxArray[j] = new TextBox
+                                        {
+                                            Location = new Point(10, j * 20 + i * inputValues.Count * 20),
+                                            Width = 100,
+                                            ReadOnly = true
+                                        };
+                                        textBoxesPanel2.Controls.Add(textBoxArray[j]);
+                                    }
+
+                                    var index = 0;
+
+                                    foreach (var value in textToSend.Split())
+                                    {
+                                        if (int.TryParse(value, out var asciiValue))
+                                        {
+                                            var c = (char)asciiValue;
+                                            Console.WriteLine("ASCII value: {0} represents the character: {1}", asciiValue, c);
+
+                                            if (logging_check.Checked)
+                                            {
+                                                var logFilePath = LogFilePath;
+
+                                                using var logFile = new StreamWriter(logFilePath, true);
+                                                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT ASCII]: {c}");
+                                            }
+
+                                            mySerialPort.Write(c.ToString());
+
+                                            Thread.Sleep(delay);
+
+                                            if (receive_check.Checked)
+                                            {
+                                                if (index < textBoxArray.Length)
+                                                {
+                                                    var receivedTextBox = textBoxArray[index];
+                                                    receivedTextBox.Text = mySerialPort.ReadExisting();
+
+                                                    if (logging_check.Checked)
+                                                    {
+                                                        var logFilePath = LogFilePath;
+
+                                                        using var logFile = new StreamWriter(logFilePath, true);
+                                                        logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED ASCII]: {receivedTextBox.Text}");
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                                }
+
+                                                index++;
+                                            }
+                                        }
+                                    }
+                                    i++;
+
+                                    await Task.Delay(2);
                                 }
 
                                 mySerialPort.Close();
@@ -1246,7 +1376,57 @@ namespace AT_SCC
 
                                 int textBoxLocationY = textBoxesPanel2.Controls.Count * 20;
 
-                                for (var i = 0; i < (repeat_check.Checked ? currentRepeatint : 1); i++)
+                                if (!repeat_check.Checked)
+                                {
+
+                                    int index = 0;
+
+                                    foreach (var hexByte in hexBytes)
+                                    {
+                                        Console.WriteLine("HEX value: {0} represents the byte: {1}", hexByte.ToString("X2"), hexByte);
+
+                                        if (logging_check.Checked)
+                                        {
+                                            var logFilePath = LogFilePath;
+
+                                            using var logFile = new StreamWriter(logFilePath, true);
+                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT HEX]: {hexByte.ToString("X2")}");
+                                        }
+
+                                        mySerialPort.Write(new byte[] { hexByte }, 0, 1);
+
+                                        Thread.Sleep(delay);
+
+                                        if (receive_check.Checked)
+                                        {
+
+                                            var receivedTextBox = new TextBox
+                                            {
+                                                Location = new Point(10, textBoxLocationY),
+                                                Width = 100,
+                                                ReadOnly = true,
+                                                Text = mySerialPort.ReadExisting()
+                                            };
+
+                                            textBoxesPanel2.Controls.Add(receivedTextBox);
+
+                                            if (logging_check.Checked)
+                                            {
+                                                var logFilePath = LogFilePath;
+
+                                                using var logFile = new StreamWriter(logFilePath, true);
+                                                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED HEX]: {receivedTextBox.Text}");
+                                            }
+
+                                            textBoxLocationY += 20;
+                                            index++;
+
+                                        }
+                                    }
+
+                                }
+
+                                while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
                                 {
                                     int index = 0;
 
@@ -1292,6 +1472,8 @@ namespace AT_SCC
 
                                         }
                                     }
+
+                                    await Task.Delay(2);
                                 }
 
                                 mySerialPort.Close();
