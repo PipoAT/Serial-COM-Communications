@@ -10,7 +10,7 @@ namespace AT_SCC
     {                                           // declaring all variables associated with textboxes, menu/tool strip, strings, or int
         private TextBox? textBoxCOM, textBoxBAUD, textBoxPARITY, textBoxDATABITS, textBoxSTOPBITS, textBoxRTIMEOUT, textBoxWTIMEOUT, textBoxHANDSHAKE, textBoxDELAY, textBoxBTT, textBoxMODEDISP, textBoxSENDTYPE, textBoxreceiveType;
 
-        private TextBox? clock, textBoxBUFFER;
+        private TextBox? clock, textBoxBUFFER, textBoxSTATUS;
 
         private Panel? textBoxesPanel, textBoxesPanel2;
 
@@ -18,7 +18,7 @@ namespace AT_SCC
 
         private MenuStrip? menuStrip;
 
-        private ToolStripMenuItem? fileMenuItem, comPortMenuItem, sendMenuItem, loggingMenuItem, exitMenuItem, reloadMenuItem, modeMenuItem, currentCom, baudMenuItem, parityMenuItem, dataBitsMenuItem, stopBitsMenuItem, readTimeoutItem, writeTimeoutItem, handshakeItem, sendDelay, receivingModeMenuItem, sendingModeMenuItem;
+        private ToolStripMenuItem? fileMenuItem, comPortMenuItem, sendMenuItem, loggingMenuItem, exitMenuItem, reloadMenuItem, modeMenuItem, currentCom, baudMenuItem, parityMenuItem, dataBitsMenuItem, stopBitsMenuItem, readTimeoutItem, writeTimeoutItem, handshakeItem, sendDelay, receivingModeMenuItem, sendingModeMenuItem, portengageMenuItem;
 
         private CancellationTokenSource? cancellationTokenSource;
 
@@ -28,7 +28,7 @@ namespace AT_SCC
 
         string currentPort = "", currentBaud = "", currentParity = "None", stopBitOption = "", currentReadTimeout = "500", currentWriteTimeout = "500", currentHandshakeOption = "None", dataBitoption = "", currentDelayOption = "1000", currentMode = "", currentLogMode = "", currentRTOption = "", currentSTOption = "";
 
-        int currentBaudint, currentdataBitsint = 8, currentDelayint = 1000, currentRepeatint = 0;
+        int currentBaudint, currentdataBitsint = 8, currentDelayint = 1000, currentRepeatint = 0, checklimit = 0;
 
 
         Parity currentParityvalue = Parity.None;                      // declaring variables to allow usage of dictionaries
@@ -40,7 +40,7 @@ namespace AT_SCC
         CheckBox logging_check = new CheckBox(), repeat_check = new CheckBox(), receive_check = new CheckBox();
 
         private string LogFilePath = Path.GetFullPath("SerialLog.txt");
-        public int MAX_BUFFER_SIZE = 100;
+        public int MAX_BUFFER_SIZE = 10;
 
 
         // dictionaries/list of strings for user selection and input
@@ -135,6 +135,23 @@ namespace AT_SCC
 
         }
 
+        void OnEngage(object? sender, ToolStripItemClickedEventArgs e) {  // ADD CODE HERE
+            
+            if (e.ClickedItem != null && textBoxSTATUS != null) {
+                
+                if (e.ClickedItem.Text == "Open Port") {
+
+                    textBoxSTATUS.Text = "PORT OPEN";
+                    
+                }
+                else if (e.ClickedItem.Text == "Close Port") {
+
+                    textBoxSTATUS.Text = "PORT CLOSED";
+                }
+            }
+
+
+        }
 
         void OnHelp()
         {
@@ -211,10 +228,6 @@ namespace AT_SCC
             }
         }
 
-
-
-
-
         void OnSModeChange(object? sender, ToolStripItemClickedEventArgs e)
         {
             if (currentMode == "Send Mode" && textBoxreceiveType != null && textBoxSENDTYPE != null)
@@ -228,8 +241,6 @@ namespace AT_SCC
                 MessageBox.Show("Send Mode Not Active", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-
 
         void OnClose()  // function to close the program
         {
@@ -364,6 +375,7 @@ namespace AT_SCC
                         };
 
                         if (!mySerialPort.IsOpen) mySerialPort.Open();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
 
                         var textBoxArray = new TextBox[MAX_BUFFER_SIZE];
                         for (var k = 0; k < textBoxArray.Length; k++)
@@ -451,6 +463,7 @@ namespace AT_SCC
                         }
 
                         mySerialPort.Close();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
 
 
                     }
@@ -467,6 +480,7 @@ namespace AT_SCC
                         };
 
                         if (!mySerialPort.IsOpen) mySerialPort.Open();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
 
                         var textBoxArray = new TextBox[MAX_BUFFER_SIZE];
                         for (var k = 0; k < textBoxArray.Length; k++)
@@ -545,6 +559,7 @@ namespace AT_SCC
                         }
 
                         mySerialPort.Close();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
 
                     }
 
@@ -560,6 +575,7 @@ namespace AT_SCC
                         };
 
                         if (!mySerialPort.IsOpen) mySerialPort.Open();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
 
                         var byteCollections = new List<List<byte>>();
                         var textBoxArray = new TextBox[MAX_BUFFER_SIZE];
@@ -636,6 +652,7 @@ namespace AT_SCC
                         }
 
                         mySerialPort.Close();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
                     }
 
                     else
@@ -697,6 +714,7 @@ namespace AT_SCC
                                 };
 
                                 if (!mySerialPort.IsOpen) mySerialPort.Open();
+                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
 
                                 var textBoxArray = new TextBox[MAX_BUFFER_SIZE];
                                 var textBoxesPanelIndex = 0; // keeps track of the index in the textboxesPanel2.Controls list
@@ -776,6 +794,7 @@ namespace AT_SCC
                                 while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
                                 {
                                     // create textboxes for the current iteration and add them to the panel
+                                    if (textBoxesPanel2.Controls.Count <= MAX_BUFFER_SIZE) {
                                     for (var j = 0; j < Math.Min(inputValues.Count, MAX_BUFFER_SIZE); j++)
                                     {
                                         var textBox = new TextBox
@@ -786,6 +805,7 @@ namespace AT_SCC
                                         };
                                         textBoxesPanel2.Controls.Add(textBox);
                                         textBoxArray[j] = textBox;
+                                    }
                                     }
 
                                     int currentTextBoxIndex = 0; // add this line to declare a variable to keep track of the current textbox index
@@ -807,7 +827,7 @@ namespace AT_SCC
 
                                         if (receive_check.Checked)
                                         {
-                                            if (textBoxArray.Length > 0)
+                                            if (textBoxArray.Length > 0 && checklimit < MAX_BUFFER_SIZE)
                                             {
                                                 var receivedTextBox = textBoxArray[currentTextBoxIndex];
                                                 var buffer = new byte[mySerialPort.ReadBufferSize];
@@ -831,23 +851,27 @@ namespace AT_SCC
                                                 }
 
                                                 currentTextBoxIndex++; // increment the index of the current textbox
+                                                checklimit++;
                                             }
                                             else
                                             {
                                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                                textBoxesPanel2.Controls.Clear();
+                                                checklimit = 0;
+                                                currentTextBoxIndex = 0;
                                             }
                                         }
 
                                     }
 
                                     textBoxesPanelIndex += Math.Min(inputValues.Count, MAX_BUFFER_SIZE); // increment the index for the next iteration
-
                                     await Task.Delay(2);
                                 }
 
 
 
                                 mySerialPort.Close();
+                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
                             }
 
                             else if (currentMode == "Send Mode" && currentSTOption == "Byte")
@@ -890,6 +914,7 @@ namespace AT_SCC
                                 };
 
                                 if (!mySerialPort.IsOpen) mySerialPort.Open();
+                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
 
                                 if (!repeat_check.Checked)
                                 {
@@ -1012,6 +1037,7 @@ namespace AT_SCC
                                 }
 
                                 mySerialPort.Close();
+                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
                             }
 
                             else if (currentMode == "Send Mode" && currentSTOption == "Byte Collection")
@@ -1048,6 +1074,7 @@ namespace AT_SCC
                                 };
 
                                 if (!mySerialPort.IsOpen) mySerialPort.Open();
+                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
 
                                 var textBoxList = new List<TextBox>();
                                 var textBoxIndex = 0;
@@ -1175,6 +1202,7 @@ namespace AT_SCC
                                 }
 
                                 mySerialPort.Close();
+                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
                             }
 
                             else if (currentMode == "Send Mode" && currentSTOption == "ASCII (SEND ONLY)")
@@ -1204,6 +1232,7 @@ namespace AT_SCC
                                 };
 
                                 if (!mySerialPort.IsOpen) mySerialPort.Open();
+                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
 
                                 if (!repeat_check.Checked)
                                 {
@@ -1335,6 +1364,7 @@ namespace AT_SCC
                                 }
 
                                 mySerialPort.Close();
+                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
                             }
 
                             else if (currentMode == "Send Mode" && currentSTOption == "ASCII-HEX (SEND ONLY)")
@@ -1373,6 +1403,7 @@ namespace AT_SCC
                                 };
 
                                 if (!mySerialPort.IsOpen) mySerialPort.Open();
+                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
 
                                 int textBoxLocationY = textBoxesPanel2.Controls.Count * 20;
 
@@ -1477,6 +1508,7 @@ namespace AT_SCC
                                 }
 
                                 mySerialPort.Close();
+                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
 
                             }
 

@@ -66,7 +66,13 @@
             modeMenuItem.DropDownItems.AddRange(new ToolStripItem[] { new ToolStripMenuItem("Send Mode"), new ToolStripMenuItem("Receive Mode"), new ToolStripMenuItem("IDLE Mode") });
             modeMenuItem.DropDownItemClicked += OnModeChange;
 
-            fileMenuItem.DropDownItems.AddRange(new ToolStripItem[] { Help, modeMenuItem, loggingMenuItem, reloadMenuItem, exitMenuItem });
+            portengageMenuItem = new ToolStripMenuItem("&Open/Close Port");
+            portengageMenuItem.DropDownItems.Add("Open Port");
+            portengageMenuItem.DropDownItems.Add("Close Port");
+            portengageMenuItem.DropDownItemClicked += OnEngage;
+
+
+            fileMenuItem.DropDownItems.AddRange(new ToolStripItem[] { Help, modeMenuItem, loggingMenuItem, portengageMenuItem, reloadMenuItem, exitMenuItem });
 
 
             currentCom = new ToolStripMenuItem("&COM");
@@ -397,6 +403,15 @@
             this.textBoxBUFFER.ReadOnly = true;
             this.Controls.Add(this.textBoxBUFFER);
 
+            // DEFINE INDICATOR PANEL
+            this.textBoxSTATUS = new TextBox();
+            this.textBoxSTATUS.Location = new Point(250, 365);
+            this.textBoxSTATUS.ReadOnly = true;
+            this.textBoxSTATUS.Text = "READY";
+            this.textBoxSTATUS.TextAlign = HorizontalAlignment.Center;
+            this.textBoxSTATUS.BackColor = Color.LightGray;
+            this.textBoxSTATUS.Width = 125;
+            this.Controls.Add(this.textBoxSTATUS);
 
             // DEFINE CHECKBOXES
 
