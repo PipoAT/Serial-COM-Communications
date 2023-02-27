@@ -1359,7 +1359,7 @@ namespace AT_SCC
 
                                             if (receive_check.Checked)
                                             {
-                                                if (index < textBoxArray.Length)
+                                                if (index < textBoxArray.Length && textBoxesPanel2.Controls.Count <= MAX_BUFFER_SIZE)
                                                 {
                                                     var receivedTextBox = textBoxArray[index];
                                                     receivedTextBox.Text = mySerialPort.ReadExisting();
@@ -1375,6 +1375,8 @@ namespace AT_SCC
                                                 else
                                                 {
                                                     MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                                    index = -1;
+                                                    textBoxesPanel2.Controls.Clear();
                                                 }
 
                                                 index++;
