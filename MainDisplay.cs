@@ -1380,7 +1380,7 @@ namespace AT_SCC
                                     for (int i = 0; i < hexBytesArray.Length; i++)
                                     {
                                         var hexByte = hexBytesArray[i];
-                                        Console.WriteLine("HEX value: {0} represents the byte: {1}", hexByte.ToString("X2"), hexByte);
+                                        Console.WriteLine("ASCII value: {0} represents: {1}", hexByte, Convert.ToChar(hexByte));
 
                                         if (logging_check.Checked)
                                         {
