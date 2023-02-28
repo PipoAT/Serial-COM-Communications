@@ -34,15 +34,14 @@
             this.components = new System.ComponentModel.Container();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(750, 500);
-            this.Text = "ATech Training Serial COM Communicatons";
-            existingPorts = new List<string>();
-            existingPorts.AddRange(AvailablePorts);
-
-            Size = this.ClientSize;
+            this.Text = "ATech Training Serial COM Communications";
+            existingPorts = AvailablePorts.ToList();
+            Size = ClientSize;
             BackgroundImage = Image.FromFile("AT-SCC_GUI_Background.png");
             FormBorderStyle = FormBorderStyle.FixedSingle;
-            ControlBox = true; MaximizeBox = false; MinimizeBox = true;
-
+            ControlBox = true;
+            MaximizeBox = false;
+            MinimizeBox = true;
 
             // DEFINE THE MENU BAR
 
@@ -105,13 +104,14 @@
             stopBitsMenuItem.DropDownItemClicked += OnStopSelection;
             stopBitsMenuItem.DropDownItems.AddRange(StopBitOptions.Keys.Select(s => new ToolStripMenuItem(s)).ToArray());
 
-
-            readTimeoutItem = new ToolStripMenuItem("&Read Timeout");
-            readTimeoutItem.DropDownItems.Add("-1");
-            readTimeoutItem.DropDownItems.Add("500");
-            writeTimeoutItem = new ToolStripMenuItem("&Write Timeout");
-            writeTimeoutItem.DropDownItems.Add("-1");
-            writeTimeoutItem.DropDownItems.Add("500");
+            readTimeoutItem = new ToolStripMenuItem("&Read Timeout")
+            {
+                DropDownItems = { "-1", "500" }
+            };
+            writeTimeoutItem = new ToolStripMenuItem("&Write Timeout")
+            {
+                DropDownItems = { "-1", "500" }
+            };
             readTimeoutItem.DropDownItemClicked += OnRTimeout;
             writeTimeoutItem.DropDownItemClicked += OnWTimeout;
 
@@ -132,7 +132,7 @@
             receivingModeMenuItem.DropDownItems.AddRange(PossibleTransmitModes.Select(prm => new ToolStripMenuItem(prm)).ToArray());
             receivingModeMenuItem.DropDownItemClicked += OnRModeChange;
 
-            comPortMenuItem.DropDownItems.AddRange(new ToolStripItem[] { currentCom, baudMenuItem, parityMenuItem, dataBitsMenuItem, stopBitsMenuItem, readTimeoutItem, writeTimeoutItem, handshakeItem, sendDelay});
+            comPortMenuItem.DropDownItems.AddRange(new ToolStripItem[] { currentCom, baudMenuItem, parityMenuItem, dataBitsMenuItem, stopBitsMenuItem, readTimeoutItem, writeTimeoutItem, handshakeItem, sendDelay });
 
             sendMenuItem.DropDownItems.AddRange(new ToolStripItem[] { sendingModeMenuItem, receivingModeMenuItem });
 
@@ -180,26 +180,15 @@
                 this.Controls.Add(button);
             }
 
-
             // DEFINE INPUT AND OUTPUT PANELS
 
             AddLabel("TX (Sending):", new Point(410, 45), new Font("Arial", 10));
-
 
             this.textBoxesPanel = new Panel();
             this.textBoxesPanel.Location = new Point(410, 65);
             this.textBoxesPanel.BackColor = Color.LightBlue;
             this.textBoxesPanel.Size = new Size(125, 190);
             this.Controls.Add(this.textBoxesPanel);
-
-            // Set the minimum and maximum values for the scrollbar
-            this.vScrollBar1 = new VScrollBar();
-            this.vScrollBar1.Minimum = 0;
-            this.vScrollBar1.Maximum = textBoxesPanel.Controls.Count - 2;
-            this.vScrollBar1.Width = 30;
-            this.vScrollBar1.Height = 190;
-            this.vScrollBar1.Location = new Point(535, 65);
-            this.vScrollBar1.LargeChange = 1;
 
             AddLabel("RX (Receiving):", new Point(598, 45), new Font("Arial", 10));
 
@@ -209,24 +198,31 @@
             this.textBoxesPanel2.Size = new Size(125, 190);
             this.Controls.Add(this.textBoxesPanel2);
 
-            this.vScrollBar2 = new VScrollBar();
-            this.vScrollBar2.Minimum = 0;
-            this.vScrollBar2.Maximum = MAX_BUFFER_SIZE - 2;
-            this.vScrollBar2.Width = 30;
-            this.vScrollBar2.Height = 190;
-            this.vScrollBar2.Location = new Point(568, 65);
-            this.vScrollBar2.LargeChange = 1;
+            // DEFINE SCROLLBARS
 
-            // Add a scroll event handler to the scrollbar
-            this.vScrollBar1.Scroll += VScrollBarSend_Scroll;
+            this.vScrollBar1 = new VScrollBar()
+            {
+                Minimum = 0,
+                Maximum = textBoxesPanel.Controls.Count - 2,
+                Width = 30,
+                Height = 190,
+                Location = new Point(535, 65),
+                LargeChange = 1
+            };
             this.Controls.Add(vScrollBar1);
+            this.vScrollBar1.Scroll += VScrollBarSend_Scroll;
 
-            this.vScrollBar2.Scroll += VScrollBarReceive_Scroll;
+            this.vScrollBar2 = new VScrollBar()
+            {
+                Minimum = 0,
+                Maximum = MAX_BUFFER_SIZE - 2,
+                Width = 30,
+                Height = 190,
+                Location = new Point(568, 65),
+                LargeChange = 1
+            };
             this.Controls.Add(vScrollBar2);
-
-            
-
-            
+            this.vScrollBar2.Scroll += VScrollBarReceive_Scroll;
 
             // DEFINE LABELS, TEXTBOXES, BUTTONS FOR MAIN DISPLAY
 
@@ -412,7 +408,7 @@
             repeat_check.Width = 150;
             repeat_check.Height = 20;
             repeat_check.Text = "Repeat Transmission";
-            repeat_check.Font = new Font ("Arial", 8);
+            repeat_check.Font = new Font("Arial", 8);
             this.Controls.Add(repeat_check);
 
 
@@ -420,14 +416,14 @@
             logging_check.Width = 150;
             logging_check.Height = 20;
             logging_check.Text = "Log Transmission";
-            logging_check.Font = new Font ("Arial", 8);
+            logging_check.Font = new Font("Arial", 8);
             this.Controls.Add(logging_check);
 
             overwrite_check.Location = new Point(290, 310);
             overwrite_check.Width = 100;
             overwrite_check.Height = 20;
             overwrite_check.Text = "Overwrite Rx";
-            overwrite_check.Font = new Font ("Arial", 8);
+            overwrite_check.Font = new Font("Arial", 8);
             this.Controls.Add(overwrite_check);
 
         }

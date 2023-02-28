@@ -410,7 +410,6 @@ namespace AT_SCC
 
                             if (receivedBytes.Count >= MAX_BUFFER_SIZE) // IF BUFFER is hit, checks if user wants an overwrite of data
                             {
-                                MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                 if (!overwrite_check.Checked)  break;
                                 else
                                 {
@@ -460,7 +459,6 @@ namespace AT_SCC
                         {   // if buffer hits, check if user wants overwrite 
                             if (i >= MAX_BUFFER_SIZE)
                             {
-                                MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                 if (!overwrite_check.Checked) break;
 
                                 else i = 0;
@@ -538,7 +536,6 @@ namespace AT_SCC
 
                             if (i >= MAX_BUFFER_SIZE - 1)   // if buffer is hit, check if user wants overwrite
                             {
-                                MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                 if (!(overwrite_check.Checked)) break;
                                 else i = -1;
 
@@ -620,7 +617,6 @@ namespace AT_SCC
 
                                 foreach (var byteValue in bytesToSend)
                                 {
-                                    Console.WriteLine("Byte value: {0}", byteValue);
 
                                     if (logging_check.Checked)
                                     {
@@ -649,7 +645,6 @@ namespace AT_SCC
                                             }
 
                                         } // if buffer is hit, throw warning
-                                        else MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
                                         index++;
                                     }
@@ -692,7 +687,6 @@ namespace AT_SCC
 
                             foreach (var byteValue in bytesToSend)
                             {
-                                Console.WriteLine("Byte value: {0}", byteValue);
 
                                 if (logging_check.Checked)
                                 {
@@ -722,7 +716,6 @@ namespace AT_SCC
                                     }
                                     else // if buffer is hit, check for is user wants overwriting
                                     {
-                                        MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                         index = -1;
 
                                         if (!(overwrite_check.Checked)) breakval = 1;
@@ -807,7 +800,6 @@ namespace AT_SCC
 
                                 foreach (var value in inputValues)
                                 {
-                                    Console.WriteLine("Sending string: {0}", value);
 
                                     if (logging_check.Checked)
                                     {
@@ -847,7 +839,6 @@ namespace AT_SCC
 
                                             currentTextBoxIndex++; // increment the index of the current textbox // if buffer is hit, throw warning
                                         }
-                                        else MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
                                     }
 
@@ -889,7 +880,6 @@ namespace AT_SCC
 
                             foreach (var value in inputValues)
                             {
-                                Console.WriteLine("Sending string: {0}", value);
 
                                 if (logging_check.Checked)
                                 {
@@ -936,7 +926,6 @@ namespace AT_SCC
                                         checklimit = 0;
                                         currentTextBoxIndex = 0;
 
-                                        MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                         if (!overwrite_check.Checked) breakval = 1;
 
                                         else textBoxesPanel2?.Controls.Clear();
@@ -1026,7 +1015,6 @@ namespace AT_SCC
 
                                 foreach (var byteCollection in byteCollections) // checks for logging needs and sends the data to port
                                 {
-                                    Console.WriteLine("Byte collection: {0}", BitConverter.ToString(byteCollection));
 
                                     if (logging_check.Checked)
                                     {
@@ -1054,8 +1042,6 @@ namespace AT_SCC
                                                 logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE COLLECTION]: {receivedTextBox.Text}");
                                             }
                                         }   // if buffer is hit, throw warning
-
-                                        else MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
                                         index++;
                                     }
@@ -1095,7 +1081,6 @@ namespace AT_SCC
 
                             foreach (var byteCollection in byteCollections) // checks if logging is needed and sends the data to port
                             {
-                                Console.WriteLine("Byte collection: {0}", BitConverter.ToString(byteCollection));
 
                                 if (logging_check.Checked)
                                 {
@@ -1126,7 +1111,6 @@ namespace AT_SCC
                                     else
                                     { // if buffer is hit, see if user wants overwrite of data
                                         index = -1;
-                                        MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                         if (!overwrite_check.Checked) breakval = 1;
 
                                         else textBoxesPanel2?.Controls.Clear();
@@ -1208,7 +1192,6 @@ namespace AT_SCC
 
                                 foreach (var hexByte in hexBytes)   // sends the data and checks if user needs logging
                                 {
-                                    Console.WriteLine("ASCII value: {0} represents: {1}", hexByte, Convert.ToChar(hexByte));
 
                                     if (logging_check.Checked)
                                     {
@@ -1266,7 +1249,6 @@ namespace AT_SCC
                             for (int i = 0; i < hexBytesArray.Length; i++)
                             {
                                 var hexByte = hexBytesArray[i];
-                                Console.WriteLine("ASCII value: {0} represents: {1}", hexByte, Convert.ToChar(hexByte));
 
                                 if (logging_check.Checked)
                                 {
@@ -1309,7 +1291,6 @@ namespace AT_SCC
 
                                 if (index2 >= MAX_BUFFER_SIZE)  // if buffer is hit, see if overwriting data is wanted by user
                                 {
-                                    MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                     index2 = 0;
 
                                     if (!overwrite_check.Checked) breakval = 1;
@@ -1381,7 +1362,6 @@ namespace AT_SCC
 
                                 foreach (var hexByte in hexBytes)
                                 {
-                                    Console.WriteLine("HEX value: {0} represents the byte: {1}", hexByte.ToString("X2"), hexByte);
 
                                     if (logging_check.Checked)
                                     {
@@ -1440,7 +1420,6 @@ namespace AT_SCC
                             for (int i = 0; i < hexBytesArray.Length; i++) // sends the data and checks if the user wanted it logged
                             {
                                 var hexByte = hexBytesArray[i];
-                                Console.WriteLine("HEX value: {0} represents the byte: {1}", hexByte.ToString("X2"), hexByte);
 
                                 if (logging_check.Checked)
                                 {
@@ -1492,7 +1471,6 @@ namespace AT_SCC
                                 {
 
                                     index2 = 0;
-                                    MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                     if (!overwrite_check.Checked) breakval = 1;
                                     else textBoxesPanel2.Controls.Clear();
 
