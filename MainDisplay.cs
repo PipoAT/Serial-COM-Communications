@@ -342,39 +342,39 @@ namespace AT_SCC
 
         private async void Transmission_Click(object? sender, System.EventArgs e)
         {
-            if (textBoxesPanel != null && textBoxesPanel2 != null)
+            if (textBoxesPanel != null && textBoxesPanel2 != null)      // checks to ensure that the panels are not null, if they exist
             {
-                cancellationTokenSource = new CancellationTokenSource();
-                textBoxesPanel2?.Controls.Clear();
+                cancellationTokenSource = new CancellationTokenSource();    // sets up the stop transmission functionality
+                textBoxesPanel2?.Controls.Clear();  // clears the output panel each time the button is clicked
                 
 
-                if (textBoxMODEDISP?.Text == "Idle Mode" || textBoxMODEDISP?.Text == "IDLE Mode")
+                if (textBoxMODEDISP?.Text == "Idle Mode" || textBoxMODEDISP?.Text == "IDLE Mode")  // checks if the program is in IDLE
                 {
                     MessageBox.Show("Program in IDLE MODE. Please configure settings to desired mode/needs", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
+                }   // prompts warning message stating IDLE MODE
                 else
                 {
 
-                    if (textBoxMODEDISP?.Text == "Receive Mode" && textBoxreceiveType?.Text == "Byte")
+                    if (textBoxMODEDISP?.Text == "Receive Mode" && textBoxreceiveType?.Text == "Byte")  // checks for if it is receiving a byte
                     {
                         int i = 0;
-                        var receivedBytes = new List<byte>();
+                        var receivedBytes = new List<byte>();   // new list of bytes to print
 
                         using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                         {
                             Handshake = currentHandshakevalue,
                             ReadTimeout = int.Parse(currentReadTimeout),
                             WriteTimeout = int.Parse(currentWriteTimeout)
-                        };
+                        };  // sets the serial port to user settings
 
-                        if (!mySerialPort.IsOpen)
+                        if (!mySerialPort.IsOpen)   // checks if the port is open
                         {
                             mySerialPort.Open();
-                            if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
-                        }
+                            if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN"; // status display
+                        }   
 
-                        var textBoxArray = new TextBox[MAX_BUFFER_SIZE];
-                        for (int j = 0; j < MAX_BUFFER_SIZE; j++)
+                        var textBoxArray = new TextBox[MAX_BUFFER_SIZE];    // sets the array of textboxes for output data to display on
+                        for (int j = 0; j < MAX_BUFFER_SIZE; j++)   // creates the textboxes
                         {
                             var textBox = new TextBox();
                             textBox.Location = new Point(10, j * 20);
@@ -385,21 +385,21 @@ namespace AT_SCC
                         }
 
 
-                        do
+                        do  // receives the data byte and adds it to the output panel
                         {
 
                             var receivedByte = (byte)mySerialPort.ReadByte();
                             receivedBytes.Add(receivedByte);
 
-                            if (logging_check.Checked)
+                            if (logging_check.Checked)  // checks if it needs to be logged into file
                             {
                                 var logFilePath = LogFilePath;
 
                                 using var logFile = new StreamWriter(logFilePath, true);
-                                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE]: {receivedByte}");
+                                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE]: {receivedByte}");  
                             }
 
-                            if (textBoxArray.Length > 0)
+                            if (textBoxArray.Length > 0)    // checks to ensure that it can be outputed to a textbox and does so
                             {
                                 var receivedTextBox = textBoxArray[i];
                                 receivedTextBox.Text += $"{receivedByte:X2} ";
@@ -410,7 +410,7 @@ namespace AT_SCC
                                 }
                             }
 
-                            if (receivedBytes.Count >= MAX_BUFFER_SIZE)
+                            if (receivedBytes.Count >= MAX_BUFFER_SIZE) // IF BUFFER is hit, checks if user wants an overwrite of data
                             {
                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                 if (!overwrite_check.Checked) {
@@ -418,7 +418,7 @@ namespace AT_SCC
                                 }
                                 else {
                                 i = -1;
-                                receivedBytes = new List<byte>();
+                                receivedBytes = new List<byte>();   // sets up new list of data to continue
                                 }
                             }
                             i++;
@@ -427,12 +427,12 @@ namespace AT_SCC
 
                         } while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked);
 
-                        mySerialPort.Close();
+                        mySerialPort.Close();       // auto closes the port and display status
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
 
                     }
 
-                    else if (textBoxMODEDISP?.Text == "Receive Mode" && textBoxreceiveType?.Text == "String")
+                    else if (textBoxMODEDISP?.Text == "Receive Mode" && textBoxreceiveType?.Text == "String")   // checks for if it is receiving a string
                     {
                         int i = 0;
                         using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
@@ -440,13 +440,13 @@ namespace AT_SCC
                             Handshake = currentHandshakevalue,
                             ReadTimeout = int.Parse(currentReadTimeout),
                             WriteTimeout = int.Parse(currentWriteTimeout)
-                        };
+                        };  // sets up serial port
 
-                        mySerialPort.Open();
+                        if (!mySerialPort.IsOpen) mySerialPort.Open();  // checks if port is open and if not opens it
 
-                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";    // status message
 
-                        var textBoxArray = new TextBox[MAX_BUFFER_SIZE];
+                        var textBoxArray = new TextBox[MAX_BUFFER_SIZE];    // sets up array for textboxes and creates them
                         for (var k = 0; k < textBoxArray.Length; k++)
                         {
                             textBoxArray[k] = new TextBox
@@ -460,7 +460,7 @@ namespace AT_SCC
 
 
                         do
-                        {
+                        {   // if buffer hits, check if user wants overwrite 
                             if (i >= MAX_BUFFER_SIZE)
                             {
                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -472,7 +472,7 @@ namespace AT_SCC
                             }
 
                             var receivedTextBox = textBoxArray[i];
-                            receivedTextBox.Text = mySerialPort.ReadLine();
+                            receivedTextBox.Text = mySerialPort.ReadLine(); // reads the string and checks if logging is needed and outputs to panel
 
                             if (logging_check.Checked)
                             {
@@ -491,27 +491,27 @@ namespace AT_SCC
                             await Task.Delay(500);
                         } while (repeat_check.Checked && !cancellationTokenSource.IsCancellationRequested && mySerialPort.IsOpen);
 
-                        mySerialPort.Close();
+                        mySerialPort.Close(); // auto closes the port
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
 
                     }
 
-                    else if (textBoxMODEDISP?.Text == "Receive Mode" && textBoxreceiveType?.Text == "Byte Collection")
+                    else if (textBoxMODEDISP?.Text == "Receive Mode" && textBoxreceiveType?.Text == "Byte Collection")  // checks for if it is receiving a collection of bytes
                     {
                         int i = 0;
-                        var receivedBytes = new List<byte>();
+                        var receivedBytes = new List<byte>();   // sets up new list of bytes
 
                         using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                         {
                             Handshake = currentHandshakevalue,
                             ReadTimeout = int.Parse(currentReadTimeout),
                             WriteTimeout = int.Parse(currentWriteTimeout)
-                        };
+                        };  // sets up serial port
 
-                        if (!mySerialPort.IsOpen) mySerialPort.Open();
+                        if (!mySerialPort.IsOpen) mySerialPort.Open();      // checks for if port is open and status message is set
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
 
-                        var byteCollections = new List<List<byte>>();
+                        var byteCollections = new List<List<byte>>();   // sets up the textbox array and textboxes itself
                         var textBoxArray = new TextBox[MAX_BUFFER_SIZE];
                         for (var k = 0; k < textBoxArray.Length; k++)
                         {
@@ -525,7 +525,7 @@ namespace AT_SCC
                         }
 
                         do
-                        {
+                        {   // reads the bytes and outputs to the panel, also checks to make sure it can do so
                             if (textBoxArray.Length > 0)
                             {
                                 var receivedTextBox = textBoxArray[i];
@@ -545,7 +545,7 @@ namespace AT_SCC
                                 }
                             }
 
-                            if (i >= MAX_BUFFER_SIZE - 1)
+                            if (i >= MAX_BUFFER_SIZE - 1)   // if buffer is hit, check if user wants overwrite
                             {
                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                 if(!(overwrite_check.Checked)) {
@@ -567,17 +567,17 @@ namespace AT_SCC
                             await Task.Delay(500);
                         } while (!cancellationTokenSource.IsCancellationRequested);
 
-                        mySerialPort.Close();
+                        mySerialPort.Close();   // auto closes the port
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
 
                     }
 
-                    else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "Byte")
+                    else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "Byte")   // checks if it is sending a byte
                     {
 
 
                         var inputValues = new List<string>();
-                        foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
+                        foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())  // sets up the textboxes and list of bytes to send
                         {
                             if (!string.IsNullOrEmpty(textBox.Text))
                             {
@@ -585,41 +585,41 @@ namespace AT_SCC
                             }
                         }
 
-                        if (!inputValues.Any())
+                        if (!inputValues.Any()) // checks for if any data exists
                         {
                             MessageBox.Show("Please input byte values\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
 
-                        var bytesToSend = new List<byte>();
+                        var bytesToSend = new List<byte>(); // adds data to the list to send
                         foreach (var value in inputValues)
                         {
                             if (byte.TryParse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var byteValue))
                             {
                                 bytesToSend.Add(byteValue);
                             }
-                            else
+                            else    // if data is unavailable or not correct type, throw error
                             {
                                 MessageBox.Show($"Error: Unable to parse byte value '{value}'", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 return;
                             }
                         }
 
-                        var delay = TimeSpan.FromMilliseconds(currentDelayint);
+                        var delay = TimeSpan.FromMilliseconds(currentDelayint); // delay
 
                         using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                         {
                             Handshake = currentHandshakevalue,
                             ReadTimeout = int.Parse(currentReadTimeout),
                             WriteTimeout = int.Parse(currentWriteTimeout)
-                        };
+                        };  // sets up serial port
 
-                        if (!mySerialPort.IsOpen) mySerialPort.Open();
+                        if (!mySerialPort.IsOpen) mySerialPort.Open();  // checks if port is open and sets status message
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
 
-                        if (!repeat_check.Checked)
+                        if (!repeat_check.Checked)  // code runs if repeat is not on
                         {
-                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte")
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte") // ensures that receive configurations are correct
                             {
 
                                 MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -628,19 +628,19 @@ namespace AT_SCC
                             else
                             {
                                 int i = 0;
-                                var textBoxArray = new TextBox[Math.Min(bytesToSend.Count, MAX_BUFFER_SIZE)];
+                                var textBoxArray = new TextBox[Math.Min(bytesToSend.Count, MAX_BUFFER_SIZE)]; // creates the textboxes and sets them up
                                 for (var j = 0; j < textBoxArray.Length; j++)
                                 {
                                     textBoxArray[j] = new TextBox
                                     {
-                                        Location = new Point(10, j * 20 + i * 200),         // ADJUST THIS CODE LINE
+                                        Location = new Point(10, j * 20 + i * 200),         
                                         Width = 100,
                                         ReadOnly = true
                                     };
                                     textBoxesPanel2?.Controls.Add(textBoxArray[j]);
                                 }
 
-                                var index = 0;
+                                var index = 0;  // writes the bytes and checks for if logging is needed
 
                                 foreach (var byteValue in bytesToSend)
                                 {
@@ -657,7 +657,7 @@ namespace AT_SCC
                                     mySerialPort.Write(new[] { byteValue }, 0, 1);
 
                                     Thread.Sleep(currentDelayint);
-                                    if (textBoxreceiveType?.Text == "Byte")
+                                    if (textBoxreceiveType?.Text == "Byte") // if receiving as well as sending, it will read that data and output onto the panel
                                     {
                                         if (index < textBoxArray.Length)
                                         {
@@ -672,7 +672,7 @@ namespace AT_SCC
                                                 logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE]: {receivedTextBox.Text}");
                                             }
                                         }
-                                        else
+                                        else    // if buffer is hit, throw warning
                                         {
                                             MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
@@ -688,10 +688,10 @@ namespace AT_SCC
 
                         }
 
-                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
+                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)    // for if the sending data is repeating
                         {
 
-                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte")
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte") // ensures configuration is correct
                             {
 
                                 MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -700,13 +700,13 @@ namespace AT_SCC
                             }
 
 
-                            int i = 0;
+                            int i = 0;  // sets up the textboxes
                             var textBoxArray = new TextBox[Math.Min(bytesToSend.Count, MAX_BUFFER_SIZE)];
                             for (var j = 0; j < textBoxArray.Length; j++)
                             {
                                 textBoxArray[j] = new TextBox
                                 {
-                                    Location = new Point(10, j * 20 + i * 200),         // ADJUST THIS CODE LINE
+                                    Location = new Point(10, j * 20 + i * 200),       
                                     Width = 100,
                                     ReadOnly = true
                                 };
@@ -729,10 +729,10 @@ namespace AT_SCC
                                     logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE]: {byteValue}");
                                 }
 
-                                mySerialPort.Write(new[] { byteValue }, 0, 1);
+                                mySerialPort.Write(new[] { byteValue }, 0, 1);      // writes the data and also checks for logging needs
 
                                 Thread.Sleep(currentDelayint);
-                                if (textBoxreceiveType?.Text == "Byte")
+                                if (textBoxreceiveType?.Text == "Byte") // if receiving, it will receive the data and output to panel
                                 {
                                     if (index < textBoxArray.Length && textBoxesPanel2?.Controls.Count < MAX_BUFFER_SIZE)
                                     {
@@ -747,7 +747,7 @@ namespace AT_SCC
                                             logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE]: {receivedTextBox.Text}");
                                         }
                                     }
-                                    else
+                                    else // if buffer is hit, check for is user wants overwriting
                                     {
                                         MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                         index = -1;
@@ -767,7 +767,7 @@ namespace AT_SCC
                             }
                             i++;
 
-                            if (breakval == 1) {
+                            if (breakval == 1) {        // if user does not want to overwrite, it will exit the while loop and end the sending process
                                 breakval = 0;
                                 break;
                             }
@@ -777,14 +777,14 @@ namespace AT_SCC
 
                         }
 
-                        mySerialPort.Close();
+                        mySerialPort.Close();       // auto close the port
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
 
                     }
 
-                    else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "String")
+                    else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "String") // checks if it is sending a string
                     {
-                        var inputValues = new List<string>();
+                        var inputValues = new List<string>();       // sets up the lists and textboxes for data
                         foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
                         {
                             if (!string.IsNullOrEmpty(textBox.Text))
@@ -793,30 +793,30 @@ namespace AT_SCC
                             }
                         }
 
-                        if (!inputValues.Any())
+                        if (!inputValues.Any()) // checks for any data is available
                         {
                             MessageBox.Show("Please input strings to send\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
 
-                        var delay = TimeSpan.FromMilliseconds(currentDelayint);
+                        var delay = TimeSpan.FromMilliseconds(currentDelayint); // delay for each data transmission
 
                         using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                         {
                             Handshake = currentHandshakevalue,
                             ReadTimeout = int.Parse(currentReadTimeout),
                             WriteTimeout = int.Parse(currentWriteTimeout)
-                        };
+                        };  // sets up the serial port
 
-                        if (!mySerialPort.IsOpen) mySerialPort.Open();
+                        if (!mySerialPort.IsOpen) mySerialPort.Open();  // checks if the port is open and sets status message
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
 
                         var textBoxArray = new TextBox[MAX_BUFFER_SIZE];
                         var textBoxesPanelIndex = 0; // keeps track of the index in the textboxesPanel2.Controls list
 
-                        if (!repeat_check.Checked)
+                        if (!repeat_check.Checked)  // runs if the repeat functionality is not on
                         {
-                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "String")
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "String")   // ensures configurations are correct
                             {
 
                                 MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -825,7 +825,7 @@ namespace AT_SCC
                             else
                             {
 
-                                for (var j = 0; j < Math.Min(inputValues.Count, MAX_BUFFER_SIZE); j++)
+                                for (var j = 0; j < Math.Min(inputValues.Count, MAX_BUFFER_SIZE); j++)  // creates the textboxes
                                 {
                                     var textBox = new TextBox
                                     {
@@ -837,7 +837,7 @@ namespace AT_SCC
                                     textBoxArray[j] = textBox;
                                 }
 
-                                int currentTextBoxIndex = 0; // add this line to declare a variable to keep track of the current textbox index
+                                int currentTextBoxIndex = 0; // below code writes the data while also checks for logging needs
 
                                 foreach (var value in inputValues)
                                 {
@@ -854,7 +854,7 @@ namespace AT_SCC
                                     mySerialPort.Write(value);
                                     Thread.Sleep(currentDelayint);
 
-                                    if (textBoxreceiveType?.Text == "String")
+                                    if (textBoxreceiveType?.Text == "String")   // if also receiving, reads the data its sending and outputs to panel
                                     {
                                         if (textBoxArray.Length > 0)
                                         {
@@ -872,7 +872,7 @@ namespace AT_SCC
 
                                             receivedTextBox.Text = sb.ToString();
 
-                                            if (logging_check.Checked)
+                                            if (logging_check.Checked) // checks for logging needs
                                             {
                                                 var logFilePath = LogFilePath;
                                                 using var logFile = new StreamWriter(logFilePath, true);
@@ -881,7 +881,7 @@ namespace AT_SCC
 
                                             currentTextBoxIndex++; // increment the index of the current textbox
                                         }
-                                        else
+                                        else    // if buffer is hit, throw warning
                                         {
                                             MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                         }
@@ -895,10 +895,10 @@ namespace AT_SCC
                         }
 
 
-                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
+                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)    // runs if repeating is wanted by user
                         {
 
-                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "String")
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "String")   // ensures correct configurations
                             {
 
                                 MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -935,10 +935,10 @@ namespace AT_SCC
                                     logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT STRING]: {value}");
                                 }
 
-                                mySerialPort.Write(value);
+                                mySerialPort.Write(value);  // sends the data and checks for logging needs
                                 Thread.Sleep(currentDelayint);
 
-                                if (textBoxreceiveType?.Text == "String")
+                                if (textBoxreceiveType?.Text == "String")   // if receiving, it will read the sent data and output to panel
                                 {
                                     if (textBoxArray.Length > 0 && checklimit < MAX_BUFFER_SIZE)
                                     {
@@ -956,7 +956,7 @@ namespace AT_SCC
 
                                         receivedTextBox.Text = sb.ToString();
 
-                                        if (logging_check.Checked)
+                                        if (logging_check.Checked) // checks if user wants logging
                                         {
                                             var logFilePath = LogFilePath;
                                             using var logFile = new StreamWriter(logFilePath, true);
@@ -967,7 +967,7 @@ namespace AT_SCC
                                         checklimit++;
                                     }
                                     else
-                                    {
+                                    {   // if buffer is hit, see if user wants overwrite
                                         MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                         if(!overwrite_check.Checked) {
                                             breakval = 1;
@@ -986,7 +986,7 @@ namespace AT_SCC
 
                             textBoxesPanelIndex += Math.Min(inputValues.Count, MAX_BUFFER_SIZE); // increment the index for the next iteration
 
-                            if (breakval == 1) {
+                            if (breakval == 1) {    // user does not want overwriting, it will exit the loop ending the process
                                 breakval = 0;
                                 break;
                             }
@@ -995,13 +995,13 @@ namespace AT_SCC
 
 
 
-                        mySerialPort.Close();
+                        mySerialPort.Close();   // auto close the port
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
                     }
 
-                    else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "Byte Collection")
+                    else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "Byte Collection") // checks if it is sending a collection of bytes
                     {
-                        var byteCollections = new List<byte[]>();
+                        var byteCollections = new List<byte[]>();       // sets up the textboxes and lists for data
                         foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
                         {
                             if (!string.IsNullOrEmpty(textBox.Text))
@@ -1018,30 +1018,30 @@ namespace AT_SCC
                             }
                         }
 
-                        if (!byteCollections.Any())
+                        if (!byteCollections.Any()) // check for any data
                         {
                             MessageBox.Show("Please input byte values\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
 
-                        var delay = TimeSpan.FromMilliseconds(currentDelayint);
+                        var delay = TimeSpan.FromMilliseconds(currentDelayint); // delay for transmission
 
                         using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                         {
                             Handshake = currentHandshakevalue,
                             ReadTimeout = int.Parse(currentReadTimeout),
                             WriteTimeout = int.Parse(currentWriteTimeout)
-                        };
+                        };      // sets up the serial port
 
-                        if (!mySerialPort.IsOpen) mySerialPort.Open();
+                        if (!mySerialPort.IsOpen) mySerialPort.Open();  // checks if the port is open and sets status message
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
 
                         var textBoxList = new List<TextBox>();
-                        var textBoxIndex = 0;
+                        var textBoxIndex = 0;   // sets up the textboxes
 
-                        if (!repeat_check.Checked)
+                        if (!repeat_check.Checked)      // if code is running only once
                         {
-                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte Collection")
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte Collection")  // ensures configuration is correct
                             {
 
                                 MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -1053,7 +1053,7 @@ namespace AT_SCC
                                 var textBoxArray = new TextBox[Math.Min(byteCollections.Count, MAX_BUFFER_SIZE)];
                                 for (var j = 0; j < textBoxArray.Length; j++)
                                 {
-                                    var textBox = new TextBox
+                                    var textBox = new TextBox   // creates the textboxes
                                     {
                                         Location = new Point(10, (textBoxIndex + j) * 20),
                                         Width = 100,
@@ -1065,7 +1065,7 @@ namespace AT_SCC
 
                                 var index = 0;
 
-                                foreach (var byteCollection in byteCollections)
+                                foreach (var byteCollection in byteCollections) // checks for logging needs and sends the data to port
                                 {
                                     Console.WriteLine("Byte collection: {0}", BitConverter.ToString(byteCollection));
 
@@ -1080,7 +1080,7 @@ namespace AT_SCC
                                     mySerialPort.Write(byteCollection, 0, byteCollection.Length);
 
                                     Thread.Sleep(currentDelayint);
-                                    if (textBoxreceiveType?.Text == "Byte Collection")
+                                    if (textBoxreceiveType?.Text == "Byte Collection")  // if also receiving, it will read the sent data and output to panel
                                     {
                                         if (index < textBoxArray.Length)
                                         {
@@ -1091,12 +1091,12 @@ namespace AT_SCC
                                             {
                                                 var logFilePath = LogFilePath;
 
-                                                using var logFile = new StreamWriter(logFilePath, true);
+                                                using var logFile = new StreamWriter(logFilePath, true);        // checks for logging
                                                 logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE COLLECTION]: {receivedTextBox.Text}");
                                             }
                                         }
                                         else
-                                        {
+                                        { // if buffer is hit, throw warning
                                             MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                         }
 
@@ -1110,10 +1110,10 @@ namespace AT_SCC
 
                         }
 
-                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
+                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)    // if repeating is enabled
                         {
 
-                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte Collection")
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte Collection")  // ensure correct configurations
                             {
 
                                 MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -1121,7 +1121,7 @@ namespace AT_SCC
 
                             }
 
-                            var textBoxArray = new TextBox[Math.Min(byteCollections.Count, MAX_BUFFER_SIZE)];
+                            var textBoxArray = new TextBox[Math.Min(byteCollections.Count, MAX_BUFFER_SIZE)];   // sets up textboxes
                             for (var j = 0; j < textBoxArray.Length; j++)
                             {
                                 var textBox = new TextBox
@@ -1136,7 +1136,7 @@ namespace AT_SCC
 
                             var index = 0;
 
-                            foreach (var byteCollection in byteCollections)
+                            foreach (var byteCollection in byteCollections) // checks if logging is needed and sends the data to port
                             {
                                 Console.WriteLine("Byte collection: {0}", BitConverter.ToString(byteCollection));
 
@@ -1151,14 +1151,14 @@ namespace AT_SCC
                                 mySerialPort.Write(byteCollection, 0, byteCollection.Length);
 
                                 Thread.Sleep(currentDelayint);
-                                if (textBoxreceiveType?.Text == "Byte Collection")
+                                if (textBoxreceiveType?.Text == "Byte Collection")  // if also receiving, it will read data its sent and output to panel
                                 {
                                     if (index < textBoxArray.Length && textBoxesPanel2?.Controls.Count <= MAX_BUFFER_SIZE)
                                     {
                                         var receivedTextBox = textBoxList[textBoxIndex + index];
                                         receivedTextBox.Text = mySerialPort.ReadExisting();
 
-                                        if (logging_check.Checked)
+                                        if (logging_check.Checked)  // if logging is wanted, it will log
                                         {
                                             var logFilePath = LogFilePath;
 
@@ -1167,7 +1167,7 @@ namespace AT_SCC
                                         }
                                     }
                                     else
-                                    {
+                                    { // if buffer is hit, see if user wants overwrite of data
                                         MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                         if (!overwrite_check.Checked) {
                                             breakval = 1;
@@ -1187,7 +1187,7 @@ namespace AT_SCC
 
                             textBoxIndex += textBoxArray.Length;
 
-                            if (breakval == 1) {
+                            if (breakval == 1) {    // if no overwriting is wanted, then it exits the loop and ends the process
                                 breakval = 0;
                                 break;
                             }
@@ -1200,9 +1200,9 @@ namespace AT_SCC
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
                     }
 
-                    else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "ASCII")
+                    else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "ASCII") // checks if it is sending a ASCII value
                     {
-                        var inputValues = new List<string>();
+                        var inputValues = new List<string>();       // sets up the textboxes
                         foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
                         {
                             if (!string.IsNullOrEmpty(textBox.Text))
@@ -1211,13 +1211,13 @@ namespace AT_SCC
                             }
                         }
 
-                        if (!inputValues.Any())
+                        if (!inputValues.Any()) // checks for any data
                         {
                             MessageBox.Show("Please input ASCII values\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
 
-                        var asciiBytes = new List<byte>();
+                        var asciiBytes = new List<byte>();  // sets up the data that is sent
                         foreach (var value in inputValues)
                         {
                             if (byte.TryParse(value, out var asciiByte))
@@ -1226,25 +1226,25 @@ namespace AT_SCC
                             }
                         }
 
-                        var hexBytes = Encoding.ASCII.GetBytes(Encoding.ASCII.GetString(asciiBytes.ToArray()));
+                        var hexBytes = Encoding.ASCII.GetBytes(Encoding.ASCII.GetString(asciiBytes.ToArray())); // converts data as needed
 
 
-                        var delay = TimeSpan.FromMilliseconds(currentDelayint);
+                        var delay = TimeSpan.FromMilliseconds(currentDelayint); // delay for transmission
 
                         using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                         {
                             Handshake = currentHandshakevalue,
                             ReadTimeout = int.Parse(currentReadTimeout),
                             WriteTimeout = int.Parse(currentWriteTimeout)
-                        };
+                        };  // sets up the serial port
 
-                        if (!mySerialPort.IsOpen) mySerialPort.Open();
+                        if (!mySerialPort.IsOpen) mySerialPort.Open();  // checks for if port is open and sets status message
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
-                        int textBoxLocationY = textBoxesPanel2!.Controls.Count * 20;
+                        int textBoxLocationY = textBoxesPanel2!.Controls.Count * 20;    // sets up textbox y location
 
-                        if (!repeat_check.Checked)
+                        if (!repeat_check.Checked)  // if only running code once
                         {
-                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII")
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII")    // ensure correct configurations
                             {
                                 MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             }
@@ -1255,7 +1255,7 @@ namespace AT_SCC
 
 
 
-                                foreach (var hexByte in hexBytes)
+                                foreach (var hexByte in hexBytes)   // sends the data and checks if user needs logging
                                 {
                                     Console.WriteLine("ASCII value: {0} represents: {1}", hexByte, Convert.ToChar(hexByte));
 
@@ -1271,10 +1271,10 @@ namespace AT_SCC
 
                                     Thread.Sleep(currentDelayint);
 
-                                    if (textBoxreceiveType?.Text == "ASCII")
+                                    if (textBoxreceiveType?.Text == "ASCII")    // if also receiving, it will receive what is sent and outputs to the panel
                                     {
 
-                                        var receivedTextBox = new TextBox
+                                        var receivedTextBox = new TextBox   // creates the textboxes
                                         {
                                             Location = new Point(10, textBoxLocationY),
                                             Width = 100,
@@ -1284,7 +1284,7 @@ namespace AT_SCC
 
                                         textBoxesPanel2.Controls.Add(receivedTextBox);
 
-                                        if (logging_check.Checked)
+                                        if (logging_check.Checked)  // logging if user needs to
                                         {
                                             var logFilePath = LogFilePath;
 
@@ -1302,15 +1302,15 @@ namespace AT_SCC
                         }
 
                         int index2 = 0;
-                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
+                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)    // if repeat is enabled
                         {
-                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII")
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII")    // configuration correctness
                             {
                                 MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                 break;
                             }
 
-                            byte[] hexBytesArray = hexBytes.ToArray();
+                            byte[] hexBytesArray = hexBytes.ToArray();  // sets up data and sends data with ability to see if user wanta logging
 
                             for (int i = 0; i < hexBytesArray.Length; i++)
                             {
@@ -1329,7 +1329,7 @@ namespace AT_SCC
 
                                 Thread.Sleep(currentDelayint);
 
-                                if (textBoxreceiveType?.Text == "ASCII")
+                                if (textBoxreceiveType?.Text == "ASCII")    // if also receiving, it will receives the sent data and outputs to panel
                                 {
                                     var receivedBytes = new byte[1024];
                                     int bytesRead = mySerialPort.Read(receivedBytes, 0, receivedBytes.Length);
@@ -1343,14 +1343,14 @@ namespace AT_SCC
                                         Text = receivedText
                                     };
 
-                                    if (index2 >= MAX_BUFFER_SIZE)
+                                    if (index2 >= MAX_BUFFER_SIZE)  
                                     {
                                         textBoxesPanel2.Controls.RemoveAt(0);
                                     }
 
                                     textBoxesPanel2.Controls.Add(receivedTextBox);
 
-                                    if (logging_check.Checked)
+                                    if (logging_check.Checked) // checks logging needs from user
                                     {
                                         var logFilePath = LogFilePath;
 
@@ -1361,7 +1361,7 @@ namespace AT_SCC
                                     index2++;
                                 }
 
-                                if (index2 >= MAX_BUFFER_SIZE)
+                                if (index2 >= MAX_BUFFER_SIZE)  // if buffer is hit, see if overwriting data is wanted by user
                                 {
                                     MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                     if (!overwrite_check.Checked) {
@@ -1378,7 +1378,7 @@ namespace AT_SCC
 
                             }
 
-                            if (breakval == 1) {
+                            if (breakval == 1) {    // if no overwriting, exit the loop and end process
                                 breakval = 0;
                                 break;
                             }
@@ -1387,13 +1387,13 @@ namespace AT_SCC
                         }
 
 
-                        mySerialPort.Close();
+                        mySerialPort.Close();   // auto close the port
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
                     }
 
-                    else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "ASCII-HEX")
+                    else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "ASCII-HEX")  // checks if it is sending a HEX value
                     {
-                        var inputValues = new List<string>();
+                        var inputValues = new List<string>();       // sets up the textboxes and lists for data
                         foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
                         {
                             if (!string.IsNullOrEmpty(textBox.Text))
@@ -1402,13 +1402,13 @@ namespace AT_SCC
                             }
                         }
 
-                        if (!inputValues.Any())
+                        if (!inputValues.Any()) // checks for any data
                         {
                             MessageBox.Show("Please input HEX values\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
 
-                        var hexBytes = new List<byte>();
+                        var hexBytes = new List<byte>();    // converts the data as needed
                         foreach (var value in inputValues)
                         {
                             if (byte.TryParse(value, System.Globalization.NumberStyles.HexNumber, null, out var hexByte))
@@ -1418,23 +1418,23 @@ namespace AT_SCC
                         }
 
 
-                        var delay = TimeSpan.FromMilliseconds(currentDelayint);
+                        var delay = TimeSpan.FromMilliseconds(currentDelayint); // delay for each transmission
 
                         using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                         {
                             Handshake = currentHandshakevalue,
                             ReadTimeout = int.Parse(currentReadTimeout),
                             WriteTimeout = int.Parse(currentWriteTimeout)
-                        };
+                        }; // sets up serial port and checks if port is open, sets status message
 
                         if (!mySerialPort.IsOpen) mySerialPort.Open();
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
 
-                        int textBoxLocationY = textBoxesPanel2!.Controls.Count * 20;
+                        int textBoxLocationY = textBoxesPanel2!.Controls.Count * 20;    // sets the y of the textbox
 
                         if (!repeat_check.Checked)
                         {
-                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII-HEX")
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII-HEX")    // ensures correct configurations
                             {
 
                                 MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -1445,7 +1445,7 @@ namespace AT_SCC
                             else
                             {
 
-                                int index = 0;
+                                int index = 0;  // takes the data and sends if and checks if user needs it logged
 
                                 foreach (var hexByte in hexBytes)
                                 {
@@ -1463,7 +1463,7 @@ namespace AT_SCC
 
                                     Thread.Sleep(currentDelayint);
 
-                                    if (textBoxreceiveType?.Text == "ASCII-HEX")
+                                    if (textBoxreceiveType?.Text == "ASCII-HEX")    // if also receiving, it will receive that data and sets up the textboxes and outputs
                                     {
 
                                         var receivedTextBox = new TextBox
@@ -1494,18 +1494,18 @@ namespace AT_SCC
                         }
 
                         int index2 = 0;
-                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
+                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)    // if repeat is enabled
                         {
-                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII-HEX")
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII-HEX")    // ensures correct configurations
                             {
 
                                 MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                 break;
 
                             }
-                            byte[] hexBytesArray = hexBytes.ToArray();
+                            byte[] hexBytesArray = hexBytes.ToArray();  
 
-                            for (int i = 0; i < hexBytesArray.Length; i++)
+                            for (int i = 0; i < hexBytesArray.Length; i++) // sends the data and checks if the user wanted it logged
                             {
                                 var hexByte = hexBytesArray[i];
                                 Console.WriteLine("HEX value: {0} represents the byte: {1}", hexByte.ToString("X2"), hexByte);
@@ -1522,7 +1522,7 @@ namespace AT_SCC
 
                                 Thread.Sleep(currentDelayint);
 
-                                if (textBoxreceiveType?.Text == "ASCII-HEX")
+                                if (textBoxreceiveType?.Text == "ASCII-HEX")    // if receiving, it will read the sent data and output to panel
                                 {
                                     var receivedBytes = new byte[1024];
                                     int bytesRead = mySerialPort.Read(receivedBytes, 0, receivedBytes.Length);
@@ -1541,7 +1541,7 @@ namespace AT_SCC
                                         textBoxesPanel2.Controls.RemoveAt(0);
                                     }
 
-                                    textBoxesPanel2.Controls.Add(receivedTextBox);
+                                    textBoxesPanel2.Controls.Add(receivedTextBox);  // logging by user is checked
 
                                     if (logging_check.Checked)
                                     {
@@ -1553,7 +1553,7 @@ namespace AT_SCC
 
                                     index2++;
                                 }
-                                else if (textBoxreceiveType?.Text != "N/A - DISABLED")
+                                else if (textBoxreceiveType?.Text != "N/A - DISABLED")  // ensures configuration correct
                                 {
 
                                     MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -1561,7 +1561,7 @@ namespace AT_SCC
 
                                 }
 
-                                if (index2 >= MAX_BUFFER_SIZE)
+                                if (index2 >= MAX_BUFFER_SIZE)  // if buffer is hit, see if user wants overwriting
                                 {
                                     MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                     if (!overwrite_check.Checked) {
@@ -1576,7 +1576,7 @@ namespace AT_SCC
                             }
 
 
-                            if (breakval == 1) {
+                            if (breakval == 1) {    // if user is not wanting to overwrite data, exit the loop
                                 breakval = 0;
                                 break;
                             }
@@ -1585,7 +1585,7 @@ namespace AT_SCC
                         }
 
 
-                        mySerialPort.Close();
+                        mySerialPort.Close();   // auto closes the port
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
                     }
 
