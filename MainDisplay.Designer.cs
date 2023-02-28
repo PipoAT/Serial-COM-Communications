@@ -94,7 +94,7 @@
             parityMenuItem.DropDownItems.AddRange(ParityOptions.Keys.Select(s => new ToolStripMenuItem(s)).ToArray());
 
             dataBitsMenuItem = new ToolStripMenuItem("&Data Bits");
-            for (int i = 5; i <= 9; i++)
+            for (int i = 5; i <= 8; i++)
             {
                 dataBitsMenuItem.DropDownItems.Add(i.ToString());
             }
