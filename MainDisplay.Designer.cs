@@ -385,7 +385,7 @@
             this.Controls.Add(this.textBoxreceiveType);
 
             // Define the label and textbox controls
-            AddLabel("# OF SEND DATA ENTRIES:", new Point(250, 190), new Font("Arial", 8));
+            AddLabel("# OF TX ENTRIES:", new Point(250, 190), new Font("Arial", 8));
 
             this.textBoxBTT = new System.Windows.Forms.TextBox();
             this.textBoxBTT.Location = new Point(250, 210);
@@ -396,7 +396,7 @@
             this.textBoxBTT.TextChanged += TextBoxBTT_TextChanged; // Add event handler
             this.Controls.Add(this.textBoxBTT);
 
-            AddLabel("MAX RECEIVE BUFFER:", new Point(110, 240), new Font("Arial", 8));
+            AddLabel("MAX RX BUFFER:", new Point(110, 240), new Font("Arial", 8));
 
             this.textBoxBUFFER = new System.Windows.Forms.TextBox();
             this.textBoxBUFFER.Location = new Point(110, 260);
