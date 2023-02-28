@@ -19,11 +19,11 @@ public partial class Log : Form
         this.ClientSize = new System.Drawing.Size(800, 500);
         this.Text = "Logs";
 
-        RichTextBox LOGS = new RichTextBox();
+        RichTextBox LOGS = new RichTextBox();   // establishes the textbox in the form and sets the file to be the contents
         LOGS.Dock = DockStyle.Fill;
         LOGS.ReadOnly = true;
 
-        LOGS.LoadFile("T:\\APIPO\\Dev\\C#\\AT-SCC\\SerialLog.txt", RichTextBoxStreamType.PlainText); // FIX THIS
+        LOGS.LoadFile(Path.GetFullPath("SerialLog.txt"), RichTextBoxStreamType.PlainText);  // finds the file and opens up
         LOGS.Font = new Font("Times New Roman", 12);
 
         this.Controls.Add(LOGS);

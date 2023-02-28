@@ -39,7 +39,7 @@ namespace AT_SCC
 
         CheckBox logging_check = new CheckBox(), repeat_check = new CheckBox(), receive_check = new CheckBox();
 
-        private string LogFilePath = Path.GetFullPath("SerialLog.txt"); // PATH TO TEXT FILE
+        public string LogFilePath = Path.GetFullPath("SerialLog.txt"); // PATH TO TEXT FILE
         public int MAX_BUFFER_SIZE = 100;       // MAX BUFFER SIZE
 
 

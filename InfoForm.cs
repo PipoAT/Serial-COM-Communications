@@ -33,10 +33,10 @@ public partial class Info : Form
         string ReloadInfo = "TO RELOAD PORTS/PROGRAM:\nUnder 'File' -> 'Reload'";
         AddLabel(ReloadInfo, 0, 600);
 
-        // ADD MORE INSTRUCTIONS HERE
+        // ADD MORE INSTRUCTIONS HERE IF DESIRED
     }
 
-    private void AddLabel(string text, int x, int y)
+    private void AddLabel(string text, int x, int y)        // creates the labels for above
     {
         Label label = new Label
         {
