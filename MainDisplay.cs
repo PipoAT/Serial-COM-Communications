@@ -917,10 +917,12 @@ namespace AT_SCC
                                             }
                                         }
 
+                                        await Task.Delay(500);
+
                                     }
 
                                     textBoxesPanelIndex += Math.Min(inputValues.Count, MAX_BUFFER_SIZE); // increment the index for the next iteration
-                                    await Task.Delay(500);
+                                    
                                 }
 
 
@@ -1047,6 +1049,8 @@ namespace AT_SCC
                                             ReadOnly = true
                                         };
                                         textBoxesPanel2.Controls.Add(textBoxArray[j]);
+
+                                        textBoxArray[j].Show();
                                     }
 
                                     var index = 0;
@@ -1090,10 +1094,11 @@ namespace AT_SCC
 
                                             index++;
                                         }
+                                        await Task.Delay(500);
                                     }
                                     i++;
 
-                                    await Task.Delay(500);
+                                    
                                 }
 
                                 mySerialPort.Close();
@@ -1258,11 +1263,12 @@ namespace AT_SCC
 
                                             index++;
                                         }
+
+                                        await Task.Delay(500);
                                     }
 
                                     textBoxIndex += textBoxArray.Length;
 
-                                    await Task.Delay(500);
                                 }
 
                                 mySerialPort.Close();
@@ -1423,9 +1429,10 @@ namespace AT_SCC
                                             index2 = 0;
                                             textBoxesPanel2.Controls.Clear();
                                         }
+
                                     }
 
-                                    await Task.Delay(500);
+                                    
                                 }
 
 
@@ -1587,9 +1594,11 @@ namespace AT_SCC
                                             index2 = 0;
                                             textBoxesPanel2.Controls.Clear();
                                         }
+
+                                        await Task.Delay(500);
                                     }
 
-                                    await Task.Delay(500);
+                                    
                                 }
 
 
