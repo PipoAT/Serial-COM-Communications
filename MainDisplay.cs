@@ -1412,6 +1412,8 @@ namespace AT_SCC
                                             textBoxesPanel2.Controls.Clear();
                                         }
 
+                                        await Task.Delay(500);
+
                                     }
 
 
