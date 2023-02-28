@@ -346,6 +346,7 @@ namespace AT_SCC
             {
                 cancellationTokenSource = new CancellationTokenSource();
                 textBoxesPanel2?.Controls.Clear();
+                
 
                 if (textBoxMODEDISP?.Text == "Idle Mode" || textBoxMODEDISP?.Text == "IDLE Mode")
                 {
