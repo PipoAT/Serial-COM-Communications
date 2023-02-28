@@ -346,7 +346,7 @@ namespace AT_SCC
             {
                 cancellationTokenSource = new CancellationTokenSource();    // sets up the stop transmission functionality
                 textBoxesPanel2?.Controls.Clear();  // clears the output panel each time the button is clicked
-                
+
 
                 if (textBoxMODEDISP?.Text == "Idle Mode" || textBoxMODEDISP?.Text == "IDLE Mode")  // checks if the program is in IDLE
                 {
@@ -371,7 +371,7 @@ namespace AT_SCC
                         {
                             mySerialPort.Open();
                             if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN"; // status display
-                        }   
+                        }
 
                         var textBoxArray = new TextBox[MAX_BUFFER_SIZE];    // sets the array of textboxes for output data to display on
                         for (int j = 0; j < MAX_BUFFER_SIZE; j++)   // creates the textboxes
@@ -396,7 +396,7 @@ namespace AT_SCC
                                 var logFilePath = LogFilePath;
 
                                 using var logFile = new StreamWriter(logFilePath, true);
-                                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE]: {receivedByte}");  
+                                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE]: {receivedByte}");
                             }
 
                             if (textBoxArray.Length > 0)    // checks to ensure that it can be outputed to a textbox and does so
@@ -404,21 +404,18 @@ namespace AT_SCC
                                 var receivedTextBox = textBoxArray[i];
                                 receivedTextBox.Text += $"{receivedByte:X2} ";
 
-                                if (receivedTextBox.TextLength >= receivedTextBox.Width * 3)
-                                {
-                                    receivedTextBox.Text = receivedTextBox.Text.Substring(receivedTextBox.TextLength - receivedTextBox.Width * 3);
-                                }
+                                if (receivedTextBox.TextLength >= receivedTextBox.Width * 3)  receivedTextBox.Text = receivedTextBox.Text.Substring(receivedTextBox.TextLength - receivedTextBox.Width * 3);
+                                
                             }
 
                             if (receivedBytes.Count >= MAX_BUFFER_SIZE) // IF BUFFER is hit, checks if user wants an overwrite of data
                             {
                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                if (!overwrite_check.Checked) {
-                                    break;
-                                }
-                                else {
-                                i = -1;
-                                receivedBytes = new List<byte>();   // sets up new list of data to continue
+                                if (!overwrite_check.Checked)  break;
+                                else
+                                {
+                                    i = -1;
+                                    receivedBytes = new List<byte>();   // sets up new list of data to continue
                                 }
                             }
                             i++;
@@ -464,11 +461,10 @@ namespace AT_SCC
                             if (i >= MAX_BUFFER_SIZE)
                             {
                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                if(!overwrite_check.Checked) {
-                                    break;
-                                } else {
-                                i = 0;
-                                }
+                                if (!overwrite_check.Checked) break;
+
+                                else i = 0;
+
                             }
 
                             var receivedTextBox = textBoxArray[i];
@@ -481,10 +477,7 @@ namespace AT_SCC
                                 logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED STRING]: {receivedTextBox.Text}\n");
                             }
 
-                            if (receivedTextBox.TextLength >= receivedTextBox.Width * 3)
-                            {
-                                receivedTextBox.Text = receivedTextBox.Text.Substring(receivedTextBox.TextLength - receivedTextBox.Width * 3);
-                            }
+                            if (receivedTextBox.TextLength >= receivedTextBox.Width * 3) receivedTextBox.Text = receivedTextBox.Text.Substring(receivedTextBox.TextLength - receivedTextBox.Width * 3);
 
                             i++;
 
@@ -531,10 +524,8 @@ namespace AT_SCC
                                 var receivedTextBox = textBoxArray[i];
                                 receivedTextBox.Text = Convert.ToString(mySerialPort.ReadByte());
 
-                                if (receivedTextBox.TextLength >= receivedTextBox.Width * 3)
-                                {
-                                    receivedTextBox.Text = receivedTextBox.Text.Substring(receivedTextBox.TextLength - receivedTextBox.Width * 3);
-                                }
+                                if (receivedTextBox.TextLength >= receivedTextBox.Width * 3) receivedTextBox.Text = receivedTextBox.Text.Substring(receivedTextBox.TextLength - receivedTextBox.Width * 3);
+
 
                                 if (logging_check.Checked)
                                 {
@@ -548,21 +539,14 @@ namespace AT_SCC
                             if (i >= MAX_BUFFER_SIZE - 1)   // if buffer is hit, check if user wants overwrite
                             {
                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                if(!(overwrite_check.Checked)) {
-                                    break;
-                                }
-                                else {
-                                i = -1;
-                                }
+                                if (!(overwrite_check.Checked)) break;
+                                else i = -1;
 
                             }
 
                             i++;
 
-                            if (!(repeat_check.Checked))
-                            {
-                                break;
-                            }
+                            if (!(repeat_check.Checked)) break;
 
                             await Task.Delay(500);
                         } while (!cancellationTokenSource.IsCancellationRequested);
@@ -575,14 +559,10 @@ namespace AT_SCC
                     else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "Byte")   // checks if it is sending a byte
                     {
 
-
                         var inputValues = new List<string>();
                         foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())  // sets up the textboxes and list of bytes to send
                         {
-                            if (!string.IsNullOrEmpty(textBox.Text))
-                            {
-                                inputValues.AddRange(textBox.Text.Split(' '));
-                            }
+                            if (!string.IsNullOrEmpty(textBox.Text)) inputValues.AddRange(textBox.Text.Split(' '));
                         }
 
                         if (!inputValues.Any()) // checks for if any data exists
@@ -619,12 +599,8 @@ namespace AT_SCC
 
                         if (!repeat_check.Checked)  // code runs if repeat is not on
                         {
-                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte") // ensures that receive configurations are correct
-                            {
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte") MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
-                                MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                            }
                             else
                             {
                                 int i = 0;
@@ -633,7 +609,7 @@ namespace AT_SCC
                                 {
                                     textBoxArray[j] = new TextBox
                                     {
-                                        Location = new Point(10, j * 20 + i * 200),         
+                                        Location = new Point(10, j * 20 + i * 200),
                                         Width = 100,
                                         ReadOnly = true
                                     };
@@ -671,12 +647,9 @@ namespace AT_SCC
                                                 using var logFile = new StreamWriter(logFilePath, true);
                                                 logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE]: {receivedTextBox.Text}");
                                             }
-                                        }
-                                        else    // if buffer is hit, throw warning
-                                        {
-                                            MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
-                                        }
+                                        } // if buffer is hit, throw warning
+                                        else MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
                                         index++;
                                     }
@@ -706,7 +679,7 @@ namespace AT_SCC
                             {
                                 textBoxArray[j] = new TextBox
                                 {
-                                    Location = new Point(10, j * 20 + i * 200),       
+                                    Location = new Point(10, j * 20 + i * 200),
                                     Width = 100,
                                     ReadOnly = true
                                 };
@@ -751,13 +724,11 @@ namespace AT_SCC
                                     {
                                         MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                         index = -1;
-                                        if (!(overwrite_check.Checked)) {
-                                            breakval = 1;
-                                        }
-                                        else {
-                                        textBoxesPanel2?.Controls.Clear();
-                                        }
-                                        
+
+                                        if (!(overwrite_check.Checked)) breakval = 1;
+
+                                        else textBoxesPanel2?.Controls.Clear();
+
                                     }
 
                                     index++;
@@ -767,7 +738,8 @@ namespace AT_SCC
                             }
                             i++;
 
-                            if (breakval == 1) {        // if user does not want to overwrite, it will exit the while loop and end the sending process
+                            if (breakval == 1)
+                            {        // if user does not want to overwrite, it will exit the while loop and end the sending process
                                 breakval = 0;
                                 break;
                             }
@@ -787,10 +759,8 @@ namespace AT_SCC
                         var inputValues = new List<string>();       // sets up the lists and textboxes for data
                         foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
                         {
-                            if (!string.IsNullOrEmpty(textBox.Text))
-                            {
-                                inputValues.Add(textBox.Text);
-                            }
+                            if (!string.IsNullOrEmpty(textBox.Text)) inputValues.Add(textBox.Text);
+
                         }
 
                         if (!inputValues.Any()) // checks for any data is available
@@ -814,14 +784,10 @@ namespace AT_SCC
                         var textBoxArray = new TextBox[MAX_BUFFER_SIZE];
                         var textBoxesPanelIndex = 0; // keeps track of the index in the textboxesPanel2.Controls list
 
-                        if (!repeat_check.Checked)  // runs if the repeat functionality is not on
+                        if (!repeat_check.Checked)  // runs if the repeat functionality is not on, CHECKS FOR correct configurations
                         {
-                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "String")   // ensures configurations are correct
-                            {
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "String") MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
-                                MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                            }
                             else
                             {
 
@@ -879,12 +845,10 @@ namespace AT_SCC
                                                 logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED STRING]: {receivedTextBox.Text}\n");
                                             }
 
-                                            currentTextBoxIndex++; // increment the index of the current textbox
+                                            currentTextBoxIndex++; // increment the index of the current textbox // if buffer is hit, throw warning
                                         }
-                                        else    // if buffer is hit, throw warning
-                                        {
-                                            MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                        }
+                                        else MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
                                     }
 
                                 }
@@ -968,15 +932,16 @@ namespace AT_SCC
                                     }
                                     else
                                     {   // if buffer is hit, see if user wants overwrite
-                                        MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                        if(!overwrite_check.Checked) {
-                                            breakval = 1;
-                                        }
-                                        else {
-                                        textBoxesPanel2?.Controls.Clear();
+
                                         checklimit = 0;
                                         currentTextBoxIndex = 0;
-                                        }
+
+                                        MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                        if (!overwrite_check.Checked) breakval = 1;
+
+                                        else textBoxesPanel2?.Controls.Clear();
+
+
                                     }
                                 }
 
@@ -986,14 +951,13 @@ namespace AT_SCC
 
                             textBoxesPanelIndex += Math.Min(inputValues.Count, MAX_BUFFER_SIZE); // increment the index for the next iteration
 
-                            if (breakval == 1) {    // user does not want overwriting, it will exit the loop ending the process
+                            if (breakval == 1)
+                            {    // user does not want overwriting, it will exit the loop ending the process
                                 breakval = 0;
                                 break;
                             }
 
                         }
-
-
 
                         mySerialPort.Close();   // auto close the port
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
@@ -1040,16 +1004,11 @@ namespace AT_SCC
                         var textBoxIndex = 0;   // sets up the textboxes
 
                         if (!repeat_check.Checked)      // if code is running only once
-                        {
-                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte Collection")  // ensures configuration is correct
-                            {
+                        {       // ensures configuration is correct
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte Collection") MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
-                                MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                            }
                             else
                             {
-
                                 var textBoxArray = new TextBox[Math.Min(byteCollections.Count, MAX_BUFFER_SIZE)];
                                 for (var j = 0; j < textBoxArray.Length; j++)
                                 {
@@ -1094,11 +1053,9 @@ namespace AT_SCC
                                                 using var logFile = new StreamWriter(logFilePath, true);        // checks for logging
                                                 logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE COLLECTION]: {receivedTextBox.Text}");
                                             }
-                                        }
-                                        else
-                                        { // if buffer is hit, throw warning
-                                            MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                        }
+                                        }   // if buffer is hit, throw warning
+
+                                        else MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
                                         index++;
                                     }
@@ -1168,14 +1125,11 @@ namespace AT_SCC
                                     }
                                     else
                                     { // if buffer is hit, see if user wants overwrite of data
-                                        MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                        if (!overwrite_check.Checked) {
-                                            breakval = 1;
-                                        }
-                                        else {
                                         index = -1;
-                                        textBoxesPanel2?.Controls.Clear();
-                                        }
+                                        MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                        if (!overwrite_check.Checked) breakval = 1;
+
+                                        else textBoxesPanel2?.Controls.Clear();
                                     }
 
                                     index++;
@@ -1187,7 +1141,8 @@ namespace AT_SCC
 
                             textBoxIndex += textBoxArray.Length;
 
-                            if (breakval == 1) {    // if no overwriting is wanted, then it exits the loop and ends the process
+                            if (breakval == 1)
+                            {    // if no overwriting is wanted, then it exits the loop and ends the process
                                 breakval = 0;
                                 break;
                             }
@@ -1242,18 +1197,14 @@ namespace AT_SCC
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
                         int textBoxLocationY = textBoxesPanel2!.Controls.Count * 20;    // sets up textbox y location
 
-                        if (!repeat_check.Checked)  // if only running code once
+                        if (!repeat_check.Checked)  // if only running code once // ensure correct configurations
                         {
-                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII")    // ensure correct configurations
-                            {
-                                MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            }
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII") MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
                             else
                             {
 
                                 int index = 0;
-
-
 
                                 foreach (var hexByte in hexBytes)   // sends the data and checks if user needs logging
                                 {
@@ -1343,11 +1294,6 @@ namespace AT_SCC
                                         Text = receivedText
                                     };
 
-                                    if (index2 >= MAX_BUFFER_SIZE)  
-                                    {
-                                        textBoxesPanel2.Controls.RemoveAt(0);
-                                    }
-
                                     textBoxesPanel2.Controls.Add(receivedTextBox);
 
                                     if (logging_check.Checked) // checks logging needs from user
@@ -1364,28 +1310,25 @@ namespace AT_SCC
                                 if (index2 >= MAX_BUFFER_SIZE)  // if buffer is hit, see if overwriting data is wanted by user
                                 {
                                     MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                    if (!overwrite_check.Checked) {
-                                        breakval = 1;
-                                    } else {
                                     index2 = 0;
-                                    textBoxesPanel2.Controls.Clear();
-                                    }
+
+                                    if (!overwrite_check.Checked) breakval = 1;
+                                    else textBoxesPanel2.Controls.Clear();
+
                                 }
 
                                 await Task.Delay(500);
 
-
-
                             }
 
-                            if (breakval == 1) {    // if no overwriting, exit the loop and end process
+                            if (breakval == 1)
+                            {    // if no overwriting, exit the loop and end process
                                 breakval = 0;
                                 break;
                             }
 
 
                         }
-
 
                         mySerialPort.Close();   // auto close the port
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
@@ -1396,10 +1339,8 @@ namespace AT_SCC
                         var inputValues = new List<string>();       // sets up the textboxes and lists for data
                         foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
                         {
-                            if (!string.IsNullOrEmpty(textBox.Text))
-                            {
-                                inputValues.AddRange(textBox.Text.Split(' '));
-                            }
+                            if (!string.IsNullOrEmpty(textBox.Text)) inputValues.AddRange(textBox.Text.Split(' '));
+
                         }
 
                         if (!inputValues.Any()) // checks for any data
@@ -1411,10 +1352,8 @@ namespace AT_SCC
                         var hexBytes = new List<byte>();    // converts the data as needed
                         foreach (var value in inputValues)
                         {
-                            if (byte.TryParse(value, System.Globalization.NumberStyles.HexNumber, null, out var hexByte))
-                            {
-                                hexBytes.Add(hexByte);
-                            }
+                            if (byte.TryParse(value, System.Globalization.NumberStyles.HexNumber, null, out var hexByte)) hexBytes.Add(hexByte);
+
                         }
 
 
@@ -1433,18 +1372,11 @@ namespace AT_SCC
                         int textBoxLocationY = textBoxesPanel2!.Controls.Count * 20;    // sets the y of the textbox
 
                         if (!repeat_check.Checked)
-                        {
-                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII-HEX")    // ensures correct configurations
-                            {
-
-                                MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-
-                            }
+                        {   // ensures correct configurations
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII-HEX") MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
                             else
                             {
-
                                 int index = 0;  // takes the data and sends if and checks if user needs it logged
 
                                 foreach (var hexByte in hexBytes)
@@ -1503,7 +1435,7 @@ namespace AT_SCC
                                 break;
 
                             }
-                            byte[] hexBytesArray = hexBytes.ToArray();  
+                            byte[] hexBytesArray = hexBytes.ToArray();
 
                             for (int i = 0; i < hexBytesArray.Length; i++) // sends the data and checks if the user wanted it logged
                             {
@@ -1536,11 +1468,6 @@ namespace AT_SCC
                                         Text = receivedText
                                     };
 
-                                    if (index2 >= MAX_BUFFER_SIZE)
-                                    {
-                                        textBoxesPanel2.Controls.RemoveAt(0);
-                                    }
-
                                     textBoxesPanel2.Controls.Add(receivedTextBox);  // logging by user is checked
 
                                     if (logging_check.Checked)
@@ -1563,27 +1490,26 @@ namespace AT_SCC
 
                                 if (index2 >= MAX_BUFFER_SIZE)  // if buffer is hit, see if user wants overwriting
                                 {
-                                    MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                    if (!overwrite_check.Checked) {
-                                        breakval = 1;
-                                    } else {
+
                                     index2 = 0;
-                                    textBoxesPanel2.Controls.Clear();
-                                    }
+                                    MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                    if (!overwrite_check.Checked) breakval = 1;
+                                    else textBoxesPanel2.Controls.Clear();
+
                                 }
 
                                 await Task.Delay(500);
                             }
 
 
-                            if (breakval == 1) {    // if user is not wanting to overwrite data, exit the loop
+                            if (breakval == 1)
+                            {    // if user is not wanting to overwrite data, exit the loop
                                 breakval = 0;
                                 break;
                             }
 
 
                         }
-
 
                         mySerialPort.Close();   // auto closes the port
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
