@@ -28,7 +28,7 @@ namespace AT_SCC
 
         string currentPort = "", currentBaud = "", currentParity = "None", stopBitOption = "", currentReadTimeout = "-1", currentWriteTimeout = "-1", currentHandshakeOption = "None", dataBitoption = "", currentDelayOption = "1000", currentMode = "", currentLogMode = "", currentRTOption = "", currentSTOption = "";
 
-        int currentBaudint, currentdataBitsint = 8, currentDelayint = 1000, currentRepeatint = 0, checklimit = 0;
+        int currentBaudint, currentdataBitsint = 8, currentDelayint = 1000, checklimit = 0;
 
 
         Parity currentParityvalue = Parity.None;                      // declaring variables to allow usage of dictionaries
@@ -51,7 +51,7 @@ namespace AT_SCC
 
         public readonly string[] PossibleTransmitModes = new string[]
         {
-            "Byte", "String", "Byte Collection", "ASCII (SEND ONLY)", "ASCII-HEX (SEND ONLY)"
+            "N/A - DISABLED", "Byte", "String", "Byte Collection", "ASCII", "ASCII-HEX"
         };
 
         public readonly Dictionary<string, Parity> ParityOptions = new Dictionary<string, Parity>()
@@ -111,7 +111,7 @@ namespace AT_SCC
 
         void OnModeChange(object? sender, ToolStripItemClickedEventArgs e)      // event to select mode based on user input
         {
-            if (e.ClickedItem != null && textBoxMODEDISP != null) textBoxMODEDISP.Text = currentMode = e.ClickedItem.Text;
+            if (e.ClickedItem != null && textBoxMODEDISP != null) { textBoxMODEDISP.Text = currentMode = e.ClickedItem.Text; }
         }
 
         void OnLogChange(object? sender, ToolStripItemClickedEventArgs e)       // event to view or delete logs
@@ -128,41 +128,36 @@ namespace AT_SCC
 
         }
 
-        void OnEngage(object? sender, ToolStripItemClickedEventArgs e)          // event to open or close the port
+        void OnEngage(object sender, ToolStripItemClickedEventArgs e)
         {
-            try {
-            if (e.ClickedItem != null && textBoxSTATUS != null)
+            if (e.ClickedItem == null || textBoxSTATUS == null)
+            {
+                return;
+            }
+
+            try
             {
                 using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                 {
                     Handshake = currentHandshakevalue,
                     ReadTimeout = int.Parse(currentReadTimeout),
                     WriteTimeout = int.Parse(currentWriteTimeout)
-
                 };
 
+                textBoxSTATUS.Text = e.ClickedItem.Text == "Open Port" ? "PORT OPEN" : "PORT CLOSED";
                 if (e.ClickedItem.Text == "Open Port")
                 {
-
-                    textBoxSTATUS.Text = "PORT OPEN";
                     mySerialPort.Open();
-
                 }
-                else if (e.ClickedItem.Text == "Close Port")
+                else
                 {
-
-                    textBoxSTATUS.Text = "PORT CLOSED";
                     mySerialPort.Close();
                 }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show(Convert.ToString(ex), "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-            catch (Exception ex) {
-
-                MessageBox.Show(Convert.ToString(ex),"WARNING",MessageBoxButtons.OK,MessageBoxIcon.Warning);
-            
-            }
-
-
         }
 
         void OnParitySelection(object? sender, ToolStripItemClickedEventArgs e)     // event to select parity based on user input
@@ -219,32 +214,23 @@ namespace AT_SCC
 
         void OnRModeChange(object? sender, ToolStripItemClickedEventArgs e)     // event to select the mode of the tool
         {
-            if ((e.ClickedItem == null || currentMode != "Receive Mode") && textBoxreceiveType != null)
-            {
-                MessageBox.Show("Receive Mode Not Active", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                textBoxreceiveType.Text = "N/A - DISABLED";
-                return;
-            }
 
-            else if (e.ClickedItem != null && textBoxreceiveType != null && textBoxSENDTYPE != null && currentMode == "Receive Mode")
+
+            if (e.ClickedItem != null && textBoxreceiveType != null && textBoxSENDTYPE != null)
             {
                 textBoxreceiveType.Text = currentRTOption = e.ClickedItem.Text;
-                textBoxSENDTYPE.Text = "N/A - DISABLED";
+
             }
         }
 
         void OnSModeChange(object? sender, ToolStripItemClickedEventArgs e)         // event to select the mode of the tool
         {
-            if (currentMode == "Send Mode" && textBoxreceiveType != null && textBoxSENDTYPE != null)
+            if (textBoxreceiveType != null && textBoxSENDTYPE != null)
             {
                 textBoxSENDTYPE.Text = currentSTOption = e.ClickedItem?.Text ?? "N/A - DISABLED";
-                textBoxreceiveType.Text = "N/A - DISABLED";
+
             }
-            else if (currentMode != "Send Mode" && textBoxSENDTYPE != null)
-            {
-                textBoxSENDTYPE.Text = "N/A - DISABLED";
-                MessageBox.Show("Send Mode Not Active", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+
         }
 
         void OnRTimeout(object? sender, ToolStripItemClickedEventArgs e)            // event to select the read timeout
@@ -271,55 +257,33 @@ namespace AT_SCC
 
         }
 
-        private void TextBoxBTT_TextChanged(object? sender, EventArgs e)             // Define the event handler for the textbox text changed event
+        private void TextBoxBTT_TextChanged(object sender, EventArgs e)
         {
-            try
+            if (!int.TryParse(textBoxBTT?.Text, out int btt) || btt < 1)
             {
-                if (textBoxBTT != null)
-                {
-                    if (int.Parse(textBoxBTT.Text) > 100)       //FIX THIS
-                    {
-
-                        MessageBox.Show("Desired transfer size exceeds buffer.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        textBoxesPanel?.Controls.Clear();
-                        textBoxesPanel2?.Controls.Clear();
-
-                    }
-
-                    else if (int.Parse(textBoxBTT.Text) < 1)
-                    {
-
-                        MessageBox.Show("Desired transfer size needs to be positve value.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        textBoxesPanel?.Controls.Clear();
-                        textBoxesPanel2?.Controls.Clear();
-                    }
-
-                    else
-                    {
-
-                        int btt = 1;
-                        int.TryParse(textBoxBTT.Text, out btt);
-                        this.textBoxesPanel?.Controls.Clear();
-                        Enumerable.Range(1, btt).ToList().ForEach(i =>
-                        {
-                            TextBox textBox = new TextBox();
-                            textBox.Location = new Point(10, 10 + (i - 1) * 20);
-                            this.textBoxesPanel?.Controls.Add(textBox);
-                        });
-                        if (textBoxesPanel != null && vScrollBar1 != null)
-                        {
-                            this.vScrollBar1.Maximum = this.textBoxesPanel.Controls.Count - 2;
-                        }
-                    }
-                }
-            }
-            catch (SystemException ex)
-            {
-
-                MessageBox.Show(ex.Message, "WARNING:", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
+                MessageBox.Show("Desired transfer size needs to be a positive integer.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                textBoxesPanel?.Controls.Clear();
+                textBoxesPanel2?.Controls.Clear();
+                return;
             }
 
+            if (btt > MAX_BUFFER_SIZE)
+            {
+                MessageBox.Show("Desired transfer size exceeds buffer.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                textBoxesPanel?.Controls.Clear();
+                textBoxesPanel2?.Controls.Clear();
+                return;
+            }
+
+            this.textBoxesPanel?.Controls.Clear();
+            Enumerable.Range(1, btt).ToList().ForEach(i =>
+            {
+                TextBox textBox = new TextBox() { Location = new Point(10, 10 + (i - 1) * 20) };
+                this.textBoxesPanel?.Controls.Add(textBox);
+            });
+            this.vScrollBar1?.SetBounds(0, 0, 0, 0, BoundsSpecified.All); // hide scrollbar
+            this.vScrollBar1?.SetBounds(textBoxesPanel!.Right, textBoxesPanel.Top, vScrollBar1.Width, textBoxesPanel.Height, BoundsSpecified.All); // show scrollbar
+            this.vScrollBar1!.Maximum = this.textBoxesPanel!.Controls.Count - 2;
         }
 
         private void Timer_Tick(object? sender, EventArgs e)        // event to display the time and date
@@ -376,17 +340,21 @@ namespace AT_SCC
             cancellationTokenSource?.Cancel();
         }
 
-
-        private async void buttonRECEIVE_Click(object? sender, EventArgs e)     // event to engage the receive functionality
+        private async void Transmission_Click(object? sender, System.EventArgs e)
         {
-            cancellationTokenSource = new CancellationTokenSource();
-
-            try
+            if (textBoxesPanel != null && textBoxesPanel2 != null)
             {
-                if (textBoxesPanel2 != null)
+                cancellationTokenSource = new CancellationTokenSource();
+                textBoxesPanel2?.Controls.Clear();
+
+                if (textBoxMODEDISP?.Text == "Idle Mode" || textBoxMODEDISP?.Text == "IDLE Mode")
                 {
-                    textBoxesPanel2.Controls.Clear();
-                    if (currentMode == "Receive Mode" && currentRTOption == "Byte")
+                    MessageBox.Show("Program in IDLE MODE. Please configure settings to desired mode/needs", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+
+                    if (textBoxMODEDISP?.Text == "Receive Mode" && textBoxreceiveType?.Text == "Byte")
                     {
                         int i = 0;
                         var receivedBytes = new List<byte>();
@@ -411,7 +379,7 @@ namespace AT_SCC
                                 Width = 100,
                                 ReadOnly = true
                             };
-                            textBoxesPanel2.Controls.Add(textBoxArray[k]);
+                            textBoxesPanel2?.Controls.Add(textBoxArray[k]);
                         }
 
                         if (!(repeat_check.Checked))
@@ -491,13 +459,10 @@ namespace AT_SCC
 
                         mySerialPort.Close();
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
-
-
                     }
 
-                    else if (currentMode == "Receive Mode" && currentRTOption == "String")
+                    else if (textBoxMODEDISP?.Text == "Receive Mode" && textBoxreceiveType?.Text == "String")
                     {
-
                         int i = 0;
                         var receivedString = new StringBuilder();
 
@@ -520,7 +485,7 @@ namespace AT_SCC
                                 Width = 100,
                                 ReadOnly = true
                             };
-                            textBoxesPanel2.Controls.Add(textBoxArray[k]);
+                            textBoxesPanel2?.Controls.Add(textBoxArray[k]);
                         }
 
                         if (!(repeat_check.Checked))
@@ -590,12 +555,10 @@ namespace AT_SCC
 
                         mySerialPort.Close();
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
-
                     }
 
-                    else if (currentMode == "Receive Mode" && currentRTOption == "Byte Collection")
+                    else if (textBoxMODEDISP?.Text == "Receive Mode" && textBoxreceiveType?.Text == "Byte Collection")
                     {
-
                         int i = 0;
                         var receivedBytes = new List<byte>();
 
@@ -619,7 +582,7 @@ namespace AT_SCC
                                 Width = 100,
                                 ReadOnly = true
                             };
-                            textBoxesPanel2.Controls.Add(textBoxArray[k]);
+                            textBoxesPanel2?.Controls.Add(textBoxArray[k]);
                         }
 
                         if (!(repeat_check.Checked))
@@ -689,925 +652,987 @@ namespace AT_SCC
                         if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
                     }
 
-                    else
+                    else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "Byte")
                     {
-                        MessageBox.Show("Either Receive Mode not active OR Invalid Receive Data Type", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                    }
-                }
-            }
-            catch (SystemException ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-        }
 
 
-        private async void buttonSEND_Click(object? sender, System.EventArgs e) // event to engage the send functionality
-        {
-
-            cancellationTokenSource = new CancellationTokenSource();
-            if (textBoxBTT != null)
-            {
-                int buffcheck = currentRepeatint * int.Parse(textBoxBTT.Text);
-                if (buffcheck > MAX_BUFFER_SIZE)
-                {
-                    MessageBox.Show("RX will receive more than allowed buffer", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-                else
-                {
-                    try
-                    {
-                        if (textBoxesPanel2 != null && textBoxesPanel != null)
+                        var inputValues = new List<string>();
+                        foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
                         {
-                            textBoxesPanel2.Controls.Clear();
-                            if (currentMode == "Send Mode" && currentSTOption == "String")
+                            if (!string.IsNullOrEmpty(textBox.Text))
+                            {
+                                inputValues.AddRange(textBox.Text.Split(' '));
+                            }
+                        }
+
+                        if (!inputValues.Any())
+                        {
+                            MessageBox.Show("Please input byte values\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+
+                        var bytesToSend = new List<byte>();
+                        foreach (var value in inputValues)
+                        {
+                            if (byte.TryParse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var byteValue))
+                            {
+                                bytesToSend.Add(byteValue);
+                            }
+                            else
+                            {
+                                MessageBox.Show($"Error: Unable to parse byte value '{value}'", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+                        }
+
+                        var delay = TimeSpan.FromMilliseconds(currentDelayint);
+
+                        using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
+                        {
+                            Handshake = currentHandshakevalue,
+                            ReadTimeout = int.Parse(currentReadTimeout),
+                            WriteTimeout = int.Parse(currentWriteTimeout)
+                        };
+
+                        if (!mySerialPort.IsOpen) mySerialPort.Open();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
+
+                        if (!repeat_check.Checked)
+                        {
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte")
                             {
 
-                                var inputValues = new List<string>();
-                                foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
+                                MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                            }
+                            else
+                            {
+                                int i = 0;
+                                var textBoxArray = new TextBox[Math.Min(bytesToSend.Count, MAX_BUFFER_SIZE)];
+                                for (var j = 0; j < textBoxArray.Length; j++)
                                 {
-                                    if (!string.IsNullOrEmpty(textBox.Text))
+                                    textBoxArray[j] = new TextBox
                                     {
-                                        inputValues.Add(textBox.Text);
-                                    }
+                                        Location = new Point(10, j * 20 + i * 200),         // ADJUST THIS CODE LINE
+                                        Width = 100,
+                                        ReadOnly = true
+                                    };
+                                    textBoxesPanel2?.Controls.Add(textBoxArray[j]);
                                 }
 
-                                if (!inputValues.Any())
+                                var index = 0;
+
+                                foreach (var byteValue in bytesToSend)
                                 {
-                                    MessageBox.Show("Please input strings to send\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    return;
-                                }
+                                    Console.WriteLine("Byte value: {0}", byteValue);
 
-                                var delay = TimeSpan.FromMilliseconds(currentDelayint);
-
-                                using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
-                                {
-                                    Handshake = currentHandshakevalue,
-                                    ReadTimeout = int.Parse(currentReadTimeout),
-                                    WriteTimeout = int.Parse(currentWriteTimeout)
-                                };
-
-                                if (!mySerialPort.IsOpen) mySerialPort.Open();
-                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
-
-                                var textBoxArray = new TextBox[MAX_BUFFER_SIZE];
-                                var textBoxesPanelIndex = 0; // keeps track of the index in the textboxesPanel2.Controls list
-
-                                if (!repeat_check.Checked)
-                                {
-
-                                    for (var j = 0; j < Math.Min(inputValues.Count, MAX_BUFFER_SIZE); j++)
+                                    if (logging_check.Checked)
                                     {
-                                        var textBox = new TextBox
-                                        {
-                                            Location = new Point(10, (textBoxesPanelIndex + j) * 20),
-                                            Width = 100,
-                                            ReadOnly = true
-                                        };
-                                        textBoxesPanel2.Controls.Add(textBox);
-                                        textBoxArray[j] = textBox;
+                                        var logFilePath = LogFilePath;
+
+                                        using var logFile = new StreamWriter(logFilePath, true);
+                                        logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE]: {byteValue}");
                                     }
 
-                                    int currentTextBoxIndex = 0; // add this line to declare a variable to keep track of the current textbox index
+                                    mySerialPort.Write(new[] { byteValue }, 0, 1);
 
-                                    foreach (var value in inputValues)
+                                    Thread.Sleep(currentDelayint);
+                                    if (textBoxreceiveType?.Text == "Byte")
                                     {
-                                        Console.WriteLine("Sending string: {0}", value);
-
-                                        if (logging_check.Checked)
+                                        if (index < textBoxArray.Length)
                                         {
-                                            var logFilePath = LogFilePath;
+                                            var receivedTextBox = textBoxArray[index];
+                                            receivedTextBox.Text = Convert.ToString(mySerialPort.ReadByte());
 
-                                            using var logFile = new StreamWriter(logFilePath, true);
-                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT STRING]: {value}");
-                                        }
-
-                                        mySerialPort.Write(value);
-                                        Thread.Sleep(currentDelayint);
-
-                                        if (receive_check.Checked)
-                                        {
-                                            if (textBoxArray.Length > 0)
+                                            if (logging_check.Checked)
                                             {
-                                                var receivedTextBox = textBoxArray[currentTextBoxIndex];
-                                                var buffer = new byte[mySerialPort.ReadBufferSize];
+                                                var logFilePath = LogFilePath;
 
-                                                int bytesRead = 0;
-                                                var sb = new StringBuilder();
-
-                                                while (mySerialPort.BytesToRead > 0)
-                                                {
-                                                    bytesRead = mySerialPort.Read(buffer, 0, buffer.Length);
-                                                    sb.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
-                                                }
-
-                                                receivedTextBox.Text = sb.ToString();
-
-                                                if (logging_check.Checked)
-                                                {
-                                                    var logFilePath = LogFilePath;
-                                                    using var logFile = new StreamWriter(logFilePath, true);
-                                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED STRING]: {receivedTextBox.Text}\n");
-                                                }
-
-                                                currentTextBoxIndex++; // increment the index of the current textbox
-                                            }
-                                            else
-                                            {
-                                                MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                                using var logFile = new StreamWriter(logFilePath, true);
+                                                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE]: {receivedTextBox.Text}");
                                             }
                                         }
+                                        else
+                                        {
+                                            MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
+                                        }
+
+                                        index++;
                                     }
-
-                                    textBoxesPanelIndex += Math.Min(inputValues.Count, MAX_BUFFER_SIZE); // increment the index for the next iteration
 
                                 }
-
-
-                                while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
-                                {
-                                    // create textboxes for the current iteration and add them to the panel
-                                    if (textBoxesPanel2.Controls.Count <= MAX_BUFFER_SIZE)
-                                    {
-                                        for (var j = 0; j < Math.Min(inputValues.Count, MAX_BUFFER_SIZE); j++)
-                                        {
-                                            var textBox = new TextBox
-                                            {
-                                                Location = new Point(10, (textBoxesPanelIndex + j) * 20),
-                                                Width = 100,
-                                                ReadOnly = true
-                                            };
-                                            textBoxesPanel2.Controls.Add(textBox);
-                                            textBoxArray[j] = textBox;
-                                        }
-                                    }
-
-                                    int currentTextBoxIndex = 0; // add this line to declare a variable to keep track of the current textbox index
-
-                                    foreach (var value in inputValues)
-                                    {
-                                        Console.WriteLine("Sending string: {0}", value);
-
-                                        if (logging_check.Checked)
-                                        {
-                                            var logFilePath = LogFilePath;
-
-                                            using var logFile = new StreamWriter(logFilePath, true);
-                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT STRING]: {value}");
-                                        }
-
-                                        mySerialPort.Write(value);
-                                        Thread.Sleep(currentDelayint);
-
-                                        if (receive_check.Checked)
-                                        {
-                                            if (textBoxArray.Length > 0 && checklimit < MAX_BUFFER_SIZE)
-                                            {
-                                                var receivedTextBox = textBoxArray[currentTextBoxIndex];
-                                                var buffer = new byte[mySerialPort.ReadBufferSize];
-
-                                                int bytesRead = 0;
-                                                var sb = new StringBuilder();
-
-                                                while (mySerialPort.BytesToRead > 0)
-                                                {
-                                                    bytesRead = mySerialPort.Read(buffer, 0, buffer.Length);
-                                                    sb.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
-                                                }
-
-                                                receivedTextBox.Text = sb.ToString();
-
-                                                if (logging_check.Checked)
-                                                {
-                                                    var logFilePath = LogFilePath;
-                                                    using var logFile = new StreamWriter(logFilePath, true);
-                                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED STRING]: {receivedTextBox.Text}\n");
-                                                }
-
-                                                currentTextBoxIndex++; // increment the index of the current textbox
-                                                checklimit++;
-                                            }
-                                            else
-                                            {
-                                                MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                                textBoxesPanel2.Controls.Clear();
-                                                checklimit = 0;
-                                                currentTextBoxIndex = 0;
-                                            }
-                                        }
-
-                                        await Task.Delay(500);
-
-                                    }
-
-                                    textBoxesPanelIndex += Math.Min(inputValues.Count, MAX_BUFFER_SIZE); // increment the index for the next iteration
-
-                                }
-
-
-
-                                mySerialPort.Close();
-                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
+                                i++;
                             }
 
-                            else if (currentMode == "Send Mode" && currentSTOption == "Byte")
+
+                        }
+
+                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
+                        {
+
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte")
                             {
 
-                                var inputValues = new List<string>();
-                                foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
+                                MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                break;
+
+                            }
+
+
+                            int i = 0;
+                            var textBoxArray = new TextBox[Math.Min(bytesToSend.Count, MAX_BUFFER_SIZE)];
+                            for (var j = 0; j < textBoxArray.Length; j++)
+                            {
+                                textBoxArray[j] = new TextBox
                                 {
-                                    if (!string.IsNullOrEmpty(textBox.Text))
-                                    {
-                                        inputValues.AddRange(textBox.Text.Split(' '));
-                                    }
+                                    Location = new Point(10, j * 20 + i * 200),         // ADJUST THIS CODE LINE
+                                    Width = 100,
+                                    ReadOnly = true
+                                };
+                                textBoxesPanel2?.Controls.Add(textBoxArray[j]);
+
+                                textBoxArray[j].Show();
+                            }
+
+                            var index = 0;
+
+                            foreach (var byteValue in bytesToSend)
+                            {
+                                Console.WriteLine("Byte value: {0}", byteValue);
+
+                                if (logging_check.Checked)
+                                {
+                                    var logFilePath = LogFilePath;
+
+                                    using var logFile = new StreamWriter(logFilePath, true);
+                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE]: {byteValue}");
                                 }
 
-                                if (!inputValues.Any())
-                                {
-                                    MessageBox.Show("Please input byte values\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    return;
-                                }
+                                mySerialPort.Write(new[] { byteValue }, 0, 1);
 
-                                var bytesToSend = new List<byte>();
-                                foreach (var value in inputValues)
+                                Thread.Sleep(currentDelayint);
+                                if (textBoxreceiveType?.Text == "Byte")
                                 {
-                                    if (byte.TryParse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var byteValue))
+                                    if (index < textBoxArray.Length && textBoxesPanel2?.Controls.Count < MAX_BUFFER_SIZE)
                                     {
-                                        bytesToSend.Add(byteValue);
+                                        var receivedTextBox = textBoxArray[index];
+                                        receivedTextBox.Text = Convert.ToString(mySerialPort.ReadByte());
+
+                                        if (logging_check.Checked)
+                                        {
+                                            var logFilePath = LogFilePath;
+
+                                            using var logFile = new StreamWriter(logFilePath, true);
+                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE]: {receivedTextBox.Text}");
+                                        }
                                     }
                                     else
                                     {
-                                        MessageBox.Show($"Error: Unable to parse byte value '{value}'", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                        return;
+                                        MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                        textBoxesPanel2?.Controls.Clear();
+                                        index = -1;
                                     }
+
+                                    index++;
                                 }
 
-                                var delay = TimeSpan.FromMilliseconds(currentDelayint);
-
-                                using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
-                                {
-                                    Handshake = currentHandshakevalue,
-                                    ReadTimeout = int.Parse(currentReadTimeout),
-                                    WriteTimeout = int.Parse(currentWriteTimeout)
-                                };
-
-                                if (!mySerialPort.IsOpen) mySerialPort.Open();
-                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
-
-                                if (!repeat_check.Checked)
-                                {
-                                    int i = 0;
-                                    var textBoxArray = new TextBox[Math.Min(bytesToSend.Count, MAX_BUFFER_SIZE)];
-                                    for (var j = 0; j < textBoxArray.Length; j++)
-                                    {
-                                        textBoxArray[j] = new TextBox
-                                        {
-                                            Location = new Point(10, j * 20 + i * 200),         // ADJUST THIS CODE LINE
-                                            Width = 100,
-                                            ReadOnly = true
-                                        };
-                                        textBoxesPanel2.Controls.Add(textBoxArray[j]);
-                                    }
-
-                                    var index = 0;
-
-                                    foreach (var byteValue in bytesToSend)
-                                    {
-                                        Console.WriteLine("Byte value: {0}", byteValue);
-
-                                        if (logging_check.Checked)
-                                        {
-                                            var logFilePath = LogFilePath;
-
-                                            using var logFile = new StreamWriter(logFilePath, true);
-                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE]: {byteValue}");
-                                        }
-
-                                        mySerialPort.Write(new[] { byteValue }, 0, 1);
-
-                                        Thread.Sleep(currentDelayint);
-                                        if (receive_check.Checked)
-                                        {
-                                            if (index < textBoxArray.Length)
-                                            {
-                                                var receivedTextBox = textBoxArray[index];
-                                                receivedTextBox.Text = Convert.ToString(mySerialPort.ReadByte());
-
-                                                if (logging_check.Checked)
-                                                {
-                                                    var logFilePath = LogFilePath;
-
-                                                    using var logFile = new StreamWriter(logFilePath, true);
-                                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE]: {receivedTextBox.Text}");
-                                                }
-                                            }
-                                            else
-                                            {
-                                                MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                                            }
-
-                                            index++;
-                                        }
-                                    }
-                                    i++;
-
-
-                                }
-
-                                while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
-                                {
-                                    int i = 0;
-                                    var textBoxArray = new TextBox[Math.Min(bytesToSend.Count, MAX_BUFFER_SIZE)];
-                                    for (var j = 0; j < textBoxArray.Length; j++)
-                                    {
-                                        textBoxArray[j] = new TextBox
-                                        {
-                                            Location = new Point(10, j * 20 + i * 200),         // ADJUST THIS CODE LINE
-                                            Width = 100,
-                                            ReadOnly = true
-                                        };
-                                        textBoxesPanel2.Controls.Add(textBoxArray[j]);
-
-                                        textBoxArray[j].Show();
-                                    }
-
-                                    var index = 0;
-
-                                    foreach (var byteValue in bytesToSend)
-                                    {
-                                        Console.WriteLine("Byte value: {0}", byteValue);
-
-                                        if (logging_check.Checked)
-                                        {
-                                            var logFilePath = LogFilePath;
-
-                                            using var logFile = new StreamWriter(logFilePath, true);
-                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE]: {byteValue}");
-                                        }
-
-                                        mySerialPort.Write(new[] { byteValue }, 0, 1);
-
-                                        Thread.Sleep(currentDelayint);
-                                        if (receive_check.Checked)
-                                        {
-                                            if (index < textBoxArray.Length && textBoxesPanel2.Controls.Count < MAX_BUFFER_SIZE)
-                                            {
-                                                var receivedTextBox = textBoxArray[index];
-                                                receivedTextBox.Text = Convert.ToString(mySerialPort.ReadByte());
-
-                                                if (logging_check.Checked)
-                                                {
-                                                    var logFilePath = LogFilePath;
-
-                                                    using var logFile = new StreamWriter(logFilePath, true);
-                                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE]: {receivedTextBox.Text}");
-                                                }
-                                            }
-                                            else
-                                            {
-                                                MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                                textBoxesPanel2.Controls.Clear();
-                                                index = -1;
-                                            }
-
-                                            index++;
-                                        }
-                                        await Task.Delay(500);
-                                    }
-                                    i++;
-
-
-                                }
-
-                                mySerialPort.Close();
-                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
+                                await Task.Delay(500);
                             }
+                            i++;
 
-                            else if (currentMode == "Send Mode" && currentSTOption == "Byte Collection")
+
+
+
+                        }
+
+                        mySerialPort.Close();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
+
+                    }
+
+                    else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "String")
+                    {
+                        var inputValues = new List<string>();
+                        foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
+                        {
+                            if (!string.IsNullOrEmpty(textBox.Text))
+                            {
+                                inputValues.Add(textBox.Text);
+                            }
+                        }
+
+                        if (!inputValues.Any())
+                        {
+                            MessageBox.Show("Please input strings to send\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+
+                        var delay = TimeSpan.FromMilliseconds(currentDelayint);
+
+                        using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
+                        {
+                            Handshake = currentHandshakevalue,
+                            ReadTimeout = int.Parse(currentReadTimeout),
+                            WriteTimeout = int.Parse(currentWriteTimeout)
+                        };
+
+                        if (!mySerialPort.IsOpen) mySerialPort.Open();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
+
+                        var textBoxArray = new TextBox[MAX_BUFFER_SIZE];
+                        var textBoxesPanelIndex = 0; // keeps track of the index in the textboxesPanel2.Controls list
+
+                        if (!repeat_check.Checked)
+                        {
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "String")
                             {
 
-                                var byteCollections = new List<byte[]>();
-                                foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
-                                {
-                                    if (!string.IsNullOrEmpty(textBox.Text))
-                                    {
-                                        var byteValues = textBox.Text.Split(' ')
-                                            .Where(x => !string.IsNullOrEmpty(x))
-                                            .Select(x => byte.TryParse(x, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var result) ? result : (byte)0)
-                                            .ToArray();
+                                MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
-                                        if (byteValues.Length > 0)
-                                        {
-                                            byteCollections.Add(byteValues);
-                                        }
-                                    }
-                                }
-
-                                if (!byteCollections.Any())
-                                {
-                                    MessageBox.Show("Please input byte values\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    return;
-                                }
-
-                                var delay = TimeSpan.FromMilliseconds(currentDelayint);
-
-                                using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
-                                {
-                                    Handshake = currentHandshakevalue,
-                                    ReadTimeout = int.Parse(currentReadTimeout),
-                                    WriteTimeout = int.Parse(currentWriteTimeout)
-                                };
-
-                                if (!mySerialPort.IsOpen) mySerialPort.Open();
-                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
-
-                                var textBoxList = new List<TextBox>();
-                                var textBoxIndex = 0;
-
-                                if (!repeat_check.Checked)
-                                {
-
-                                    var textBoxArray = new TextBox[Math.Min(byteCollections.Count, MAX_BUFFER_SIZE)];
-                                    for (var j = 0; j < textBoxArray.Length; j++)
-                                    {
-                                        var textBox = new TextBox
-                                        {
-                                            Location = new Point(10, (textBoxIndex + j) * 20),
-                                            Width = 100,
-                                            ReadOnly = true
-                                        };
-                                        textBoxList.Add(textBox);
-                                        textBoxesPanel2.Controls.Add(textBox);
-                                    }
-
-                                    var index = 0;
-
-                                    foreach (var byteCollection in byteCollections)
-                                    {
-                                        Console.WriteLine("Byte collection: {0}", BitConverter.ToString(byteCollection));
-
-                                        if (logging_check.Checked)
-                                        {
-                                            var logFilePath = LogFilePath;
-
-                                            using var logFile = new StreamWriter(logFilePath, true);
-                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE COLLECTION]: {BitConverter.ToString(byteCollection)}");
-                                        }
-
-                                        mySerialPort.Write(byteCollection, 0, byteCollection.Length);
-
-                                        Thread.Sleep(currentDelayint);
-                                        if (receive_check.Checked)
-                                        {
-                                            if (index < textBoxArray.Length)
-                                            {
-                                                var receivedTextBox = textBoxList[textBoxIndex + index];
-                                                receivedTextBox.Text = mySerialPort.ReadExisting();
-
-                                                if (logging_check.Checked)
-                                                {
-                                                    var logFilePath = LogFilePath;
-
-                                                    using var logFile = new StreamWriter(logFilePath, true);
-                                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE COLLECTION]: {receivedTextBox.Text}");
-                                                }
-                                            }
-                                            else
-                                            {
-                                                MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                            }
-
-                                            index++;
-                                        }
-                                    }
-
-                                    textBoxIndex += textBoxArray.Length;
-
-                                }
-
-                                while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
-                                {
-                                    var textBoxArray = new TextBox[Math.Min(byteCollections.Count, MAX_BUFFER_SIZE)];
-                                    for (var j = 0; j < textBoxArray.Length; j++)
-                                    {
-                                        var textBox = new TextBox
-                                        {
-                                            Location = new Point(10, (textBoxIndex + j) * 20),
-                                            Width = 100,
-                                            ReadOnly = true
-                                        };
-                                        textBoxList.Add(textBox);
-                                        textBoxesPanel2.Controls.Add(textBox);
-                                    }
-
-                                    var index = 0;
-
-                                    foreach (var byteCollection in byteCollections)
-                                    {
-                                        Console.WriteLine("Byte collection: {0}", BitConverter.ToString(byteCollection));
-
-                                        if (logging_check.Checked)
-                                        {
-                                            var logFilePath = LogFilePath;
-
-                                            using var logFile = new StreamWriter(logFilePath, true);
-                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE COLLECTION]: {BitConverter.ToString(byteCollection)}");
-                                        }
-
-                                        mySerialPort.Write(byteCollection, 0, byteCollection.Length);
-
-                                        Thread.Sleep(currentDelayint);
-                                        if (receive_check.Checked)
-                                        {
-                                            if (index < textBoxArray.Length && textBoxesPanel2.Controls.Count <= MAX_BUFFER_SIZE)
-                                            {
-                                                var receivedTextBox = textBoxList[textBoxIndex + index];
-                                                receivedTextBox.Text = mySerialPort.ReadExisting();
-
-                                                if (logging_check.Checked)
-                                                {
-                                                    var logFilePath = LogFilePath;
-
-                                                    using var logFile = new StreamWriter(logFilePath, true);
-                                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE COLLECTION]: {receivedTextBox.Text}");
-                                                }
-                                            }
-                                            else
-                                            {
-                                                MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                                index = -1;
-                                                textBoxesPanel2.Controls.Clear();
-                                            }
-
-                                            index++;
-                                        }
-
-                                        await Task.Delay(500);
-                                    }
-
-                                    textBoxIndex += textBoxArray.Length;
-
-                                }
-
-                                mySerialPort.Close();
-                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
                             }
-
-                            else if (currentMode == "Send Mode" && currentSTOption == "ASCII (SEND ONLY)")
+                            else
                             {
 
-                                var inputValues = new List<string>();
-                                foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
+                                for (var j = 0; j < Math.Min(inputValues.Count, MAX_BUFFER_SIZE); j++)
                                 {
-                                    if (!string.IsNullOrEmpty(textBox.Text))
+                                    var textBox = new TextBox
                                     {
-                                        inputValues.AddRange(textBox.Text.Split(' '));
-                                    }
+                                        Location = new Point(10, (textBoxesPanelIndex + j) * 20),
+                                        Width = 100,
+                                        ReadOnly = true
+                                    };
+                                    textBoxesPanel2?.Controls.Add(textBox);
+                                    textBoxArray[j] = textBox;
                                 }
 
-                                if (!inputValues.Any())
-                                {
-                                    MessageBox.Show("Please input ASCII values\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    return;
-                                }
+                                int currentTextBoxIndex = 0; // add this line to declare a variable to keep track of the current textbox index
 
-                                var asciiBytes = new List<byte>();
                                 foreach (var value in inputValues)
                                 {
-                                    if (byte.TryParse(value, out var asciiByte))
+                                    Console.WriteLine("Sending string: {0}", value);
+
+                                    if (logging_check.Checked)
                                     {
-                                        asciiBytes.Add(asciiByte);
+                                        var logFilePath = LogFilePath;
+
+                                        using var logFile = new StreamWriter(logFilePath, true);
+                                        logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT STRING]: {value}");
                                     }
-                                }
 
-                                var hexBytes = Encoding.ASCII.GetBytes(Encoding.ASCII.GetString(asciiBytes.ToArray()));
+                                    mySerialPort.Write(value);
+                                    Thread.Sleep(currentDelayint);
 
-
-                                var delay = TimeSpan.FromMilliseconds(currentDelayint);
-
-                                using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
-                                {
-                                    Handshake = currentHandshakevalue,
-                                    ReadTimeout = int.Parse(currentReadTimeout),
-                                    WriteTimeout = int.Parse(currentWriteTimeout)
-                                };
-
-                                if (!mySerialPort.IsOpen) mySerialPort.Open();
-                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
-
-                                int textBoxLocationY = textBoxesPanel2.Controls.Count * 20;
-
-                                if (!repeat_check.Checked)
-                                {
-
-                                    int index = 0;
-
-                                    foreach (var hexByte in hexBytes)
+                                    if (textBoxreceiveType?.Text == "String")
                                     {
-                                        Console.WriteLine("ASCII value: {0} represents: {1}", hexByte, Convert.ToChar(hexByte));
-
-                                        if (logging_check.Checked)
+                                        if (textBoxArray.Length > 0)
                                         {
-                                            var logFilePath = LogFilePath;
+                                            var receivedTextBox = textBoxArray[currentTextBoxIndex];
+                                            var buffer = new byte[mySerialPort.ReadBufferSize];
 
-                                            using var logFile = new StreamWriter(logFilePath, true);
-                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT ASCII]: {hexByte.ToString("X2")}");
-                                        }
+                                            int bytesRead = 0;
+                                            var sb = new StringBuilder();
 
-                                        mySerialPort.Write(new byte[] { hexByte }, 0, 1);
-
-                                        Thread.Sleep(currentDelayint);
-
-                                        if (receive_check.Checked)
-                                        {
-
-                                            var receivedTextBox = new TextBox
+                                            while (mySerialPort.BytesToRead > 0)
                                             {
-                                                Location = new Point(10, textBoxLocationY),
-                                                Width = 100,
-                                                ReadOnly = true,
-                                                Text = mySerialPort.ReadExisting()
-                                            };
+                                                bytesRead = mySerialPort.Read(buffer, 0, buffer.Length);
+                                                sb.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
+                                            }
 
-                                            textBoxesPanel2.Controls.Add(receivedTextBox);
+                                            receivedTextBox.Text = sb.ToString();
 
                                             if (logging_check.Checked)
                                             {
                                                 var logFilePath = LogFilePath;
-
                                                 using var logFile = new StreamWriter(logFilePath, true);
-                                                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED ASCII]: {receivedTextBox.Text}");
+                                                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED STRING]: {receivedTextBox.Text}\n");
                                             }
 
-                                            textBoxLocationY += 20;
-                                            index++;
-
+                                            currentTextBoxIndex++; // increment the index of the current textbox
                                         }
-                                    }
-
-                                }
-
-                                int index2 = 0;
-                                while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
-                                {
-                                    byte[] hexBytesArray = hexBytes.ToArray();
-
-                                    for (int i = 0; i < hexBytesArray.Length; i++)
-                                    {
-                                        var hexByte = hexBytesArray[i];
-                                        Console.WriteLine("ASCII value: {0} represents: {1}", hexByte, Convert.ToChar(hexByte));
-
-                                        if (logging_check.Checked)
-                                        {
-                                            var logFilePath = LogFilePath;
-
-                                            using var logFile = new StreamWriter(logFilePath, true);
-                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT ASCII]: {hexByte.ToString("X2")}");
-                                        }
-
-                                        mySerialPort.Write(new byte[] { hexByte }, 0, 1);
-
-                                        Thread.Sleep(currentDelayint);
-
-                                        if (receive_check.Checked)
-                                        {
-                                            var receivedBytes = new byte[1024];
-                                            int bytesRead = mySerialPort.Read(receivedBytes, 0, receivedBytes.Length);
-                                            var receivedText = Encoding.ASCII.GetString(receivedBytes, 0, bytesRead);
-
-                                            var receivedTextBox = new TextBox
-                                            {
-                                                Location = new Point(10, 20 + (index2 % MAX_BUFFER_SIZE) * 20),
-                                                Width = 100,
-                                                ReadOnly = true,
-                                                Text = receivedText
-                                            };
-
-                                            if (index2 >= MAX_BUFFER_SIZE)
-                                            {
-                                                textBoxesPanel2.Controls.RemoveAt(0);
-                                            }
-
-                                            textBoxesPanel2.Controls.Add(receivedTextBox);
-
-                                            if (logging_check.Checked)
-                                            {
-                                                var logFilePath = LogFilePath;
-
-                                                using var logFile = new StreamWriter(logFilePath, true);
-                                                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED ASCII]: {receivedText}");
-                                            }
-
-                                            index2++;
-                                        }
-
-                                        if (index2 >= MAX_BUFFER_SIZE)
+                                        else
                                         {
                                             MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                            index2 = 0;
-                                            textBoxesPanel2.Controls.Clear();
                                         }
-
-                                        await Task.Delay(500);
-
                                     }
-
 
                                 }
 
+                                textBoxesPanelIndex += Math.Min(inputValues.Count, MAX_BUFFER_SIZE); // increment the index for the next iteration
+                            }
 
-                                mySerialPort.Close();
-                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
+                        }
+
+
+                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
+                        {
+
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "String")
+                            {
+
+                                MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                break;
+
+                            }
+                            // create textboxes for the current iteration and add them to the panel
+                            if (textBoxesPanel2?.Controls.Count <= MAX_BUFFER_SIZE)
+                            {
+                                for (var j = 0; j < Math.Min(inputValues.Count, MAX_BUFFER_SIZE); j++)
+                                {
+                                    var textBox = new TextBox
+                                    {
+                                        Location = new Point(10, (textBoxesPanelIndex + j) * 20),
+                                        Width = 100,
+                                        ReadOnly = true
+                                    };
+                                    textBoxesPanel2.Controls.Add(textBox);
+                                    textBoxArray[j] = textBox;
+                                }
+                            }
+
+                            int currentTextBoxIndex = 0; // add this line to declare a variable to keep track of the current textbox index
+
+                            foreach (var value in inputValues)
+                            {
+                                Console.WriteLine("Sending string: {0}", value);
+
+                                if (logging_check.Checked)
+                                {
+                                    var logFilePath = LogFilePath;
+
+                                    using var logFile = new StreamWriter(logFilePath, true);
+                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT STRING]: {value}");
+                                }
+
+                                mySerialPort.Write(value);
+                                Thread.Sleep(currentDelayint);
+
+                                if (textBoxreceiveType?.Text == "String")
+                                {
+                                    if (textBoxArray.Length > 0 && checklimit < MAX_BUFFER_SIZE)
+                                    {
+                                        var receivedTextBox = textBoxArray[currentTextBoxIndex];
+                                        var buffer = new byte[mySerialPort.ReadBufferSize];
+
+                                        int bytesRead = 0;
+                                        var sb = new StringBuilder();
+
+                                        while (mySerialPort.BytesToRead > 0)
+                                        {
+                                            bytesRead = mySerialPort.Read(buffer, 0, buffer.Length);
+                                            sb.Append(Encoding.ASCII.GetString(buffer, 0, bytesRead));
+                                        }
+
+                                        receivedTextBox.Text = sb.ToString();
+
+                                        if (logging_check.Checked)
+                                        {
+                                            var logFilePath = LogFilePath;
+                                            using var logFile = new StreamWriter(logFilePath, true);
+                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED STRING]: {receivedTextBox.Text}\n");
+                                        }
+
+                                        currentTextBoxIndex++; // increment the index of the current textbox
+                                        checklimit++;
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                        textBoxesPanel2?.Controls.Clear();
+                                        checklimit = 0;
+                                        currentTextBoxIndex = 0;
+                                    }
+                                }
+
+                                await Task.Delay(500);
 
                             }
 
-                            else if (currentMode == "Send Mode" && currentSTOption == "ASCII-HEX (SEND ONLY)")
+                            textBoxesPanelIndex += Math.Min(inputValues.Count, MAX_BUFFER_SIZE); // increment the index for the next iteration
+
+                        }
+
+
+
+                        mySerialPort.Close();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
+                    }
+
+                    else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "Byte Collection")
+                    {
+                        var byteCollections = new List<byte[]>();
+                        foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
+                        {
+                            if (!string.IsNullOrEmpty(textBox.Text))
+                            {
+                                var byteValues = textBox.Text.Split(' ')
+                                    .Where(x => !string.IsNullOrEmpty(x))
+                                    .Select(x => byte.TryParse(x, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var result) ? result : (byte)0)
+                                    .ToArray();
+
+                                if (byteValues.Length > 0)
+                                {
+                                    byteCollections.Add(byteValues);
+                                }
+                            }
+                        }
+
+                        if (!byteCollections.Any())
+                        {
+                            MessageBox.Show("Please input byte values\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+
+                        var delay = TimeSpan.FromMilliseconds(currentDelayint);
+
+                        using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
+                        {
+                            Handshake = currentHandshakevalue,
+                            ReadTimeout = int.Parse(currentReadTimeout),
+                            WriteTimeout = int.Parse(currentWriteTimeout)
+                        };
+
+                        if (!mySerialPort.IsOpen) mySerialPort.Open();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
+
+                        var textBoxList = new List<TextBox>();
+                        var textBoxIndex = 0;
+
+                        if (!repeat_check.Checked)
+                        {
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte Collection")
                             {
 
+                                MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
-                                var inputValues = new List<string>();
-                                foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
+                            }
+                            else
+                            {
+
+                                var textBoxArray = new TextBox[Math.Min(byteCollections.Count, MAX_BUFFER_SIZE)];
+                                for (var j = 0; j < textBoxArray.Length; j++)
                                 {
-                                    if (!string.IsNullOrEmpty(textBox.Text))
+                                    var textBox = new TextBox
                                     {
-                                        inputValues.AddRange(textBox.Text.Split(' '));
+                                        Location = new Point(10, (textBoxIndex + j) * 20),
+                                        Width = 100,
+                                        ReadOnly = true
+                                    };
+                                    textBoxList.Add(textBox);
+                                    textBoxesPanel2?.Controls.Add(textBox);
+                                }
+
+                                var index = 0;
+
+                                foreach (var byteCollection in byteCollections)
+                                {
+                                    Console.WriteLine("Byte collection: {0}", BitConverter.ToString(byteCollection));
+
+                                    if (logging_check.Checked)
+                                    {
+                                        var logFilePath = LogFilePath;
+
+                                        using var logFile = new StreamWriter(logFilePath, true);
+                                        logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE COLLECTION]: {BitConverter.ToString(byteCollection)}");
                                     }
-                                }
 
-                                if (!inputValues.Any())
-                                {
-                                    MessageBox.Show("Please input HEX values\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    return;
-                                }
+                                    mySerialPort.Write(byteCollection, 0, byteCollection.Length);
 
-                                var hexBytes = new List<byte>();
-                                foreach (var value in inputValues)
-                                {
-                                    if (byte.TryParse(value, System.Globalization.NumberStyles.HexNumber, null, out var hexByte))
+                                    Thread.Sleep(currentDelayint);
+                                    if (textBoxreceiveType?.Text == "Byte Collection")
                                     {
-                                        hexBytes.Add(hexByte);
-                                    }
-                                }
-
-
-                                var delay = TimeSpan.FromMilliseconds(currentDelayint);
-
-                                using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
-                                {
-                                    Handshake = currentHandshakevalue,
-                                    ReadTimeout = int.Parse(currentReadTimeout),
-                                    WriteTimeout = int.Parse(currentWriteTimeout)
-                                };
-
-                                if (!mySerialPort.IsOpen) mySerialPort.Open();
-                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
-
-                                int textBoxLocationY = textBoxesPanel2.Controls.Count * 20;
-
-                                if (!repeat_check.Checked)
-                                {
-
-                                    int index = 0;
-
-                                    foreach (var hexByte in hexBytes)
-                                    {
-                                        Console.WriteLine("HEX value: {0} represents the byte: {1}", hexByte.ToString("X2"), hexByte);
-
-                                        if (logging_check.Checked)
+                                        if (index < textBoxArray.Length)
                                         {
-                                            var logFilePath = LogFilePath;
-
-                                            using var logFile = new StreamWriter(logFilePath, true);
-                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT HEX]: {hexByte.ToString("X2")}");
-                                        }
-
-                                        mySerialPort.Write(new byte[] { hexByte }, 0, 1);
-
-                                        Thread.Sleep(currentDelayint);
-
-                                        if (receive_check.Checked)
-                                        {
-
-                                            var receivedTextBox = new TextBox
-                                            {
-                                                Location = new Point(10, textBoxLocationY),
-                                                Width = 100,
-                                                ReadOnly = true,
-                                                Text = mySerialPort.ReadExisting()
-                                            };
-
-                                            textBoxesPanel2.Controls.Add(receivedTextBox);
+                                            var receivedTextBox = textBoxList[textBoxIndex + index];
+                                            receivedTextBox.Text = mySerialPort.ReadExisting();
 
                                             if (logging_check.Checked)
                                             {
                                                 var logFilePath = LogFilePath;
 
                                                 using var logFile = new StreamWriter(logFilePath, true);
-                                                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED HEX]: {receivedTextBox.Text}");
+                                                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE COLLECTION]: {receivedTextBox.Text}");
                                             }
-
-                                            textBoxLocationY += 20;
-                                            index++;
-
                                         }
-                                    }
-
-                                }
-
-                                int index2 = 0;
-                                while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
-                                {
-                                    byte[] hexBytesArray = hexBytes.ToArray();
-
-                                    for (int i = 0; i < hexBytesArray.Length; i++)
-                                    {
-                                        var hexByte = hexBytesArray[i];
-                                        Console.WriteLine("HEX value: {0} represents the byte: {1}", hexByte.ToString("X2"), hexByte);
-
-                                        if (logging_check.Checked)
-                                        {
-                                            var logFilePath = LogFilePath;
-
-                                            using var logFile = new StreamWriter(logFilePath, true);
-                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT HEX]: {hexByte.ToString("X2")}");
-                                        }
-
-                                        mySerialPort.Write(new byte[] { hexByte }, 0, 1);
-
-                                        Thread.Sleep(currentDelayint);
-
-                                        if (receive_check.Checked)
-                                        {
-                                            var receivedBytes = new byte[1024];
-                                            int bytesRead = mySerialPort.Read(receivedBytes, 0, receivedBytes.Length);
-                                            var receivedText = Encoding.ASCII.GetString(receivedBytes, 0, bytesRead);
-
-                                            var receivedTextBox = new TextBox
-                                            {
-                                                Location = new Point(10, 20 + (index2 % MAX_BUFFER_SIZE) * 20),
-                                                Width = 100,
-                                                ReadOnly = true,
-                                                Text = receivedText
-                                            };
-
-                                            if (index2 >= MAX_BUFFER_SIZE)
-                                            {
-                                                textBoxesPanel2.Controls.RemoveAt(0);
-                                            }
-
-                                            textBoxesPanel2.Controls.Add(receivedTextBox);
-
-                                            if (logging_check.Checked)
-                                            {
-                                                var logFilePath = LogFilePath;
-
-                                                using var logFile = new StreamWriter(logFilePath, true);
-                                                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED HEX]: {receivedText}");
-                                            }
-
-                                            index2++;
-                                        }
-
-                                        if (index2 >= MAX_BUFFER_SIZE)
+                                        else
                                         {
                                             MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                            index2 = 0;
-                                            textBoxesPanel2.Controls.Clear();
                                         }
 
-                                        await Task.Delay(500);
+                                        index++;
                                     }
-
 
                                 }
 
+                                textBoxIndex += textBoxArray.Length;
+                            }
 
-                                mySerialPort.Close();
-                                if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
+                        }
+
+                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
+                        {
+
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte Collection")
+                            {
+
+                                MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                break;
+
+                            }
+
+                            var textBoxArray = new TextBox[Math.Min(byteCollections.Count, MAX_BUFFER_SIZE)];
+                            for (var j = 0; j < textBoxArray.Length; j++)
+                            {
+                                var textBox = new TextBox
+                                {
+                                    Location = new Point(10, (textBoxIndex + j) * 20),
+                                    Width = 100,
+                                    ReadOnly = true
+                                };
+                                textBoxList.Add(textBox);
+                                textBoxesPanel2?.Controls.Add(textBox);
+                            }
+
+                            var index = 0;
+
+                            foreach (var byteCollection in byteCollections)
+                            {
+                                Console.WriteLine("Byte collection: {0}", BitConverter.ToString(byteCollection));
+
+                                if (logging_check.Checked)
+                                {
+                                    var logFilePath = LogFilePath;
+
+                                    using var logFile = new StreamWriter(logFilePath, true);
+                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE COLLECTION]: {BitConverter.ToString(byteCollection)}");
+                                }
+
+                                mySerialPort.Write(byteCollection, 0, byteCollection.Length);
+
+                                Thread.Sleep(currentDelayint);
+                                if (textBoxreceiveType?.Text == "Byte Collection")
+                                {
+                                    if (index < textBoxArray.Length && textBoxesPanel2?.Controls.Count <= MAX_BUFFER_SIZE)
+                                    {
+                                        var receivedTextBox = textBoxList[textBoxIndex + index];
+                                        receivedTextBox.Text = mySerialPort.ReadExisting();
+
+                                        if (logging_check.Checked)
+                                        {
+                                            var logFilePath = LogFilePath;
+
+                                            using var logFile = new StreamWriter(logFilePath, true);
+                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE COLLECTION]: {receivedTextBox.Text}");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                        index = -1;
+                                        textBoxesPanel2?.Controls.Clear();
+                                    }
+
+                                    index++;
+                                }
+
+
+                                await Task.Delay(500);
+                            }
+
+                            textBoxIndex += textBoxArray.Length;
+
+
+
+                        }
+
+                        mySerialPort.Close();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
+                    }
+
+                    else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "ASCII")
+                    {
+                        var inputValues = new List<string>();
+                        foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
+                        {
+                            if (!string.IsNullOrEmpty(textBox.Text))
+                            {
+                                inputValues.AddRange(textBox.Text.Split(' '));
+                            }
+                        }
+
+                        if (!inputValues.Any())
+                        {
+                            MessageBox.Show("Please input ASCII values\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+
+                        var asciiBytes = new List<byte>();
+                        foreach (var value in inputValues)
+                        {
+                            if (byte.TryParse(value, out var asciiByte))
+                            {
+                                asciiBytes.Add(asciiByte);
+                            }
+                        }
+
+                        var hexBytes = Encoding.ASCII.GetBytes(Encoding.ASCII.GetString(asciiBytes.ToArray()));
+
+
+                        var delay = TimeSpan.FromMilliseconds(currentDelayint);
+
+                        using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
+                        {
+                            Handshake = currentHandshakevalue,
+                            ReadTimeout = int.Parse(currentReadTimeout),
+                            WriteTimeout = int.Parse(currentWriteTimeout)
+                        };
+
+                        if (!mySerialPort.IsOpen) mySerialPort.Open();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
+                        int textBoxLocationY = textBoxesPanel2!.Controls.Count * 20;
+
+                        if (!repeat_check.Checked)
+                        {
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII")
+                            {
+                                MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            }
+                            else
+                            {
+
+                                int index = 0;
+
+
+
+                                foreach (var hexByte in hexBytes)
+                                {
+                                    Console.WriteLine("ASCII value: {0} represents: {1}", hexByte, Convert.ToChar(hexByte));
+
+                                    if (logging_check.Checked)
+                                    {
+                                        var logFilePath = LogFilePath;
+
+                                        using var logFile = new StreamWriter(logFilePath, true);
+                                        logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT ASCII]: {hexByte.ToString("X2")}");
+                                    }
+
+                                    mySerialPort.Write(new byte[] { hexByte }, 0, 1);
+
+                                    Thread.Sleep(currentDelayint);
+
+                                    if (textBoxreceiveType?.Text == "ASCII")
+                                    {
+
+                                        var receivedTextBox = new TextBox
+                                        {
+                                            Location = new Point(10, textBoxLocationY),
+                                            Width = 100,
+                                            ReadOnly = true,
+                                            Text = mySerialPort.ReadExisting()
+                                        };
+
+                                        textBoxesPanel2.Controls.Add(receivedTextBox);
+
+                                        if (logging_check.Checked)
+                                        {
+                                            var logFilePath = LogFilePath;
+
+                                            using var logFile = new StreamWriter(logFilePath, true);
+                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED ASCII]: {receivedTextBox.Text}");
+                                        }
+
+                                        textBoxLocationY += 20;
+                                        index++;
+
+                                    }
+                                }
+                            }
+
+                        }
+
+                        int index2 = 0;
+                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
+                        {
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII")
+                            {
+                                MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                break;
+                            }
+
+                            byte[] hexBytesArray = hexBytes.ToArray();
+
+                            for (int i = 0; i < hexBytesArray.Length; i++)
+                            {
+                                var hexByte = hexBytesArray[i];
+                                Console.WriteLine("ASCII value: {0} represents: {1}", hexByte, Convert.ToChar(hexByte));
+
+                                if (logging_check.Checked)
+                                {
+                                    var logFilePath = LogFilePath;
+
+                                    using var logFile = new StreamWriter(logFilePath, true);
+                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT ASCII]: {hexByte.ToString("X2")}");
+                                }
+
+                                mySerialPort.Write(new byte[] { hexByte }, 0, 1);
+
+                                Thread.Sleep(currentDelayint);
+
+                                if (textBoxreceiveType?.Text == "ASCII")
+                                {
+                                    var receivedBytes = new byte[1024];
+                                    int bytesRead = mySerialPort.Read(receivedBytes, 0, receivedBytes.Length);
+                                    var receivedText = Encoding.ASCII.GetString(receivedBytes, 0, bytesRead);
+
+                                    var receivedTextBox = new TextBox
+                                    {
+                                        Location = new Point(10, 20 + (index2 % MAX_BUFFER_SIZE) * 20),
+                                        Width = 100,
+                                        ReadOnly = true,
+                                        Text = receivedText
+                                    };
+
+                                    if (index2 >= MAX_BUFFER_SIZE)
+                                    {
+                                        textBoxesPanel2.Controls.RemoveAt(0);
+                                    }
+
+                                    textBoxesPanel2.Controls.Add(receivedTextBox);
+
+                                    if (logging_check.Checked)
+                                    {
+                                        var logFilePath = LogFilePath;
+
+                                        using var logFile = new StreamWriter(logFilePath, true);
+                                        logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED ASCII]: {receivedText}");
+                                    }
+
+                                    index2++;
+                                }
+
+                                if (index2 >= MAX_BUFFER_SIZE)
+                                {
+                                    MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                    index2 = 0;
+                                    textBoxesPanel2.Controls.Clear();
+                                }
+
+                                await Task.Delay(500);
+
+
+
+                            }
+
+
+                        }
+
+
+                        mySerialPort.Close();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
+                    }
+
+                    else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "ASCII-HEX")
+                    {
+                        var inputValues = new List<string>();
+                        foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
+                        {
+                            if (!string.IsNullOrEmpty(textBox.Text))
+                            {
+                                inputValues.AddRange(textBox.Text.Split(' '));
+                            }
+                        }
+
+                        if (!inputValues.Any())
+                        {
+                            MessageBox.Show("Please input HEX values\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+
+                        var hexBytes = new List<byte>();
+                        foreach (var value in inputValues)
+                        {
+                            if (byte.TryParse(value, System.Globalization.NumberStyles.HexNumber, null, out var hexByte))
+                            {
+                                hexBytes.Add(hexByte);
+                            }
+                        }
+
+
+                        var delay = TimeSpan.FromMilliseconds(currentDelayint);
+
+                        using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
+                        {
+                            Handshake = currentHandshakevalue,
+                            ReadTimeout = int.Parse(currentReadTimeout),
+                            WriteTimeout = int.Parse(currentWriteTimeout)
+                        };
+
+                        if (!mySerialPort.IsOpen) mySerialPort.Open();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
+
+                        int textBoxLocationY = textBoxesPanel2!.Controls.Count * 20;
+
+                        if (!repeat_check.Checked)
+                        {
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII-HEX")
+                            {
+
+                                MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
 
                             }
 
                             else
                             {
-                                MessageBox.Show("Either Send Mode not active OR Invalid Send Data Type", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                                int index = 0;
+
+                                foreach (var hexByte in hexBytes)
+                                {
+                                    Console.WriteLine("HEX value: {0} represents the byte: {1}", hexByte.ToString("X2"), hexByte);
+
+                                    if (logging_check.Checked)
+                                    {
+                                        var logFilePath = LogFilePath;
+
+                                        using var logFile = new StreamWriter(logFilePath, true);
+                                        logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT HEX]: {hexByte.ToString("X2")}");
+                                    }
+
+                                    mySerialPort.Write(new byte[] { hexByte }, 0, 1);
+
+                                    Thread.Sleep(currentDelayint);
+
+                                    if (textBoxreceiveType?.Text == "ASCII-HEX")
+                                    {
+
+                                        var receivedTextBox = new TextBox
+                                        {
+                                            Location = new Point(10, textBoxLocationY),
+                                            Width = 100,
+                                            ReadOnly = true,
+                                            Text = mySerialPort.ReadExisting()
+                                        };
+
+                                        textBoxesPanel2.Controls.Add(receivedTextBox);
+
+                                        if (logging_check.Checked)
+                                        {
+                                            var logFilePath = LogFilePath;
+
+                                            using var logFile = new StreamWriter(logFilePath, true);
+                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED HEX]: {receivedTextBox.Text}");
+                                        }
+
+                                        textBoxLocationY += 20;
+                                        index++;
+
+                                    }
+                                }
+                            }
+
+                        }
+
+                        int index2 = 0;
+                        while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)
+                        {
+                            if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "ASCII-HEX")
+                            {
+
+                                MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                break;
 
                             }
+                            byte[] hexBytesArray = hexBytes.ToArray();
+
+                            for (int i = 0; i < hexBytesArray.Length; i++)
+                            {
+                                var hexByte = hexBytesArray[i];
+                                Console.WriteLine("HEX value: {0} represents the byte: {1}", hexByte.ToString("X2"), hexByte);
+
+                                if (logging_check.Checked)
+                                {
+                                    var logFilePath = LogFilePath;
+
+                                    using var logFile = new StreamWriter(logFilePath, true);
+                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT HEX]: {hexByte.ToString("X2")}");
+                                }
+
+                                mySerialPort.Write(new byte[] { hexByte }, 0, 1);
+
+                                Thread.Sleep(currentDelayint);
+
+                                if (textBoxreceiveType?.Text == "ASCII-HEX")
+                                {
+                                    var receivedBytes = new byte[1024];
+                                    int bytesRead = mySerialPort.Read(receivedBytes, 0, receivedBytes.Length);
+                                    var receivedText = Encoding.ASCII.GetString(receivedBytes, 0, bytesRead);
+
+                                    var receivedTextBox = new TextBox
+                                    {
+                                        Location = new Point(10, 20 + (index2 % MAX_BUFFER_SIZE) * 20),
+                                        Width = 100,
+                                        ReadOnly = true,
+                                        Text = receivedText
+                                    };
+
+                                    if (index2 >= MAX_BUFFER_SIZE)
+                                    {
+                                        textBoxesPanel2.Controls.RemoveAt(0);
+                                    }
+
+                                    textBoxesPanel2.Controls.Add(receivedTextBox);
+
+                                    if (logging_check.Checked)
+                                    {
+                                        var logFilePath = LogFilePath;
+
+                                        using var logFile = new StreamWriter(logFilePath, true);
+                                        logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED HEX]: {receivedText}");
+                                    }
+
+                                    index2++;
+                                }
+                                else if (textBoxreceiveType?.Text != "N/A - DISABLED")
+                                {
+
+                                    MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                    break;
+
+                                }
+
+                                if (index2 >= MAX_BUFFER_SIZE)
+                                {
+                                    MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                    index2 = 0;
+                                    textBoxesPanel2.Controls.Clear();
+                                }
+
+                                await Task.Delay(500);
+                            }
+
+
                         }
+
+
+                        mySerialPort.Close();
+                        if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
                     }
-                    catch (SystemException ex)
+
+                    else
                     {
-                        MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                        MessageBox.Show("Misconfigured Settings. Please check settings and modify as needed.", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
                     }
                 }
+
             }
         }
 
+
         // DECLARE FUNCTIONS
-        private void AddLabel(string labelText, Point location, Font font)      // creates the labels on the MainDisplay form
+        public void AddLabel(string labelText, Point location, Font font)      // creates the labels on the MainDisplay form
         {
             Label label = new Label();
             label.Text = labelText;

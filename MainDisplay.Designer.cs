@@ -155,19 +155,19 @@
             this.clock.Cursor = Cursors.Arrow;
             this.Controls.Add(this.clock);
 
-            // DEFINE and DISPLAY transmit and receive data buttons
+            // DEFINE and DISPLAY transmit button
 
-            string[] buttonLabels = { "TRANSMIT DATA", "RECEIVE DATA" };
+            string[] buttonLabels = { "START TRANSMISSION", "STOP TRANSMISSION" };
             Point[] buttonLocations = { new Point(410, 280), new Point(570, 280) };
-            Color[] buttonColors = { Color.LightGreen, Color.Yellow };
-            EventHandler[] buttonHandlers = { new EventHandler(buttonSEND_Click), new EventHandler(buttonRECEIVE_Click) };
+            Color[] buttonColors = { Color.LightGreen, Color.Pink };
+            EventHandler[] buttonHandlers = { new EventHandler(Transmission_Click), new EventHandler(StopButton_Click) };
 
             for (int i = 0; i < buttonLabels.Length; i++)
             {
                 Button button = new Button();
                 button.Location = buttonLocations[i];
                 button.Text = buttonLabels[i];
-                button.Font = new Font("Arial", 12);
+                button.Font = new Font("Arial", 8);
                 button.Width = 155;
                 button.Height = 40;
                 button.AutoSize = true;
@@ -180,7 +180,6 @@
                 this.Controls.Add(button);
             }
 
-            
 
             // DEFINE INPUT AND OUTPUT PANELS
 
@@ -337,16 +336,6 @@
             this.textBoxDELAY.Cursor = Cursors.Arrow;
             this.Controls.Add(this.textBoxDELAY);
 
-            AddLabel("STOP REPEAT:", new Point(250, 240), new Font("Arial", 8));
-
-            Button stop = new Button();
-            stop.Location = new Point(250,260);
-            stop.Width = 125;
-            stop.BackColor = Color.Pink;
-            stop.Text = "STOP";
-            stop.Click += StopButton_Click;
-            this.Controls.Add(stop);
-
             AddLabel("MODE:", new Point(250, 40), new Font("Arial", 8));
 
             this.textBoxMODEDISP = new System.Windows.Forms.TextBox();
@@ -385,7 +374,7 @@
             this.Controls.Add(this.textBoxreceiveType);
 
             // Define the label and textbox controls
-            AddLabel("# OF TX ENTRIES:", new Point(250, 190), new Font("Arial", 8));
+            AddLabel("SET TX BUFER:", new Point(250, 190), new Font("Arial", 8));
 
             this.textBoxBTT = new System.Windows.Forms.TextBox();
             this.textBoxBTT.Location = new Point(250, 210);
@@ -419,23 +408,17 @@
 
             // DEFINE CHECKBOXES
 
-            receive_check.Location = new Point(110, 310);
-            receive_check.Width = 175;
-            receive_check.Height = 20;
-            receive_check.Text = "Send and Receive Mode";
-            this.Controls.Add(receive_check);
-
-            repeat_check.Location = new Point(300, 310);
-            repeat_check.Width = 75;
+            repeat_check.Location = new Point(190, 310);
+            repeat_check.Width = 200;
             repeat_check.Height = 20;
-            repeat_check.Text = "Repeat";
+            repeat_check.Text = "Repeat Transmission";
             this.Controls.Add(repeat_check);
 
 
             logging_check.Location = new Point(20, 310);
-            logging_check.Width = 50;
+            logging_check.Width = 200;
             logging_check.Height = 20;
-            logging_check.Text = "Log";
+            logging_check.Text = "Log Transmission";
             this.Controls.Add(logging_check);
 
         }
