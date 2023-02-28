@@ -39,8 +39,8 @@ namespace AT_SCC
 
         CheckBox logging_check = new CheckBox(), repeat_check = new CheckBox(), receive_check = new CheckBox();
 
-        private string LogFilePath = Path.GetFullPath("SerialLog.txt");
-        public int MAX_BUFFER_SIZE = 100;
+        private string LogFilePath = Path.GetFullPath("SerialLog.txt"); // PATH TO TEXT FILE
+        public int MAX_BUFFER_SIZE = 100;       // MAX BUFFER SIZE
 
 
         // dictionaries/list of strings for user selection and input
@@ -84,16 +84,9 @@ namespace AT_SCC
             "100","500","1000","2000","3000","4000","5000"
         };
 
-        void OnReload()
-        {
-            existingPorts = AvailablePorts.ToList();
-            currentCom?.DropDownItems.Clear();
-            existingPorts.ForEach(port => currentCom?.DropDownItems.Add(port));
 
-            TextBox? textBox = textBoxesPanel2?.Controls.OfType<TextBox>().FirstOrDefault();
-            if (textBox != null) textBox.Text = "";
-            textBoxesPanel2?.Controls.Clear();
-        }
+        // DECLARING EVENTS
+
 
         void OnCommSelected(object? sender, ToolStripItemClickedEventArgs e)        // event to select COM PORT based on user input 
         {
@@ -121,7 +114,7 @@ namespace AT_SCC
             if (e.ClickedItem != null && textBoxMODEDISP != null) textBoxMODEDISP.Text = currentMode = e.ClickedItem.Text;
         }
 
-        void OnLogChange(object? sender, ToolStripItemClickedEventArgs e)
+        void OnLogChange(object? sender, ToolStripItemClickedEventArgs e)       // event to view or delete logs
         {     // event to activate or deactivate the logging feature
 
             if (e.ClickedItem != null) currentLogMode = e.ClickedItem.Text;
@@ -135,9 +128,9 @@ namespace AT_SCC
 
         }
 
-        void OnEngage(object? sender, ToolStripItemClickedEventArgs e)
-        {  // ADD CODE HERE
-
+        void OnEngage(object? sender, ToolStripItemClickedEventArgs e)          // event to open or close the port
+        {
+            try {
             if (e.ClickedItem != null && textBoxSTATUS != null)
             {
                 using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
@@ -162,16 +155,15 @@ namespace AT_SCC
                     mySerialPort.Close();
                 }
             }
+            }
+            catch (Exception ex) {
+
+                MessageBox.Show(Convert.ToString(ex),"WARNING",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+            
+            }
 
 
         }
-
-        void OnHelp()
-        {
-            new Info(this).Show();
-
-        }
-
 
         void OnParitySelection(object? sender, ToolStripItemClickedEventArgs e)     // event to select parity based on user input
         {
@@ -194,7 +186,7 @@ namespace AT_SCC
             }
         }
 
-        void OndataBitsSelection(object? sender, ToolStripItemClickedEventArgs e)
+        void OndataBitsSelection(object? sender, ToolStripItemClickedEventArgs e)   // event to select databit based on user input
         {         // event to select databits based on user input
 
             if (e.ClickedItem != null && textBoxDATABITS != null)
@@ -225,7 +217,7 @@ namespace AT_SCC
             }
         }
 
-        void OnRModeChange(object? sender, ToolStripItemClickedEventArgs e)
+        void OnRModeChange(object? sender, ToolStripItemClickedEventArgs e)     // event to select the mode of the tool
         {
             if ((e.ClickedItem == null || currentMode != "Receive Mode") && textBoxreceiveType != null)
             {
@@ -241,7 +233,7 @@ namespace AT_SCC
             }
         }
 
-        void OnSModeChange(object? sender, ToolStripItemClickedEventArgs e)
+        void OnSModeChange(object? sender, ToolStripItemClickedEventArgs e)         // event to select the mode of the tool
         {
             if (currentMode == "Send Mode" && textBoxreceiveType != null && textBoxSENDTYPE != null)
             {
@@ -255,7 +247,7 @@ namespace AT_SCC
             }
         }
 
-        void OnRTimeout(object? sender, ToolStripItemClickedEventArgs e)
+        void OnRTimeout(object? sender, ToolStripItemClickedEventArgs e)            // event to select the read timeout
         {
 
             if (e.ClickedItem != null && textBoxRTIMEOUT != null)
@@ -266,8 +258,7 @@ namespace AT_SCC
             }
         }
 
-
-        void OnWTimeout(object? sender, ToolStripItemClickedEventArgs e)
+        void OnWTimeout(object? sender, ToolStripItemClickedEventArgs e)        // event to sleect the write timeout
         {
 
             if (e.ClickedItem != null && textBoxWTIMEOUT != null)
@@ -280,15 +271,7 @@ namespace AT_SCC
 
         }
 
-
-
-        void OnClose()  // function to close the program
-        {
-            Close();
-        }
-
-        // Define the event handler for the textbox text changed event
-        private void TextBoxBTT_TextChanged(object? sender, EventArgs e)
+        private void TextBoxBTT_TextChanged(object? sender, EventArgs e)             // Define the event handler for the textbox text changed event
         {
             try
             {
@@ -339,8 +322,7 @@ namespace AT_SCC
 
         }
 
-
-        private void Timer_Tick(object? sender, EventArgs e)
+        private void Timer_Tick(object? sender, EventArgs e)        // event to display the time and date
         {
             if (clock != null)
             {
@@ -348,7 +330,7 @@ namespace AT_SCC
             }
         }
 
-        private void VScrollBarSend_Scroll(object? sender, ScrollEventArgs e)
+        private void VScrollBarSend_Scroll(object? sender, ScrollEventArgs e)       // events to handle the scroll bars
         {
             // Get the index of the first visible textbox
             int index = e.NewValue;
@@ -369,7 +351,7 @@ namespace AT_SCC
 
         }
 
-        private void VScrollBarReceive_Scroll(object? sender, ScrollEventArgs e)
+        private void VScrollBarReceive_Scroll(object? sender, ScrollEventArgs e)            // events to handle the scroll bars
         {
 
             int index2 = e.NewValue;
@@ -388,14 +370,14 @@ namespace AT_SCC
 
         }
 
-        private void StopButton_Click(object sender, EventArgs e)
+        private void StopButton_Click(object sender, EventArgs e)           // event for button to stop the repeat
         {
             // Cancel the loop
             cancellationTokenSource?.Cancel();
         }
 
 
-        private async void buttonRECEIVE_Click(object? sender, EventArgs e)
+        private async void buttonRECEIVE_Click(object? sender, EventArgs e)     // event to engage the receive functionality
         {
             cancellationTokenSource = new CancellationTokenSource();
 
@@ -922,7 +904,7 @@ namespace AT_SCC
                                     }
 
                                     textBoxesPanelIndex += Math.Min(inputValues.Count, MAX_BUFFER_SIZE); // increment the index for the next iteration
-                                    
+
                                 }
 
 
@@ -1098,7 +1080,7 @@ namespace AT_SCC
                                     }
                                     i++;
 
-                                    
+
                                 }
 
                                 mySerialPort.Close();
@@ -1432,7 +1414,7 @@ namespace AT_SCC
 
                                     }
 
-                                    
+
                                 }
 
 
@@ -1598,7 +1580,7 @@ namespace AT_SCC
                                         await Task.Delay(500);
                                     }
 
-                                    
+
                                 }
 
 
@@ -1622,7 +1604,7 @@ namespace AT_SCC
             }
         }
 
-
+        // DECLARE FUNCTIONS
         private void AddLabel(string labelText, Point location, Font font)      // creates the labels on the MainDisplay form
         {
             Label label = new Label();
@@ -1632,6 +1614,29 @@ namespace AT_SCC
             label.Font = font;
             label.ForeColor = Color.Black;
             this.Controls.Add(label);
+        }
+
+        void OnHelp()                                                           // function to open the info/help form
+        {
+            new Info(this).Show();
+
+        }
+
+        void OnClose()  // function to close the program
+        {
+            Close();
+        }
+
+        void OnReload() // function to reload the ports/program
+
+        {
+            existingPorts = AvailablePorts.ToList();
+            currentCom?.DropDownItems.Clear();
+            existingPorts.ForEach(port => currentCom?.DropDownItems.Add(port));
+
+            TextBox? textBox = textBoxesPanel2?.Controls.OfType<TextBox>().FirstOrDefault();
+            if (textBox != null) textBox.Text = "";
+            textBoxesPanel2?.Controls.Clear();
         }
 
         public MainDisplay()  // main form with design components

@@ -229,7 +229,7 @@
 
             
 
-            // DEFINE LABELS AND TEXTBOXES FOR MAIN DISPLAY
+            // DEFINE LABELS, TEXTBOXES, BUTTONS FOR MAIN DISPLAY
 
             AddLabel("COM PORT:", new Point(20, 40), new Font("Arial", 8));
 
@@ -342,7 +342,7 @@
             Button stop = new Button();
             stop.Location = new Point(250,260);
             stop.Width = 125;
-            stop.BackColor = Color.IndianRed;
+            stop.BackColor = Color.Pink;
             stop.Text = "STOP";
             stop.Click += StopButton_Click;
             this.Controls.Add(stop);
