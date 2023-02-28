@@ -324,11 +324,11 @@
             this.textBoxHANDSHAKE.Cursor = Cursors.Arrow;
             this.Controls.Add(this.textBoxHANDSHAKE);
 
-            AddLabel("DELAY (ms):", new Point(20, 240), new Font("Arial", 8));
+            AddLabel("SEND DELAY (ms):", new Point(20, 240), new Font("Arial", 8));
 
             this.textBoxDELAY = new System.Windows.Forms.TextBox();
             this.textBoxDELAY.Location = new Point(20, 260);
-            this.textBoxDELAY.Width = 75;
+            this.textBoxDELAY.Width = 165;
             this.textBoxDELAY.Text = "1000";
             this.textBoxDELAY.TextAlign = HorizontalAlignment.Center;
             this.textBoxDELAY.BackColor = Color.LightYellow;
@@ -385,12 +385,12 @@
             this.textBoxBTT.TextChanged += TextBoxBTT_TextChanged; // Add event handler
             this.Controls.Add(this.textBoxBTT);
 
-            AddLabel("MAX RX BUFFER:", new Point(110, 240), new Font("Arial", 8));
+            AddLabel("MAX RX BUFFER:", new Point(250, 240), new Font("Arial", 8));
 
             this.textBoxBUFFER = new System.Windows.Forms.TextBox();
-            this.textBoxBUFFER.Location = new Point(110, 260);
+            this.textBoxBUFFER.Location = new Point(250, 260);
             this.textBoxBUFFER.Text = Convert.ToString(MAX_BUFFER_SIZE);
-            this.textBoxBUFFER.Width = 75;
+            this.textBoxBUFFER.Width = 125;
             this.textBoxBUFFER.TextAlign = HorizontalAlignment.Center;
             this.textBoxBUFFER.BackColor = Color.LightYellow;
             this.textBoxBUFFER.ReadOnly = true;
@@ -408,18 +408,27 @@
 
             // DEFINE CHECKBOXES
 
-            repeat_check.Location = new Point(190, 310);
-            repeat_check.Width = 200;
+            repeat_check.Location = new Point(140, 310);
+            repeat_check.Width = 150;
             repeat_check.Height = 20;
             repeat_check.Text = "Repeat Transmission";
+            repeat_check.Font = new Font ("Arial", 8);
             this.Controls.Add(repeat_check);
 
 
             logging_check.Location = new Point(20, 310);
-            logging_check.Width = 200;
+            logging_check.Width = 150;
             logging_check.Height = 20;
             logging_check.Text = "Log Transmission";
+            logging_check.Font = new Font ("Arial", 8);
             this.Controls.Add(logging_check);
+
+            overwrite_check.Location = new Point(290, 310);
+            overwrite_check.Width = 100;
+            overwrite_check.Height = 20;
+            overwrite_check.Text = "Overwrite Rx";
+            overwrite_check.Font = new Font ("Arial", 8);
+            this.Controls.Add(overwrite_check);
 
         }
     }

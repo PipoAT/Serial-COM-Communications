@@ -28,7 +28,7 @@ namespace AT_SCC
 
         string currentPort = "", currentBaud = "", currentParity = "None", stopBitOption = "", currentReadTimeout = "-1", currentWriteTimeout = "-1", currentHandshakeOption = "None", dataBitoption = "", currentDelayOption = "1000", currentMode = "", currentLogMode = "", currentRTOption = "", currentSTOption = "";
 
-        int currentBaudint, currentdataBitsint = 8, currentDelayint = 1000, checklimit = 0;
+        int currentBaudint, currentdataBitsint = 8, currentDelayint = 1000, checklimit = 0, breakval = 0;
 
 
         Parity currentParityvalue = Parity.None;                      // declaring variables to allow usage of dictionaries
@@ -37,7 +37,7 @@ namespace AT_SCC
         Handshake currentHandshakevalue = Handshake.None;
 
 
-        CheckBox logging_check = new CheckBox(), repeat_check = new CheckBox();
+        CheckBox logging_check = new CheckBox(), repeat_check = new CheckBox(), overwrite_check = new CheckBox();
 
         public string LogFilePath = Path.GetFullPath("SerialLog.txt"); // PATH TO TEXT FILE
         public int MAX_BUFFER_SIZE = 100;       // MAX BUFFER SIZE
@@ -413,8 +413,13 @@ namespace AT_SCC
                             if (receivedBytes.Count >= MAX_BUFFER_SIZE)
                             {
                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                if (!overwrite_check.Checked) {
+                                    break;
+                                }
+                                else {
                                 i = -1;
                                 receivedBytes = new List<byte>();
+                                }
                             }
                             i++;
 
@@ -459,7 +464,11 @@ namespace AT_SCC
                             if (i >= MAX_BUFFER_SIZE)
                             {
                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                if(!overwrite_check.Checked) {
+                                    break;
+                                } else {
                                 i = 0;
+                                }
                             }
 
                             var receivedTextBox = textBoxArray[i];
@@ -539,7 +548,13 @@ namespace AT_SCC
                             if (i >= MAX_BUFFER_SIZE - 1)
                             {
                                 MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                if(!(overwrite_check.Checked)) {
+                                    break;
+                                }
+                                else {
                                 i = -1;
+                                }
+
                             }
 
                             i++;
@@ -735,8 +750,14 @@ namespace AT_SCC
                                     else
                                     {
                                         MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                        textBoxesPanel2?.Controls.Clear();
                                         index = -1;
+                                        if (!(overwrite_check.Checked)) {
+                                            breakval = 1;
+                                        }
+                                        else {
+                                        textBoxesPanel2?.Controls.Clear();
+                                        }
+                                        
                                     }
 
                                     index++;
@@ -745,6 +766,11 @@ namespace AT_SCC
                                 await Task.Delay(500);
                             }
                             i++;
+
+                            if (breakval == 1) {
+                                breakval = 0;
+                                break;
+                            }
 
 
 
@@ -943,9 +969,14 @@ namespace AT_SCC
                                     else
                                     {
                                         MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                        if(!overwrite_check.Checked) {
+                                            breakval = 1;
+                                        }
+                                        else {
                                         textBoxesPanel2?.Controls.Clear();
                                         checklimit = 0;
                                         currentTextBoxIndex = 0;
+                                        }
                                     }
                                 }
 
@@ -954,6 +985,11 @@ namespace AT_SCC
                             }
 
                             textBoxesPanelIndex += Math.Min(inputValues.Count, MAX_BUFFER_SIZE); // increment the index for the next iteration
+
+                            if (breakval == 1) {
+                                breakval = 0;
+                                break;
+                            }
 
                         }
 
@@ -1133,8 +1169,13 @@ namespace AT_SCC
                                     else
                                     {
                                         MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                        if (!overwrite_check.Checked) {
+                                            breakval = 1;
+                                        }
+                                        else {
                                         index = -1;
                                         textBoxesPanel2?.Controls.Clear();
+                                        }
                                     }
 
                                     index++;
@@ -1145,6 +1186,11 @@ namespace AT_SCC
                             }
 
                             textBoxIndex += textBoxArray.Length;
+
+                            if (breakval == 1) {
+                                breakval = 0;
+                                break;
+                            }
 
 
 
@@ -1318,14 +1364,23 @@ namespace AT_SCC
                                 if (index2 >= MAX_BUFFER_SIZE)
                                 {
                                     MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                    if (!overwrite_check.Checked) {
+                                        breakval = 1;
+                                    } else {
                                     index2 = 0;
                                     textBoxesPanel2.Controls.Clear();
+                                    }
                                 }
 
                                 await Task.Delay(500);
 
 
 
+                            }
+
+                            if (breakval == 1) {
+                                breakval = 0;
+                                break;
                             }
 
 
@@ -1509,11 +1564,21 @@ namespace AT_SCC
                                 if (index2 >= MAX_BUFFER_SIZE)
                                 {
                                     MessageBox.Show($"Maximum buffer of {MAX_BUFFER_SIZE} exceeded", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                    if (!overwrite_check.Checked) {
+                                        breakval = 1;
+                                    } else {
                                     index2 = 0;
                                     textBoxesPanel2.Controls.Clear();
+                                    }
                                 }
 
                                 await Task.Delay(500);
+                            }
+
+
+                            if (breakval == 1) {
+                                breakval = 0;
+                                break;
                             }
 
 
