@@ -345,7 +345,7 @@
             this.Controls.Add(this.textBoxMODEDISP);
 
 
-            AddLabel("SEND DATA TYPE:", new Point(250, 90), new Font("Arial", 8));
+            AddLabel("TX DATA TYPE:", new Point(250, 90), new Font("Arial", 8));
 
             this.textBoxSENDTYPE = new System.Windows.Forms.TextBox();
             this.textBoxSENDTYPE.Location = new Point(250, 110);
@@ -357,7 +357,7 @@
             this.textBoxSENDTYPE.Cursor = Cursors.Arrow;
             this.Controls.Add(this.textBoxSENDTYPE);
 
-            AddLabel("RECEIVE DATA TYPE:", new Point(250, 140), new Font("Arial", 8));
+            AddLabel("RX DATA TYPE:", new Point(250, 140), new Font("Arial", 8));
 
             this.textBoxreceiveType = new System.Windows.Forms.TextBox();
             this.textBoxreceiveType.Location = new Point(250, 160);

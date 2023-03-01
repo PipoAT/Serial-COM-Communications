@@ -1,6 +1,7 @@
 using System.IO.Ports;
 using System.Text;
 using System.Globalization;
+using System.Diagnostics;
 
 
 namespace AT_SCC
@@ -404,13 +405,13 @@ namespace AT_SCC
                                 var receivedTextBox = textBoxArray[i];
                                 receivedTextBox.Text += $"{receivedByte:X2} ";
 
-                                if (receivedTextBox.TextLength >= receivedTextBox.Width * 3)  receivedTextBox.Text = receivedTextBox.Text.Substring(receivedTextBox.TextLength - receivedTextBox.Width * 3);
-                                
+                                if (receivedTextBox.TextLength >= receivedTextBox.Width * 3) receivedTextBox.Text = receivedTextBox.Text.Substring(receivedTextBox.TextLength - receivedTextBox.Width * 3);
+
                             }
 
                             if (receivedBytes.Count >= MAX_BUFFER_SIZE) // IF BUFFER is hit, checks if user wants an overwrite of data
                             {
-                                if (!overwrite_check.Checked)  break;
+                                if (!overwrite_check.Checked) break;
                                 else
                                 {
                                     i = -1;
@@ -1517,11 +1518,14 @@ namespace AT_SCC
             this.Controls.Add(label);
         }
 
-        void OnHelp()                                                           // function to open the info/help form
+        void OnHelp()
         {
-            new Info(this).Show();
-
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.FileName = "cmd";
+            psi.Arguments = $"/c start https://pipoat.github.io/";
+            Process.Start(psi);
         }
+
 
         void OnClose()  // function to close the program
         {
