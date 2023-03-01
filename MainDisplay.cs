@@ -386,7 +386,9 @@ namespace AT_SCC
 
                         do  // receives the data byte and adds it to the output panel
                         {
-
+                            if (mySerialPort.BytesToRead <= 0) {
+                                break;
+                            }
                             var receivedByte = (byte)mySerialPort.ReadByte();
                             receivedBytes.Add(receivedByte);
 
@@ -464,6 +466,10 @@ namespace AT_SCC
 
                             }
 
+                            if (mySerialPort.BytesToRead <= 0) {
+                                break;
+                            }
+
                             var receivedTextBox = textBoxArray[i];
                             receivedTextBox.Text = mySerialPort.ReadLine(); // reads the string and checks if logging is needed and outputs to panel
 
@@ -515,7 +521,11 @@ namespace AT_SCC
                         }
 
                         do
-                        {   // reads the bytes and outputs to the panel, also checks to make sure it can do so
+                        {  
+                            if (mySerialPort.BytesToRead <= 0) {
+                                break;
+                            }
+                             // reads the bytes and outputs to the panel, also checks to make sure it can do so
                             if (textBoxArray.Length > 0)
                             {
                                 var receivedTextBox = textBoxArray[i];
