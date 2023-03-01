@@ -188,6 +188,7 @@
             this.textBoxesPanel.Location = new Point(410, 65);
             this.textBoxesPanel.BackColor = Color.LightBlue;
             this.textBoxesPanel.Size = new Size(125, 190);
+            this.textBoxesPanel.AutoScroll = true;
             this.Controls.Add(this.textBoxesPanel);
 
             AddLabel("RX (Receiving):", new Point(598, 45), new Font("Arial", 10));
@@ -195,34 +196,10 @@
             this.textBoxesPanel2 = new Panel();
             this.textBoxesPanel2.Location = new Point(598, 65);
             this.textBoxesPanel2.BackColor = Color.LightBlue;
+            this.textBoxesPanel2.AutoScroll = true;
             this.textBoxesPanel2.Size = new Size(125, 190);
+
             this.Controls.Add(this.textBoxesPanel2);
-
-            // DEFINE SCROLLBARS
-
-            this.vScrollBar1 = new VScrollBar()
-            {
-                Minimum = 0,
-                Maximum = textBoxesPanel.Controls.Count - 2,
-                Width = 30,
-                Height = 190,
-                Location = new Point(535, 65),
-                LargeChange = 1
-            };
-            this.Controls.Add(vScrollBar1);
-            this.vScrollBar1.Scroll += VScrollBarSend_Scroll;
-
-            this.vScrollBar2 = new VScrollBar()
-            {
-                Minimum = 0,
-                Maximum = MAX_BUFFER_SIZE - 2,
-                Width = 30,
-                Height = 190,
-                Location = new Point(568, 65),
-                LargeChange = 1
-            };
-            this.Controls.Add(vScrollBar2);
-            this.vScrollBar2.Scroll += VScrollBarReceive_Scroll;
 
             // DEFINE LABELS, TEXTBOXES, BUTTONS FOR MAIN DISPLAY
 
@@ -326,10 +303,9 @@
             this.textBoxDELAY.Location = new Point(20, 260);
             this.textBoxDELAY.Width = 165;
             this.textBoxDELAY.Text = "1000";
+            this.textBoxDELAY.MaxLength = 4;
             this.textBoxDELAY.TextAlign = HorizontalAlignment.Center;
             this.textBoxDELAY.BackColor = Color.LightYellow;
-            this.textBoxDELAY.ReadOnly = true;
-            this.textBoxDELAY.Cursor = Cursors.Arrow;
             this.Controls.Add(this.textBoxDELAY);
 
             AddLabel("MODE:", new Point(250, 40), new Font("Arial", 8));
@@ -376,6 +352,7 @@
             this.textBoxBTT.Location = new Point(250, 210);
             this.textBoxBTT.Text = "0";
             this.textBoxBTT.Width = 125;
+            this.textBoxBTT.MaxLength = 2;
             this.textBoxBTT.TextAlign = HorizontalAlignment.Center;
             this.textBoxBTT.BackColor = Color.LightBlue;
             this.textBoxBTT.TextChanged += TextBoxBTT_TextChanged; // Add event handler
