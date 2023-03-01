@@ -1137,10 +1137,6 @@ namespace AT_SCC
 
             // DEFINE THE MAIN OVERALL FORM
 
-            this.components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(750, 500);
-            this.Text = "ATech Training Serial COM Communications";
             existingPorts = AvailablePorts.ToList();
             Size = ClientSize;
             BackgroundImage = Image.FromFile("AT-SCC_GUI_Background.png");
