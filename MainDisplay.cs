@@ -11,25 +11,25 @@ namespace AT_SCC
     {                                           // declaring all variables associated with textboxes, menu/tool strip, strings, or int
         private TextBox? textBoxCOM, textBoxBAUD, textBoxPARITY, textBoxDATABITS, textBoxSTOPBITS, textBoxRTIMEOUT, textBoxWTIMEOUT, textBoxHANDSHAKE, textBoxDELAY, textBoxBTT, textBoxMODEDISP, textBoxSENDTYPE, textBoxreceiveType;
 
-        private TextBox? clock, textBoxBUFFER, textBoxSTATUS;
+        private TextBox? clock, textBoxBUFFER, textBoxSTATUS;   // sets up the textboxes
 
-        private Panel? textBoxesPanel, textBoxesPanel2;
+        private Panel? textBoxesPanel, textBoxesPanel2; // sets up the tx and rx panels
 
-        private VScrollBar? vScrollBar1, vScrollBar2;
+        private VScrollBar? vScrollBar1, vScrollBar2;   // sets up the scroll bars
 
-        private MenuStrip? menuStrip;
+        private MenuStrip? menuStrip;   // sets up the menu strip and its items
 
         private ToolStripMenuItem? fileMenuItem, comPortMenuItem, sendMenuItem, loggingMenuItem, exitMenuItem, reloadMenuItem, modeMenuItem, currentCom, baudMenuItem, parityMenuItem, dataBitsMenuItem, stopBitsMenuItem, readTimeoutItem, writeTimeoutItem, handshakeItem, sendDelay, receivingModeMenuItem, sendingModeMenuItem, portengageMenuItem;
 
-        private CancellationTokenSource? cancellationTokenSource;
+        private CancellationTokenSource? cancellationTokenSource;   // declares the stop button functionality
 
         List<string>? existingPorts;
 
-        public static string[] AvailablePorts => System.IO.Ports.SerialPort.GetPortNames();
+        public static string[] AvailablePorts => System.IO.Ports.SerialPort.GetPortNames(); // provides all the ports available
 
         string currentPort = "", currentBaud = "", currentParity = "None", stopBitOption = "", currentReadTimeout = "-1", currentWriteTimeout = "-1", currentHandshakeOption = "None", dataBitoption = "", currentDelayOption = "1000", currentMode = "", currentLogMode = "", currentRTOption = "", currentSTOption = "";
 
-        int currentBaudint, currentdataBitsint = 8, currentDelayint = 1000, checklimit = 0, breakval = 0;
+        int currentBaudint, currentdataBitsint = 8, currentDelayint = 1000, checklimit = 0, breakval = 0; // declare integers and strings for default values for settings of port
 
 
         Parity currentParityvalue = Parity.None;                      // declaring variables to allow usage of dictionaries
@@ -38,7 +38,7 @@ namespace AT_SCC
         Handshake currentHandshakevalue = Handshake.None;
 
 
-        CheckBox logging_check = new CheckBox(), repeat_check = new CheckBox(), overwrite_check = new CheckBox();
+        CheckBox logging_check = new CheckBox(), repeat_check = new CheckBox(), overwrite_check = new CheckBox(); // define the checkboxes
 
         public string LogFilePath = Path.GetFullPath("SerialLog.txt"); // PATH TO TEXT FILE
         public int MAX_BUFFER_SIZE = 100;       // MAX BUFFER SIZE
@@ -247,20 +247,16 @@ namespace AT_SCC
 
         void OnWTimeout(object? sender, ToolStripItemClickedEventArgs e)        // event to sleect the write timeout
         {
-
             if (e.ClickedItem != null && textBoxWTIMEOUT != null)
             {
-
                 textBoxWTIMEOUT.Text = currentReadTimeout = e.ClickedItem.Text;
                 textBoxWTIMEOUT.BackColor = Color.LightGreen;
-
             }
-
         }
 
         private void TextBoxBTT_TextChanged(object sender, EventArgs e)
         {
-            if (!int.TryParse(textBoxBTT?.Text, out int btt) || btt < 1)
+            if (!int.TryParse(textBoxBTT?.Text, out int btt) || btt < 1)    // if invalid input for TX buffer that does not exceed buffer
             {
                 MessageBox.Show("Desired transfer size needs to be a positive integer.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 textBoxesPanel?.Controls.Clear();
@@ -268,7 +264,7 @@ namespace AT_SCC
                 return;
             }
 
-            if (btt > MAX_BUFFER_SIZE)
+            if (btt > MAX_BUFFER_SIZE) // if desired input causes the max buffer to be exceeded
             {
                 MessageBox.Show("Desired transfer size exceeds buffer.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 textBoxesPanel?.Controls.Clear();
@@ -298,8 +294,10 @@ namespace AT_SCC
         private void VScrollBarSend_Scroll(object? sender, ScrollEventArgs e)       // events to handle the scroll bars
         {
             // Get the index of the first visible textbox
-            int index = e.NewValue;
-
+            int index = e.NewValue;         
+            
+            // sets up the scrollbar/panel showing only 10 textboxes at a time and when the scroll bar is active, it will scroll through
+            // hiding and unhiding as needed
 
             // Determine which textboxes should be shown or hidden based on the scrollbar value
             for (int i = 0; i < textBoxesPanel?.Controls.Count; i++)
@@ -319,8 +317,8 @@ namespace AT_SCC
         private void VScrollBarReceive_Scroll(object? sender, ScrollEventArgs e)            // events to handle the scroll bars
         {
 
-            int index2 = e.NewValue;
-
+            int index2 = e.NewValue;        // sets up the scrollbar/panel showing only 10 textboxes at a time and when the scroll bar is active, it will scroll through
+                                            // hiding and unhiding as needed
             for (int j = 0; j < textBoxesPanel2?.Controls.Count; j++)
             {
                 if (j < index2 || j > index2 + 11) textBoxesPanel2.Controls[j].Hide();
@@ -1518,7 +1516,7 @@ namespace AT_SCC
             this.Controls.Add(label);
         }
 
-        void OnHelp()
+        void OnHelp()       // Launches to live external website for help/info
         {
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.FileName = "cmd";
@@ -1546,8 +1544,7 @@ namespace AT_SCC
 
         public MainDisplay()  // main form with design components
         {
-            InitializeComponent();
-
+            InitializeComponent(); // calls the components fuction in the MainDisplay.Designer.cs file
 
         }
     }
