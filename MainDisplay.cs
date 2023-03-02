@@ -9,11 +9,13 @@ namespace AT_SCC
 
     public partial class MainDisplay : Form
     {                                           // declaring all variables associated with textboxes, menu/tool strip, strings, or int
-        private TextBox? textBoxCOM, textBoxBAUD, textBoxPARITY, textBoxDATABITS, textBoxSTOPBITS, textBoxRTIMEOUT, textBoxWTIMEOUT, textBoxHANDSHAKE, textBoxDELAY, textBoxBTT, textBoxMODEDISP, textBoxSENDTYPE, textBoxreceiveType;
+        private TextBox? textBoxCOM = new TextBox(), textBoxBAUD = new TextBox(), textBoxPARITY = new TextBox(), textBoxDATABITS = new TextBox(), textBoxSTOPBITS = new TextBox(), textBoxRTIMEOUT = new TextBox(), textBoxWTIMEOUT = new TextBox(), textBoxHANDSHAKE = new TextBox(), textBoxDELAY = new TextBox(), textBoxBTT = new TextBox(), textBoxMODEDISP = new TextBox(), textBoxSENDTYPE = new TextBox(), textBoxreceiveType = new TextBox();
 
-        private TextBox? clock, textBoxBUFFER, textBoxSTATUS;   // sets up the textboxes
+        private TextBox? clock = new TextBox(), textBoxBUFFER = new TextBox(), textBoxSTATUS = new TextBox();   // sets up the textboxes
 
-        private Panel? textBoxesPanel, textBoxesPanel2; // sets up the tx and rx panels
+        private Panel textBoxesPanel = new Panel();
+        private Panel textBoxesPanel2 = new Panel();
+
 
         private MenuStrip? menuStrip;   // sets up the menu strip and its items
 
@@ -25,16 +27,16 @@ namespace AT_SCC
 
         public static string[] AvailablePorts => System.IO.Ports.SerialPort.GetPortNames(); // provides all the ports available
 
-        string currentPort = "", currentBaud = "", currentParity = "None", stopBitOption = "", currentReadTimeout = "-1", currentWriteTimeout = "-1", currentHandshakeOption = "None", dataBitoption = "", currentDelayOption = "1000", currentMode = "", currentLogMode = "", currentRTOption = "", currentSTOption = "";
+        string currentPort = "";
 
         int currentBaudint, currentdataBitsint = 8, currentDelayint = 1000, breakval = 0; // declare integers and strings for default values for settings of port
 
 
         Parity currentParityvalue = Parity.None;                      // declaring variables to allow usage of dictionaries
         StopBits currentStopBitvalue = StopBits.One;
-
         Handshake currentHandshakevalue = Handshake.None;
 
+        Button STRANSMIT = new Button(), ETRANSMIT = new Button();
 
         CheckBox logging_check = new CheckBox(), repeat_check = new CheckBox(), overwrite_check = new CheckBox(); // define the checkboxes
 
@@ -77,49 +79,19 @@ namespace AT_SCC
             ["XOnXOff (Rq)"] = Handshake.RequestToSendXOnXOff
         };
 
-
         public readonly string[] sendDelayOptions = new string[]
         {
             "100","500","1000","2000","3000","4000","5000"
         };
 
-
         // DECLARING EVENTS
-
-
-        void OnCommSelected(object? sender, ToolStripItemClickedEventArgs e)        // event to select COM PORT based on user input 
-        {
-            if (e.ClickedItem != null && textBoxCOM != null)
-            {
-                textBoxCOM.Text = currentPort = e.ClickedItem.Text;
-                textBoxCOM.BackColor = Color.LightGreen;
-            }
-        }
-
-        void OnBaudSelected(object? sender, ToolStripItemClickedEventArgs e)        // event to select BAUD rate based on user input
-        {
-
-            if (e.ClickedItem != null && textBoxBAUD != null)
-            {
-                textBoxBAUD.Text = currentBaud = e.ClickedItem.Text;
-                currentBaudint = int.Parse(currentBaud);
-                textBoxBAUD.BackColor = Color.LightGreen;
-            }
-
-        }
-
-        void OnModeChange(object? sender, ToolStripItemClickedEventArgs e)      // event to select mode based on user input
-        {
-            if (e.ClickedItem != null && textBoxMODEDISP != null) { textBoxMODEDISP.Text = currentMode = e.ClickedItem.Text; }
-        }
 
         void OnLogChange(object? sender, ToolStripItemClickedEventArgs e)       // event to view or delete logs
         {     // event to activate or deactivate the logging feature
 
-            if (e.ClickedItem != null) currentLogMode = e.ClickedItem.Text;
-            if (currentLogMode == "View Logs") new Log(this).Show();
+            if (e.ClickedItem?.Text == "View Logs") new Log(this).Show();
 
-            else if (currentLogMode == "Delete Logs")
+            else if (e.ClickedItem?.Text == "Delete Logs")
             {
                 System.IO.File.WriteAllText(LogFilePath, string.Empty);
                 MessageBox.Show("Logs have been erased", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -127,31 +99,25 @@ namespace AT_SCC
 
         }
 
-        void OnEngage(object sender, ToolStripItemClickedEventArgs e)
+        void OnEngage(object sender, ToolStripItemClickedEventArgs e)       // event to open/close port
         {
-            if (e.ClickedItem == null || textBoxSTATUS == null)
-            {
-                return;
-            }
+            if (e.ClickedItem == null || textBoxSTATUS == null) return;
 
             try
             {
                 using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
                 {
                     Handshake = currentHandshakevalue,
-                    ReadTimeout = int.Parse(currentReadTimeout),
-                    WriteTimeout = int.Parse(currentWriteTimeout)
+                    ReadTimeout = int.Parse(textBoxRTIMEOUT!.Text),
+                    WriteTimeout = int.Parse(textBoxWTIMEOUT!.Text)
                 };
 
                 textBoxSTATUS.Text = e.ClickedItem.Text == "Open Port" ? "PORT OPEN" : "PORT CLOSED";
-                if (e.ClickedItem.Text == "Open Port")
-                {
-                    mySerialPort.Open();
-                }
-                else
-                {
-                    mySerialPort.Close();
-                }
+
+                if (e.ClickedItem.Text == "Open Port") mySerialPort.Open();
+
+                else mySerialPort.Close();
+
             }
             catch (Exception ex)
             {
@@ -159,100 +125,7 @@ namespace AT_SCC
             }
         }
 
-        void OnParitySelection(object? sender, ToolStripItemClickedEventArgs e)     // event to select parity based on user input
-        {
-            if (e.ClickedItem != null && textBoxPARITY != null)
-            {
-                textBoxPARITY.Text = currentParity = e.ClickedItem.Text;
-                currentParityvalue = ParityOptions[currentParity];
-                textBoxPARITY.BackColor = Color.LightGreen;
-            }
-
-        }
-
-        void OnStopSelection(object? sender, ToolStripItemClickedEventArgs e)   // event to select stopbit based on user input
-        {
-            if (e.ClickedItem != null && textBoxSTOPBITS != null)
-            {
-                textBoxSTOPBITS.Text = stopBitOption = e.ClickedItem.Text;
-                currentStopBitvalue = StopBitOptions[stopBitOption];
-                textBoxSTOPBITS.BackColor = Color.LightGreen;
-            }
-        }
-
-        void OndataBitsSelection(object? sender, ToolStripItemClickedEventArgs e)   // event to select databit based on user input
-        {         // event to select databits based on user input
-
-            if (e.ClickedItem != null && textBoxDATABITS != null)
-            {
-                textBoxDATABITS.Text = dataBitoption = e.ClickedItem.Text;
-                currentdataBitsint = int.Parse(dataBitoption);
-                textBoxDATABITS.BackColor = Color.LightGreen;
-            }
-        }
-
-        void OnHandshakeSelection(object? sender, ToolStripItemClickedEventArgs e)      // event to select handshake based on user input
-        {
-            if (e.ClickedItem != null && textBoxHANDSHAKE != null)
-            {
-                textBoxHANDSHAKE.Text = currentHandshakeOption = e.ClickedItem.Text;
-                currentHandshakevalue = HandShakeOptions[currentHandshakeOption];
-                textBoxHANDSHAKE.BackColor = Color.LightGreen;
-            }
-        }
-
-        void OnDelaySelection(object? sender, ToolStripItemClickedEventArgs e)      // evet to select the delay timings based on user input
-        {
-            if (e.ClickedItem != null && textBoxDELAY != null)
-            {
-                textBoxDELAY.Text = currentDelayOption = e.ClickedItem.Text;
-                currentDelayint = int.Parse(currentDelayOption);
-                textBoxDELAY.BackColor = Color.LightGreen;
-            }
-        }
-
-        void OnRModeChange(object? sender, ToolStripItemClickedEventArgs e)     // event to select the mode of the tool
-        {
-
-
-            if (e.ClickedItem != null && textBoxreceiveType != null && textBoxSENDTYPE != null)
-            {
-                textBoxreceiveType.Text = currentRTOption = e.ClickedItem.Text;
-
-            }
-        }
-
-        void OnSModeChange(object? sender, ToolStripItemClickedEventArgs e)         // event to select the mode of the tool
-        {
-            if (textBoxreceiveType != null && textBoxSENDTYPE != null)
-            {
-                textBoxSENDTYPE.Text = currentSTOption = e.ClickedItem?.Text ?? "N/A - DISABLED";
-
-            }
-
-        }
-
-        void OnRTimeout(object? sender, ToolStripItemClickedEventArgs e)            // event to select the read timeout
-        {
-
-            if (e.ClickedItem != null && textBoxRTIMEOUT != null)
-            {
-
-                textBoxRTIMEOUT.Text = currentReadTimeout = e.ClickedItem.Text;
-                textBoxRTIMEOUT.BackColor = Color.LightGreen;
-            }
-        }
-
-        void OnWTimeout(object? sender, ToolStripItemClickedEventArgs e)        // event to sleect the write timeout
-        {
-            if (e.ClickedItem != null && textBoxWTIMEOUT != null)
-            {
-                textBoxWTIMEOUT.Text = currentReadTimeout = e.ClickedItem.Text;
-                textBoxWTIMEOUT.BackColor = Color.LightGreen;
-            }
-        }
-
-        private void TextBoxBTT_TextChanged(object sender, EventArgs e)
+        private void TextBoxBTT_TextChanged(object sender, EventArgs e)     // event to adjust the TX BUFFER SIZE
         {
             List<string> textBoxValues = new List<string>();
 
@@ -283,26 +156,14 @@ namespace AT_SCC
             });
         }
 
-        private void Timer_Tick(object? sender, EventArgs e)        // event to display the time and date
-        {
-            if (clock != null) clock.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"); // Display current time in textbox
-
-        }
-
-        private void StopButton_Click(object sender, EventArgs e)           // event for button to stop the repeat
-        {
-            // Cancel the loop
-            cancellationTokenSource?.Cancel();
-        }
-
         private async void TX_RX_String() // sends and/or reads strings
         {
             int i = 0;
             using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
             {
                 Handshake = currentHandshakevalue,
-                ReadTimeout = int.Parse(currentReadTimeout),
-                WriteTimeout = int.Parse(currentWriteTimeout)
+                ReadTimeout = int.Parse(textBoxRTIMEOUT!.Text),
+                WriteTimeout = int.Parse(textBoxWTIMEOUT!.Text)
             };  // sets up serial port
 
             if (!mySerialPort.IsOpen) mySerialPort.Open();  // checks if port is open and if not opens it
@@ -379,7 +240,7 @@ namespace AT_SCC
 
         }
 
-        private async void RX_BYTE() // Reads bytes or byte collections
+        private async void TX_RX_BYTE() // Reads bytes or byte collections
         {
             int i = 0;
             var receivedBytes = new List<byte>();   // sets up new list of bytes
@@ -387,64 +248,128 @@ namespace AT_SCC
             using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
             {
                 Handshake = currentHandshakevalue,
-                ReadTimeout = int.Parse(currentReadTimeout),
-                WriteTimeout = int.Parse(currentWriteTimeout)
+                ReadTimeout = int.Parse(textBoxRTIMEOUT!.Text),
+                WriteTimeout = int.Parse(textBoxWTIMEOUT!.Text)
             };  // sets up serial port
 
             if (!mySerialPort.IsOpen) mySerialPort.Open();      // checks for if port is open and status message is set
             if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
 
             var byteCollections = new List<List<byte>>();   // sets up the textbox array and textboxes itself
-            var textBoxArray = new TextBox[MAX_BUFFER_SIZE];
-            for (var k = 0; k < textBoxArray.Length; k++)
-            {
-                textBoxArray[k] = new TextBox
-                {
-                    Location = new Point(10, k * 20),
-                    Width = 100,
-                    ReadOnly = true
-                };
-                textBoxesPanel2?.Controls.Add(textBoxArray[k]);
-            }
+            var textBoxList = new List<TextBox>();
+
+            // get all textboxes from input panel
+
 
             do
             {
-                if (mySerialPort.BytesToRead <= 0)
+                if (textBoxSENDTYPE?.Text == "Byte" || textBoxSENDTYPE?.Text == "Byte Collection")
                 {
-                    break;
+                    foreach (var control in textBoxesPanel!.Controls)
+                    {
+                        if (control is TextBox textBox && !string.IsNullOrWhiteSpace(textBox.Text))
+                        {
+                            var inputValues = textBox.Text.Split(' ');
+                            var bytesToSend = new List<byte>(); // adds data to the list to send
+
+                            foreach (var value in inputValues)
+                            {
+                                if (byte.TryParse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var byteValue))
+                                {
+                                    bytesToSend.Add(byteValue);
+                                }
+                                else    // if data is unavailable or not correct type, throw error
+                                {
+                                    MessageBox.Show($"Error: Unable to parse byte value '{value}'", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    return;
+                                }
+
+                                if (logging_check.Checked)
+                                {
+                                    var logFilePath = LogFilePath;
+
+                                    using var logFile = new StreamWriter(logFilePath, true);
+                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE/BYTE COLLECTION]: {byteValue}");
+                                }
+                            }
+
+                            mySerialPort.Write(bytesToSend.ToArray(), 0, bytesToSend.Count);
+                            Thread.Sleep(currentDelayint);
+
+                        }
+                    }
                 }
-                // reads the bytes and outputs to the panel, also checks to make sure it can do so
-                if (textBoxArray.Length > 0)
+
+                if (textBoxreceiveType?.Text == "Byte" || textBoxreceiveType?.Text == "Byte Collection")
                 {
-                    var receivedTextBox = textBoxArray[i];
-                    if (textBoxreceiveType?.Text == "Byte Collection") receivedTextBox.Text = Convert.ToString(mySerialPort.ReadByte());
-                    else if (textBoxreceiveType?.Text == "Byte") receivedTextBox.Text += $"{mySerialPort.ReadByte():X2} ";
+                    if (mySerialPort.BytesToRead <= 0)
+                    {
+                        break;
+                    }
 
-                    if (receivedTextBox.TextLength >= receivedTextBox.Width * 3) receivedTextBox.Text = receivedTextBox.Text.Substring(receivedTextBox.TextLength - receivedTextBox.Width * 3);
+                    var bytesReceived = new List<byte>();
+                    var receivedText = new StringBuilder();
 
+                    // read bytes from port and convert to text
+                    while (mySerialPort.BytesToRead > 0)
+                    {
+                        var b = (byte)mySerialPort.ReadByte();
+                        bytesReceived.Add(b);
+
+                        if (textBoxreceiveType?.Text == "Byte Collection")
+                        {
+                            receivedText.Append(b + " ");
+                        }
+                        else if (textBoxreceiveType?.Text == "Byte")
+                        {
+                            receivedText.Append(b.ToString("X2") + " ");
+                        }
+
+
+                    }
+
+                    // create a new textbox to display the received bytes
+                    var receivedTextBox = new TextBox
+                    {
+                        Location = new Point(10, i * 20),
+                        Width = 100,
+                        ReadOnly = true,
+                        Text = receivedText.ToString().Trim()
+                    };
+                    textBoxList.Add(receivedTextBox);
+                    textBoxesPanel2?.Controls.Add(receivedTextBox);
 
                     if (logging_check.Checked)
                     {
                         var logFilePath = LogFilePath;
 
                         using var logFile = new StreamWriter(logFilePath, true);
-                        logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE/BYTE COLLECTION]: {receivedTextBox.Text}");
+                        logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE/BYTE COLLECTION]: {receivedText}");
+                    }
+
+                    i++;
+
+                    if (i >= MAX_BUFFER_SIZE - 1)   // if buffer is hit, check if user wants overwrite
+                    {
+                        if (!(overwrite_check.Checked))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            i = -1;
+                        }
+                    }
+
+                    if (!(repeat_check.Checked))
+                    {
+                        break;
                     }
                 }
 
-                if (i >= MAX_BUFFER_SIZE - 1)   // if buffer is hit, check if user wants overwrite
-                {
-                    if (!(overwrite_check.Checked)) break;
-                    else i = -1;
-
-                }
-
-                i++;
-
-                if (!(repeat_check.Checked)) break;
-
                 await Task.Delay(500);
             } while (!cancellationTokenSource!.IsCancellationRequested);
+
 
             mySerialPort.Close();   // auto closes the port
             if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
@@ -501,8 +426,8 @@ namespace AT_SCC
             using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
             {
                 Handshake = currentHandshakevalue,
-                ReadTimeout = int.Parse(currentReadTimeout),
-                WriteTimeout = int.Parse(currentWriteTimeout)
+                ReadTimeout = int.Parse(textBoxRTIMEOUT!.Text),
+                WriteTimeout = int.Parse(textBoxWTIMEOUT!.Text)
             };  // sets up the serial port
 
             if (!mySerialPort.IsOpen) mySerialPort.Open();  // checks for if port is open and sets status message
@@ -644,449 +569,66 @@ namespace AT_SCC
 
         }
 
-        private async void Transmission_Click(object? sender, System.EventArgs e) // event to handle clicking the start transmission button
+        private void Transmission_Click(object? sender, System.EventArgs e) // event to handle clicking the start transmission button
         {
-            if (textBoxesPanel != null && textBoxesPanel2 != null)      // checks to ensure that the panels are not null, if they exist
+            cancellationTokenSource = new CancellationTokenSource();    // sets up the stop transmission functionality
+            textBoxesPanel2?.Controls.Clear();  // clears the output panel each time the button is clicked
+
+            if (textBoxMODEDISP?.Text == "Receive Mode")
             {
-                cancellationTokenSource = new CancellationTokenSource();    // sets up the stop transmission functionality
-                textBoxesPanel2?.Controls.Clear();  // clears the output panel each time the button is clicked
-
-
-                if (textBoxMODEDISP?.Text == "Receive Mode")
+                var modeSwitch = textBoxreceiveType?.Text;
+                switch (modeSwitch)
                 {
-                    var modeSwitch = textBoxreceiveType?.Text;
-                    switch (modeSwitch)
-                    {
 
-                        case "Byte":
-                            RX_BYTE();
-                            break;
+                    case "Byte":
+                        TX_RX_BYTE();
+                        break;
 
-                        case "String":
-                            TX_RX_String();
-                            break;
+                    case "String":
+                        TX_RX_String();
+                        break;
 
-                        case "Byte Collection":
-                            RX_BYTE();
-                            break;
+                    case "Byte Collection":
+                        TX_RX_BYTE();
+                        break;
 
-                        default:
-                            MessageBox.Show("Misconfigured Settings. Please check settings and modify as needed.", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            break;
-                    }
+                    default:
+                        MessageBox.Show("Misconfigured Settings. Please check settings and modify as needed.", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        break;
                 }
+            }
 
-                else if (textBoxMODEDISP?.Text == "Send Mode")
+            else if (textBoxMODEDISP?.Text == "Send Mode")
+            {
+
+                var modeSwitchS = textBoxSENDTYPE?.Text;
+                switch (modeSwitchS)
                 {
 
-                    var modeSwitchS = textBoxSENDTYPE?.Text;
-                    switch (modeSwitchS)
-                    {
+                    case "Byte":
+                        TX_RX_BYTE();
+                        break;
 
-                        case "Byte":
-                            break;
+                    case "String":
+                        TX_RX_String();
+                        break;
 
-                        case "String":
-                            TX_RX_String();
-                            break;
+                    case "Byte Collection":
+                        TX_RX_BYTE();
+                        break;
 
-                        case "Byte Collection":
-                            break;
+                    case "ASCII":
+                        TX_RX_ASCII();
+                        break;
 
-                        case "ASCII":
-                            TX_RX_ASCII();
-                            break;
+                    case "ASCII-HEX":
+                        TX_RX_ASCII();
+                        break;
 
-                        case "ASCII-HEX":
-                            TX_RX_ASCII();
-                            break;
+                    default:
+                        MessageBox.Show("Misconfigured Settings. Please check settings and modify as needed.", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        break;
 
-                        default:
-                            MessageBox.Show("Misconfigured Settings. Please check settings and modify as needed.", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            break;
-
-                    }
-                }
-
-                if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "Byte")   // checks if it is sending a byte
-                {
-
-                    var inputValues = new List<string>();
-                    foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())  // sets up the textboxes and list of bytes to send
-                    {
-                        if (!string.IsNullOrEmpty(textBox.Text)) inputValues.AddRange(textBox.Text.Split(' '));
-                    }
-
-                    if (!inputValues.Any()) // checks for if any data exists
-                    {
-                        MessageBox.Show("Please input byte values\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-
-                    var bytesToSend = new List<byte>(); // adds data to the list to send
-                    foreach (var value in inputValues)
-                    {
-                        if (byte.TryParse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var byteValue))
-                        {
-                            bytesToSend.Add(byteValue);
-                        }
-                        else    // if data is unavailable or not correct type, throw error
-                        {
-                            MessageBox.Show($"Error: Unable to parse byte value '{value}'", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
-                        }
-                    }
-
-                    var delay = TimeSpan.FromMilliseconds(currentDelayint); // delay
-
-                    using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
-                    {
-                        Handshake = currentHandshakevalue,
-                        ReadTimeout = int.Parse(currentReadTimeout),
-                        WriteTimeout = int.Parse(currentWriteTimeout)
-                    };  // sets up serial port
-
-                    if (!mySerialPort.IsOpen) mySerialPort.Open();  // checks if port is open and sets status message
-                    if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
-
-                    if (!repeat_check.Checked)  // code runs if repeat is not on
-                    {
-                        if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte") MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                        else
-                        {
-                            int i = 0;
-                            var textBoxArray = new TextBox[Math.Min(bytesToSend.Count, MAX_BUFFER_SIZE)]; // creates the textboxes and sets them up
-                            for (var j = 0; j < textBoxArray.Length; j++)
-                            {
-                                textBoxArray[j] = new TextBox
-                                {
-                                    Location = new Point(10, j * 20 + i * 200),
-                                    Width = 100,
-                                    ReadOnly = true
-                                };
-                                textBoxesPanel2?.Controls.Add(textBoxArray[j]);
-                            }
-
-                            var index = 0;  // writes the bytes and checks for if logging is needed
-
-                            foreach (var byteValue in bytesToSend)
-                            {
-
-                                if (logging_check.Checked)
-                                {
-                                    var logFilePath = LogFilePath;
-
-                                    using var logFile = new StreamWriter(logFilePath, true);
-                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE]: {byteValue}");
-                                }
-
-                                mySerialPort.Write(new[] { byteValue }, 0, 1);
-
-                                Thread.Sleep(currentDelayint);
-                                if (textBoxreceiveType?.Text == "Byte") // if receiving as well as sending, it will read that data and output onto the panel
-                                {
-                                    if (index < textBoxArray.Length)
-                                    {
-                                        var receivedTextBox = textBoxArray[index];
-                                        receivedTextBox.Text = Convert.ToString(mySerialPort.ReadByte());
-
-                                        if (logging_check.Checked)
-                                        {
-                                            var logFilePath = LogFilePath;
-
-                                            using var logFile = new StreamWriter(logFilePath, true);
-                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE]: {receivedTextBox.Text}");
-                                        }
-
-                                    } // if buffer is hit, throw warning
-
-                                    index++;
-                                }
-
-                            }
-                            i++;
-                        }
-
-
-                    }
-
-                    while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)    // for if the sending data is repeating
-                    {
-
-                        if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte") // ensures configuration is correct
-                        {
-
-                            MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            break;
-
-                        }
-
-
-                        int i = 0;  // sets up the textboxes
-                        var textBoxArray = new TextBox[Math.Min(bytesToSend.Count, MAX_BUFFER_SIZE)];
-                        for (var j = 0; j < textBoxArray.Length; j++)
-                        {
-                            textBoxArray[j] = new TextBox
-                            {
-                                Location = new Point(10, j * 20 + i * 200),
-                                Width = 100,
-                                ReadOnly = true
-                            };
-                            textBoxesPanel2?.Controls.Add(textBoxArray[j]);
-
-                            textBoxArray[j].Show();
-                        }
-
-                        var index = 0;
-
-                        foreach (var byteValue in bytesToSend)
-                        {
-
-                            if (logging_check.Checked)
-                            {
-                                var logFilePath = LogFilePath;
-
-                                using var logFile = new StreamWriter(logFilePath, true);
-                                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE]: {byteValue}");
-                            }
-
-                            mySerialPort.Write(new[] { byteValue }, 0, 1);      // writes the data and also checks for logging needs
-
-                            Thread.Sleep(currentDelayint);
-                            if (textBoxreceiveType?.Text == "Byte") // if receiving, it will receive the data and output to panel
-                            {
-                                if (index < textBoxArray.Length && textBoxesPanel2?.Controls.Count < MAX_BUFFER_SIZE)
-                                {
-                                    var receivedTextBox = textBoxArray[index];
-                                    receivedTextBox.Text = Convert.ToString(mySerialPort.ReadByte());
-
-                                    if (logging_check.Checked)
-                                    {
-                                        var logFilePath = LogFilePath;
-
-                                        using var logFile = new StreamWriter(logFilePath, true);
-                                        logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE]: {receivedTextBox.Text}");
-                                    }
-                                }
-                                else // if buffer is hit, check for is user wants overwriting
-                                {
-                                    index = -1;
-
-                                    if (!(overwrite_check.Checked)) breakval = 1;
-
-                                    else textBoxesPanel2?.Controls.Clear();
-
-                                }
-
-                                index++;
-                            }
-
-                            await Task.Delay(500);
-                        }
-                        i++;
-
-                        if (breakval == 1)
-                        {        // if user does not want to overwrite, it will exit the while loop and end the sending process
-                            breakval = 0;
-                            break;
-                        }
-
-
-
-
-                    }
-
-                    mySerialPort.Close();       // auto close the port
-                    if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
-
-                }
-
-                else if (textBoxMODEDISP?.Text == "Send Mode" && textBoxSENDTYPE?.Text == "Byte Collection") // checks if it is sending a collection of bytes
-                {
-                    var byteCollections = new List<byte[]>();       // sets up the textboxes and lists for data
-                    foreach (var textBox in textBoxesPanel.Controls.OfType<TextBox>())
-                    {
-                        if (!string.IsNullOrEmpty(textBox.Text))
-                        {
-                            var byteValues = textBox.Text.Split(' ')
-                                .Where(x => !string.IsNullOrEmpty(x))
-                                .Select(x => byte.TryParse(x, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var result) ? result : (byte)0)
-                                .ToArray();
-
-                            if (byteValues.Length > 0)
-                            {
-                                byteCollections.Add(byteValues);
-                            }
-                        }
-                    }
-
-                    if (!byteCollections.Any()) // check for any data
-                    {
-                        MessageBox.Show("Please input byte values\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-
-                    var delay = TimeSpan.FromMilliseconds(currentDelayint); // delay for transmission
-
-                    using var mySerialPort = new SerialPort(currentPort, currentBaudint, currentParityvalue, currentdataBitsint, currentStopBitvalue)
-                    {
-                        Handshake = currentHandshakevalue,
-                        ReadTimeout = int.Parse(currentReadTimeout),
-                        WriteTimeout = int.Parse(currentWriteTimeout)
-                    };      // sets up the serial port
-
-                    if (!mySerialPort.IsOpen) mySerialPort.Open();  // checks if the port is open and sets status message
-                    if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
-
-                    var textBoxList = new List<TextBox>();
-                    var textBoxIndex = 0;   // sets up the textboxes
-
-                    if (!repeat_check.Checked)      // if code is running only once
-                    {       // ensures configuration is correct
-                        if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte Collection") MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                        else
-                        {
-                            var textBoxArray = new TextBox[Math.Min(byteCollections.Count, MAX_BUFFER_SIZE)];
-                            for (var j = 0; j < textBoxArray.Length; j++)
-                            {
-                                var textBox = new TextBox   // creates the textboxes
-                                {
-                                    Location = new Point(10, (textBoxIndex + j) * 20),
-                                    Width = 100,
-                                    ReadOnly = true
-                                };
-                                textBoxList.Add(textBox);
-                                textBoxesPanel2?.Controls.Add(textBox);
-                            }
-
-                            var index = 0;
-
-                            foreach (var byteCollection in byteCollections) // checks for logging needs and sends the data to port
-                            {
-
-                                if (logging_check.Checked)
-                                {
-                                    var logFilePath = LogFilePath;
-
-                                    using var logFile = new StreamWriter(logFilePath, true);
-                                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE COLLECTION]: {BitConverter.ToString(byteCollection)}");
-                                }
-
-                                mySerialPort.Write(byteCollection, 0, byteCollection.Length);
-
-                                Thread.Sleep(currentDelayint);
-                                if (textBoxreceiveType?.Text == "Byte Collection")  // if also receiving, it will read the sent data and output to panel
-                                {
-                                    if (index < textBoxArray.Length)
-                                    {
-                                        var receivedTextBox = textBoxList[textBoxIndex + index];
-                                        receivedTextBox.Text = mySerialPort.ReadExisting();
-
-                                        if (logging_check.Checked)
-                                        {
-                                            var logFilePath = LogFilePath;
-
-                                            using var logFile = new StreamWriter(logFilePath, true);        // checks for logging
-                                            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE COLLECTION]: {receivedTextBox.Text}");
-                                        }
-                                    }   // if buffer is hit, throw warning
-
-                                    index++;
-                                }
-
-                            }
-
-                            textBoxIndex += textBoxArray.Length;
-                        }
-
-                    }
-
-                    while (!cancellationTokenSource.IsCancellationRequested && repeat_check.Checked)    // if repeating is enabled
-                    {
-
-                        if (textBoxreceiveType?.Text != "N/A - DISABLED" && textBoxreceiveType?.Text != "Byte Collection")  // ensure correct configurations
-                        {
-
-                            MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            break;
-
-                        }
-
-                        var textBoxArray = new TextBox[Math.Min(byteCollections.Count, MAX_BUFFER_SIZE)];   // sets up textboxes
-                        for (var j = 0; j < textBoxArray.Length; j++)
-                        {
-                            var textBox = new TextBox
-                            {
-                                Location = new Point(10, (textBoxIndex + j) * 20),
-                                Width = 100,
-                                ReadOnly = true
-                            };
-                            textBoxList.Add(textBox);
-                            textBoxesPanel2?.Controls.Add(textBox);
-                        }
-
-                        var index = 0;
-
-                        foreach (var byteCollection in byteCollections) // checks if logging is needed and sends the data to port
-                        {
-
-                            if (logging_check.Checked)
-                            {
-                                var logFilePath = LogFilePath;
-
-                                using var logFile = new StreamWriter(logFilePath, true);
-                                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE COLLECTION]: {BitConverter.ToString(byteCollection)}");
-                            }
-
-                            mySerialPort.Write(byteCollection, 0, byteCollection.Length);
-
-                            Thread.Sleep(currentDelayint);
-                            if (textBoxreceiveType?.Text == "Byte Collection")  // if also receiving, it will read data its sent and output to panel
-                            {
-                                if (index < textBoxArray.Length && textBoxesPanel2?.Controls.Count <= MAX_BUFFER_SIZE)
-                                {
-                                    var receivedTextBox = textBoxList[textBoxIndex + index];
-                                    receivedTextBox.Text = mySerialPort.ReadExisting();
-
-                                    if (logging_check.Checked)  // if logging is wanted, it will log
-                                    {
-                                        var logFilePath = LogFilePath;
-
-                                        using var logFile = new StreamWriter(logFilePath, true);
-                                        logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE COLLECTION]: {receivedTextBox.Text}");
-                                    }
-                                }
-                                else
-                                { // if buffer is hit, see if user wants overwrite of data
-                                    index = -1;
-                                    if (!overwrite_check.Checked) breakval = 1;
-
-                                    else textBoxesPanel2?.Controls.Clear();
-                                }
-
-                                index++;
-                            }
-
-
-                            await Task.Delay(500);
-                        }
-
-                        textBoxIndex += textBoxArray.Length;
-
-                        if (breakval == 1)
-                        {    // if no overwriting is wanted, then it exits the loop and ends the process
-                            breakval = 0;
-                            break;
-                        }
-
-
-
-                    }
-
-                    mySerialPort.Close();
-                    if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
                 }
 
             }
@@ -1105,18 +647,62 @@ namespace AT_SCC
             this.Controls.Add(label);
         }
 
+        public void SetTextBox(TextBox textBox, Point location, int width, String text, Color backColor, Boolean read_only) { // sets up all textboxes with settings
+
+            textBox.Location = location;
+            textBox.Width = width;
+            textBox.TextAlign = HorizontalAlignment.Center;
+            textBox.Text = text;
+            textBox.BackColor = backColor;
+            textBox.ReadOnly = read_only;
+            textBox.Cursor = Cursors.Arrow;
+            this.Controls.Add(textBox);
+        }
+
+        public void SetCheckBoxes(CheckBox checkBox, Point location, String text)   // sets up all checkboxes with settings
+        {      // sets the settings for the checkboxes
+
+            checkBox.Width = 125;
+            checkBox.Height = 20;
+            checkBox.Font = new Font("Arial", 8);
+            checkBox.Location = location;
+            checkBox.Text = text;
+            this.Controls.Add(checkBox);
+        }
+
+        public void SetButtons(Button button, Point location, String text, Color backColor)       // sets the settings for the buttons
+        {
+            button.Width = 155;
+            button.Height = 40;
+            button.AutoSize = true;
+            button.DialogResult = DialogResult.OK;
+            button.FlatStyle = FlatStyle.Flat;
+            button.FlatAppearance.BorderColor = ColorTranslator.FromHtml("#00457c");
+            button.FlatAppearance.BorderSize = 2;
+            button.Font = new Font("Arial", 8);
+            button.Location = location;
+            button.Text = text;
+            button.BackColor = backColor;
+            this.Controls.Add(button);
+        }
+
+        public void SetPanels(Panel panel, Point location)  // sets up all panels with settings
+        {
+
+            panel.Location = location;
+            panel.BackColor = Color.LightBlue;
+            panel.Size = new Size(125, 190);
+            panel.AutoScroll = true;
+            this.Controls.Add(panel);
+
+        }
+
         void OnHelp()       // Launches to live external website for help/info
         {
             ProcessStartInfo psi = new ProcessStartInfo();
             psi.FileName = "cmd";
             psi.Arguments = $"/c start https://pipoat.github.io/";
             Process.Start(psi);
-        }
-
-
-        void OnClose()  // function to close the program
-        {
-            Close();
         }
 
         void OnReload() // function to reload the ports/program
@@ -1158,14 +744,14 @@ namespace AT_SCC
             loggingMenuItem.DropDownItemClicked += OnLogChange;
 
 
-            exitMenuItem = new ToolStripMenuItem("&Exit", null, (_, _) => OnClose()) { ShortcutKeys = Keys.Control | Keys.X };
+            exitMenuItem = new ToolStripMenuItem("&Exit", null, (_, _) => Close()) { ShortcutKeys = Keys.Control | Keys.X };
             reloadMenuItem = new ToolStripMenuItem("&Reload", null, (_, _) => OnReload()) { ShortcutKeys = Keys.Control | Keys.L };
             var Help = new ToolStripMenuItem("&Info/Help", null, (_, _) => OnHelp()) { ShortcutKeys = Keys.Control | Keys.H };
 
 
             modeMenuItem = new ToolStripMenuItem("&Select Mode");
             modeMenuItem.DropDownItems.AddRange(new ToolStripItem[] { new ToolStripMenuItem("Send Mode"), new ToolStripMenuItem("Receive Mode"), new ToolStripMenuItem("IDLE Mode") });
-            modeMenuItem.DropDownItemClicked += OnModeChange;
+            modeMenuItem.DropDownItemClicked += (s, e) => textBoxMODEDISP!.Text = e.ClickedItem!.Text;
 
             portengageMenuItem = new ToolStripMenuItem("&Open/Close Port");
             portengageMenuItem.DropDownItems.Add("Open Port");
@@ -1183,56 +769,79 @@ namespace AT_SCC
             }
             currentPort = "COM#";
             currentCom.Text = currentPort;
-            currentCom.DropDownItemClicked += OnCommSelected;
+            currentCom.DropDownItemClicked += (s, e) => textBoxCOM!.Text = currentPort = e.ClickedItem!.Text;
+            currentCom.DropDownItemClicked += (s, e) => textBoxCOM!.BackColor = Color.LightGreen;
 
 
             baudMenuItem = new ToolStripMenuItem("&Baud");
             baudMenuItem.DropDownItems.AddRange(PossibleBauds.Select(b => new ToolStripMenuItem(b)).ToArray());
-            baudMenuItem.DropDownItemClicked += OnBaudSelected;
+            baudMenuItem.DropDownItemClicked += (s, e) => textBoxBAUD!.Text = e.ClickedItem!.Text;
+            baudMenuItem.DropDownItemClicked += (s, e) => currentBaudint = int.Parse(textBoxBAUD!.Text);
+            baudMenuItem.DropDownItemClicked += (s, e) => textBoxBAUD!.BackColor = Color.LightGreen;
+
 
             parityMenuItem = new ToolStripMenuItem("&Parity");
-            parityMenuItem.DropDownItemClicked += OnParitySelection;
+            parityMenuItem.DropDownItemClicked += (s, e) => textBoxPARITY!.Text = e.ClickedItem!.Text;
+            parityMenuItem.DropDownItemClicked += (s, e) => currentParityvalue = ParityOptions[textBoxPARITY!.Text];
+            parityMenuItem.DropDownItemClicked += (s, e) => textBoxPARITY!.BackColor = Color.LightGreen;
             parityMenuItem.DropDownItems.AddRange(ParityOptions.Keys.Select(s => new ToolStripMenuItem(s)).ToArray());
 
+
             dataBitsMenuItem = new ToolStripMenuItem("&Data Bits");
-            for (int i = 5; i <= 8; i++)
+            foreach (var item in Enumerable.Range(5, 4))
             {
-                dataBitsMenuItem.DropDownItems.Add(i.ToString());
+                dataBitsMenuItem.DropDownItems.Add(item.ToString());
             }
-            dataBitsMenuItem.DropDownItemClicked += OndataBitsSelection;
+            dataBitsMenuItem.DropDownItemClicked += (s, e) => textBoxDATABITS!.Text = e.ClickedItem!.Text;
+            dataBitsMenuItem.DropDownItemClicked += (s, e) => currentdataBitsint = int.Parse(textBoxDATABITS!.Text);
+            dataBitsMenuItem.DropDownItemClicked += (s, e) => textBoxDATABITS!.BackColor = Color.LightGreen; ;
 
 
             stopBitsMenuItem = new ToolStripMenuItem("&Stop Bits");
-            stopBitsMenuItem.DropDownItemClicked += OnStopSelection;
+            stopBitsMenuItem.DropDownItemClicked += (s, e) => textBoxSTOPBITS!.Text = e.ClickedItem!.Text;
+            stopBitsMenuItem.DropDownItemClicked += (s, e) => currentStopBitvalue = StopBitOptions[textBoxSTOPBITS!.Text];
+            stopBitsMenuItem.DropDownItemClicked += (s, e) => textBoxSTOPBITS!.BackColor = Color.LightGreen; ;
             stopBitsMenuItem.DropDownItems.AddRange(StopBitOptions.Keys.Select(s => new ToolStripMenuItem(s)).ToArray());
 
             readTimeoutItem = new ToolStripMenuItem("&Read Timeout")
             {
                 DropDownItems = { "-1", "500" }
             };
+            readTimeoutItem.DropDownItemClicked += (s, e) => textBoxRTIMEOUT!.Text = e.ClickedItem!.Text;
+            readTimeoutItem.DropDownItemClicked += (s, e) => textBoxRTIMEOUT!.BackColor = Color.LightGreen;
+
+
             writeTimeoutItem = new ToolStripMenuItem("&Write Timeout")
             {
                 DropDownItems = { "-1", "500" }
             };
-            readTimeoutItem.DropDownItemClicked += OnRTimeout;
-            writeTimeoutItem.DropDownItemClicked += OnWTimeout;
+            writeTimeoutItem.DropDownItemClicked += (s, e) => textBoxWTIMEOUT!.Text = e.ClickedItem!.Text;
+            writeTimeoutItem.DropDownItemClicked += (s, e) => textBoxWTIMEOUT!.BackColor = Color.LightGreen;
 
 
             handshakeItem = new ToolStripMenuItem("&Handshake");
             handshakeItem.DropDownItems.AddRange(HandShakeOptions.Keys.Select(key => new ToolStripMenuItem(key)).ToArray());
-            handshakeItem.DropDownItemClicked += OnHandshakeSelection;
+            handshakeItem.DropDownItemClicked += (s, e) => textBoxHANDSHAKE!.Text = e.ClickedItem!.Text;
+            handshakeItem.DropDownItemClicked += (s, e) => currentHandshakevalue = HandShakeOptions[textBoxHANDSHAKE!.Text];
+            handshakeItem.DropDownItemClicked += (s, e) => textBoxHANDSHAKE!.BackColor = Color.LightGreen;
+
 
             sendDelay = new ToolStripMenuItem("&Delay (ms)");
             sendDelay.DropDownItems.AddRange(sendDelayOptions.Select(sdelay => new ToolStripMenuItem(sdelay)).ToArray());
-            sendDelay.DropDownItemClicked += OnDelaySelection;
+            sendDelay.DropDownItemClicked += (s, e) => textBoxDELAY!.Text = e.ClickedItem!.Text;
+            sendDelay.DropDownItemClicked += (s, e) => currentDelayint = int.Parse(textBoxDELAY!.Text);
+            sendDelay.DropDownItemClicked += (s, e) => textBoxDELAY!.BackColor = Color.LightGreen; ;
+
 
             sendingModeMenuItem = new ToolStripMenuItem("&Sending Data Type");
             sendingModeMenuItem.DropDownItems.AddRange(PossibleTransmitModes.Select(psm => new ToolStripMenuItem(psm)).ToArray());
-            sendingModeMenuItem.DropDownItemClicked += OnSModeChange;
+            sendingModeMenuItem.DropDownItemClicked += (s, e) => textBoxSENDTYPE!.Text = e.ClickedItem?.Text ?? "N/A - DISABLED";
+
 
             receivingModeMenuItem = new ToolStripMenuItem("&Receiving Data Type");
             receivingModeMenuItem.DropDownItems.AddRange(PossibleTransmitModes.Select(prm => new ToolStripMenuItem(prm)).ToArray());
-            receivingModeMenuItem.DropDownItemClicked += OnRModeChange;
+            receivingModeMenuItem.DropDownItemClicked += (s, e) => textBoxreceiveType!.Text = e.ClickedItem!.Text;
+
 
             comPortMenuItem.DropDownItems.AddRange(new ToolStripItem[] { currentCom, baudMenuItem, parityMenuItem, dataBitsMenuItem, stopBitsMenuItem, readTimeoutItem, writeTimeoutItem, handshakeItem, sendDelay });
 
@@ -1246,264 +855,96 @@ namespace AT_SCC
 
             System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
             timer.Interval = 1000; // Update time every 1 second
-            timer.Tick += new EventHandler(Timer_Tick);
+            timer.Tick += (_, _) => clock.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             timer.Start();
 
-            this.clock = new System.Windows.Forms.TextBox();
-            this.clock.Location = new Point(10, 365);
-            this.clock.Width = 150;
-            this.clock.TextAlign = HorizontalAlignment.Center;
-            this.clock.ReadOnly = true;
-            this.clock.Cursor = Cursors.Arrow;
-            this.Controls.Add(this.clock);
+            SetTextBox(clock, new Point(10, 365), 150, "", Color.LightGray, true);
 
-            // DEFINE and DISPLAY transmit button
+            // DEFINE and DISPLAY transmit buttons
 
-            string[] buttonLabels = { "START TRANSMISSION", "STOP TRANSMISSION" };
-            Point[] buttonLocations = { new Point(410, 280), new Point(570, 280) };
-            Color[] buttonColors = { Color.LightGreen, Color.Pink };
-            EventHandler[] buttonHandlers = { new EventHandler(Transmission_Click), new EventHandler(StopButton_Click!) };
+            STRANSMIT.Click += Transmission_Click;
+            SetButtons(STRANSMIT, new Point(410, 280), "START TRANSMISSION", Color.LightGreen);
 
-            for (int i = 0; i < buttonLabels.Length; i++)
-            {
-                Button button = new Button();
-                button.Location = buttonLocations[i];
-                button.Text = buttonLabels[i];
-                button.Font = new Font("Arial", 8);
-                button.Width = 155;
-                button.Height = 40;
-                button.AutoSize = true;
-                button.BackColor = buttonColors[i];
-                button.DialogResult = DialogResult.OK;
-                button.Click += buttonHandlers[i];
-                button.FlatStyle = FlatStyle.Flat;
-                button.FlatAppearance.BorderColor = ColorTranslator.FromHtml("#00457c");
-                button.FlatAppearance.BorderSize = 2;
-                this.Controls.Add(button);
-            }
+            ETRANSMIT.Click += (_, _) => cancellationTokenSource?.Cancel();
+            SetButtons(ETRANSMIT, new Point(570, 280), "STOP TRANSMISSION", Color.Pink);
+
 
             // DEFINE INPUT AND OUTPUT PANELS
 
             AddLabel("TX (Sending):", new Point(410, 45), new Font("Arial", 10));
-
-            this.textBoxesPanel = new Panel();
-            this.textBoxesPanel.Location = new Point(410, 65);
-            this.textBoxesPanel.BackColor = Color.LightBlue;
-            this.textBoxesPanel.Size = new Size(125, 190);
-            this.textBoxesPanel.AutoScroll = true;
-            this.Controls.Add(this.textBoxesPanel);
+            SetPanels(textBoxesPanel, new Point(410, 65));
 
             AddLabel("RX (Receiving):", new Point(598, 45), new Font("Arial", 10));
-
-            this.textBoxesPanel2 = new Panel();
-            this.textBoxesPanel2.Location = new Point(598, 65);
-            this.textBoxesPanel2.BackColor = Color.LightBlue;
-            this.textBoxesPanel2.AutoScroll = true;
-            this.textBoxesPanel2.Size = new Size(125, 190);
-
-            this.Controls.Add(this.textBoxesPanel2);
+            SetPanels(textBoxesPanel2, new Point(598, 65));
 
             // DEFINE LABELS, TEXTBOXES, BUTTONS FOR MAIN DISPLAY
 
             AddLabel("COM PORT:", new Point(20, 40), new Font("Arial", 8));
-
-            this.textBoxCOM = new System.Windows.Forms.TextBox();
-            this.textBoxCOM.Location = new Point(20, 60);
-            this.textBoxCOM.Width = 75;
-            this.textBoxCOM.TextAlign = HorizontalAlignment.Center;
-            this.textBoxCOM.BackColor = Color.Pink;
-            this.textBoxCOM.ReadOnly = true;
-            this.textBoxCOM.Cursor = Cursors.Arrow;
-            this.Controls.Add(this.textBoxCOM);
+            SetTextBox(textBoxCOM, new Point(20, 60), 75, "", Color.Pink, true);
+            
 
             AddLabel("BAUDRATE:", new Point(110, 40), new Font("Arial", 8));
+            SetTextBox(textBoxBAUD, new Point(110, 60), 75, "", Color.Pink, true);
 
-            this.textBoxBAUD = new System.Windows.Forms.TextBox();
-            this.textBoxBAUD.Location = new Point(110, 60);
-            this.textBoxBAUD.Width = 75;
-            this.textBoxBAUD.TextAlign = HorizontalAlignment.Center;
-            this.textBoxBAUD.BackColor = Color.Pink;
-            this.textBoxBAUD.ReadOnly = true;
-            this.textBoxBAUD.Cursor = Cursors.Arrow;
-            this.Controls.Add(this.textBoxBAUD);
 
             AddLabel("PARITY:", new Point(20, 90), new Font("Arial", 8));
+            SetTextBox(textBoxPARITY, new Point(20, 110), 75, "None", Color.LightYellow, true);
 
-            this.textBoxPARITY = new System.Windows.Forms.TextBox();
-            this.textBoxPARITY.Location = new Point(20, 110);
-            this.textBoxPARITY.Width = 75;
-            this.textBoxPARITY.Text = "None";
-            this.textBoxPARITY.TextAlign = HorizontalAlignment.Center;
-            this.textBoxPARITY.BackColor = Color.LightYellow;
-            this.textBoxPARITY.ReadOnly = true;
-            this.textBoxPARITY.Cursor = Cursors.Arrow;
-            this.Controls.Add(this.textBoxPARITY);
 
             AddLabel("DATABITS:", new Point(110, 90), new Font("Arial", 8));
+            SetTextBox(textBoxDATABITS, new Point(110, 110), 75, "8", Color.LightYellow, true);
 
-            this.textBoxDATABITS = new System.Windows.Forms.TextBox();
-            this.textBoxDATABITS.Location = new Point(110, 110);
-            this.textBoxDATABITS.Width = 75;
-            this.textBoxDATABITS.Text = "8";
-            this.textBoxDATABITS.TextAlign = HorizontalAlignment.Center;
-            this.textBoxDATABITS.BackColor = Color.LightYellow;
-            this.textBoxDATABITS.ReadOnly = true;
-            this.textBoxDATABITS.Cursor = Cursors.Arrow;
-            this.Controls.Add(this.textBoxDATABITS);
 
             AddLabel("STOPBITS:", new Point(20, 140), new Font("Arial", 8));
+            SetTextBox(textBoxSTOPBITS, new Point(20, 160), 75, "1", Color.LightYellow, true);
 
-            this.textBoxSTOPBITS = new System.Windows.Forms.TextBox();
-            this.textBoxSTOPBITS.Location = new Point(20, 160);
-            this.textBoxSTOPBITS.Width = 75;
-            this.textBoxSTOPBITS.Text = "1";
-            this.textBoxSTOPBITS.TextAlign = HorizontalAlignment.Center;
-            this.textBoxSTOPBITS.BackColor = Color.LightYellow;
-            this.textBoxSTOPBITS.ReadOnly = true;
-            this.textBoxSTOPBITS.Cursor = Cursors.Arrow;
-            this.Controls.Add(this.textBoxSTOPBITS);
 
             AddLabel("R T-OUT:", new Point(110, 140), new Font("Arial", 8));
+            SetTextBox(textBoxRTIMEOUT, new Point(110, 160), 75, "-1", Color.LightYellow, true);
 
-            this.textBoxRTIMEOUT = new System.Windows.Forms.TextBox();
-            this.textBoxRTIMEOUT.Location = new Point(110, 160);
-            this.textBoxRTIMEOUT.Width = 75;
-            this.textBoxRTIMEOUT.TextAlign = HorizontalAlignment.Center;
-            this.textBoxRTIMEOUT.BackColor = Color.LightYellow;
-            this.textBoxRTIMEOUT.ReadOnly = true;
-            this.textBoxRTIMEOUT.Cursor = Cursors.Arrow;
-            this.textBoxRTIMEOUT.Text = currentReadTimeout;
-            this.Controls.Add(this.textBoxRTIMEOUT);
 
             AddLabel("W T-OUT:", new Point(20, 190), new Font("Arial", 8));
+            SetTextBox(textBoxWTIMEOUT, new Point(20, 210), 75, "-1", Color.LightYellow, true);
 
-            this.textBoxWTIMEOUT = new System.Windows.Forms.TextBox();
-            this.textBoxWTIMEOUT.Location = new Point(20, 210);
-            this.textBoxWTIMEOUT.Width = 75;
-            this.textBoxWTIMEOUT.TextAlign = HorizontalAlignment.Center;
-            this.textBoxWTIMEOUT.BackColor = Color.LightYellow;
-            this.textBoxWTIMEOUT.ReadOnly = true;
-            this.textBoxWTIMEOUT.Cursor = Cursors.Arrow;
-            this.textBoxWTIMEOUT.Text = currentWriteTimeout;
-            this.Controls.Add(this.textBoxWTIMEOUT);
 
             AddLabel("HANDSHAKE:", new Point(110, 190), new Font("Arial", 8));
+            SetTextBox(textBoxHANDSHAKE, new Point(110, 210), 75, "None", Color.LightYellow, true);
 
-            this.textBoxHANDSHAKE = new System.Windows.Forms.TextBox();
-            this.textBoxHANDSHAKE.Location = new Point(110, 210);
-            this.textBoxHANDSHAKE.Width = 75;
-            this.textBoxHANDSHAKE.Text = "None";
-            this.textBoxHANDSHAKE.TextAlign = HorizontalAlignment.Center;
-            this.textBoxHANDSHAKE.BackColor = Color.LightYellow;
-            this.textBoxHANDSHAKE.ReadOnly = true;
-            this.textBoxHANDSHAKE.Cursor = Cursors.Arrow;
-            this.Controls.Add(this.textBoxHANDSHAKE);
 
             AddLabel("SEND DELAY (ms):", new Point(20, 240), new Font("Arial", 8));
-
-            this.textBoxDELAY = new System.Windows.Forms.TextBox();
-            this.textBoxDELAY.Location = new Point(20, 260);
-            this.textBoxDELAY.Width = 165;
-            this.textBoxDELAY.Text = "1000";
+            SetTextBox(textBoxDELAY, new Point(20, 260), 165, "1000", Color.LightYellow, false);
             this.textBoxDELAY.MaxLength = 4;
-            this.textBoxDELAY.TextAlign = HorizontalAlignment.Center;
-            this.textBoxDELAY.BackColor = Color.LightYellow;
-            this.Controls.Add(this.textBoxDELAY);
+
 
             AddLabel("MODE:", new Point(250, 40), new Font("Arial", 8));
-
-            this.textBoxMODEDISP = new System.Windows.Forms.TextBox();
-            this.textBoxMODEDISP.Location = new Point(250, 60);
-            this.textBoxMODEDISP.Width = 125;
-            this.textBoxMODEDISP.Text = "Idle Mode";
-            this.textBoxMODEDISP.TextAlign = HorizontalAlignment.Center;
-            this.textBoxMODEDISP.BackColor = Color.LightGray;
-            this.textBoxMODEDISP.ReadOnly = true;
-            this.textBoxMODEDISP.Cursor = Cursors.Arrow;
-            this.Controls.Add(this.textBoxMODEDISP);
+            SetTextBox(textBoxMODEDISP, new Point(250, 60), 125, "Idle Mode", Color.LightGray, true);
 
 
             AddLabel("TX DATA TYPE:", new Point(250, 90), new Font("Arial", 8));
+            SetTextBox(textBoxSENDTYPE, new Point(250, 110), 125, "N/A - DISABLED", Color.LightGray, true);
 
-            this.textBoxSENDTYPE = new System.Windows.Forms.TextBox();
-            this.textBoxSENDTYPE.Location = new Point(250, 110);
-            this.textBoxSENDTYPE.Width = 125;
-            this.textBoxSENDTYPE.Text = "N/A - DISABLED";
-            this.textBoxSENDTYPE.TextAlign = HorizontalAlignment.Center;
-            this.textBoxSENDTYPE.BackColor = Color.LightGray;
-            this.textBoxSENDTYPE.ReadOnly = true;
-            this.textBoxSENDTYPE.Cursor = Cursors.Arrow;
-            this.Controls.Add(this.textBoxSENDTYPE);
 
             AddLabel("RX DATA TYPE:", new Point(250, 140), new Font("Arial", 8));
+            SetTextBox(textBoxreceiveType, new Point(250, 160), 125, "N/A - DISABLED", Color.LightGray, true);
 
-            this.textBoxreceiveType = new System.Windows.Forms.TextBox();
-            this.textBoxreceiveType.Location = new Point(250, 160);
-            this.textBoxreceiveType.Width = 125;
-            this.textBoxreceiveType.Text = "N/A - DISABLED";
-            this.textBoxreceiveType.TextAlign = HorizontalAlignment.Center;
-            this.textBoxreceiveType.BackColor = Color.LightGray;
-            this.textBoxreceiveType.ReadOnly = true;
-            this.textBoxreceiveType.Cursor = Cursors.Arrow;
-            this.Controls.Add(this.textBoxreceiveType);
 
-            // Define the label and textbox controls
             AddLabel("SET TX BUFER:", new Point(250, 190), new Font("Arial", 8));
-
-            this.textBoxBTT = new System.Windows.Forms.TextBox();
-            this.textBoxBTT.Location = new Point(250, 210);
-            this.textBoxBTT.Text = "0";
-            this.textBoxBTT.Width = 125;
+            SetTextBox(textBoxBTT, new Point(250, 210), 125, "0", Color.LightBlue, false);
             this.textBoxBTT.MaxLength = 2;
-            this.textBoxBTT.TextAlign = HorizontalAlignment.Center;
-            this.textBoxBTT.BackColor = Color.LightBlue;
             this.textBoxBTT.TextChanged += TextBoxBTT_TextChanged!; // Add event handler
-            this.Controls.Add(this.textBoxBTT);
 
             AddLabel("MAX RX BUFFER:", new Point(250, 240), new Font("Arial", 8));
-
-            this.textBoxBUFFER = new System.Windows.Forms.TextBox();
-            this.textBoxBUFFER.Location = new Point(250, 260);
-            this.textBoxBUFFER.Text = Convert.ToString(MAX_BUFFER_SIZE);
-            this.textBoxBUFFER.Width = 125;
-            this.textBoxBUFFER.TextAlign = HorizontalAlignment.Center;
-            this.textBoxBUFFER.BackColor = Color.LightYellow;
-            this.textBoxBUFFER.ReadOnly = true;
-            this.Controls.Add(this.textBoxBUFFER);
-
-            // DEFINE INDICATOR PANEL
-            this.textBoxSTATUS = new TextBox();
-            this.textBoxSTATUS.Location = new Point(250, 365);
-            this.textBoxSTATUS.ReadOnly = true;
-            this.textBoxSTATUS.Text = "READY";
-            this.textBoxSTATUS.TextAlign = HorizontalAlignment.Center;
-            this.textBoxSTATUS.BackColor = Color.LightGray;
-            this.textBoxSTATUS.Width = 125;
-            this.Controls.Add(this.textBoxSTATUS);
+            SetTextBox(textBoxBUFFER, new Point(250, 260), 125, Convert.ToString(MAX_BUFFER_SIZE), Color.LightYellow, true);
+   
+            // DEFINE INDICATOR TEXTBOX
+            SetTextBox(textBoxSTATUS, new Point(250, 365), 125, "READY", Color.LightGray, true);
 
             // DEFINE CHECKBOXES
+            SetCheckBoxes(repeat_check, new Point(10, 310), "Repeat Transmit");
 
-            repeat_check.Location = new Point(140, 310);
-            repeat_check.Width = 150;
-            repeat_check.Height = 20;
-            repeat_check.Text = "Repeat Transmission";
-            repeat_check.Font = new Font("Arial", 8);
-            this.Controls.Add(repeat_check);
+            SetCheckBoxes(logging_check, new Point(140, 310), "Log Transmit");
 
-
-            logging_check.Location = new Point(20, 310);
-            logging_check.Width = 150;
-            logging_check.Height = 20;
-            logging_check.Text = "Log Transmission";
-            logging_check.Font = new Font("Arial", 8);
-            this.Controls.Add(logging_check);
-
-            overwrite_check.Location = new Point(290, 310);
-            overwrite_check.Width = 100;
-            overwrite_check.Height = 20;
-            overwrite_check.Text = "Overwrite Rx";
-            overwrite_check.Font = new Font("Arial", 8);
-            this.Controls.Add(overwrite_check);
+            SetCheckBoxes(overwrite_check, new Point(270, 310), "Overwrite Rx");
 
         }
     }
