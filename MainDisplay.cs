@@ -27,7 +27,7 @@ namespace AT_SCC
 
         string currentPort = "";
 
-        int currentBaudint, currentdataBitsint = 8, currentDelayint; // declare integers and strings for default values for settings of port
+        int currentBaudint, currentdataBitsint = 8; // declare integers and strings for default values for settings of port
 
         Parity currentParityvalue = Parity.None;                      // declaring variables to allow usage of dictionaries
         StopBits currentStopBitvalue = StopBits.One;
@@ -244,7 +244,7 @@ namespace AT_SCC
                     i++;
 
                 }
-                await Task.Delay(currentDelayint);
+                await Task.Delay(int.Parse(textBoxDELAY!.Text));
             } while (repeat_check.Checked && !cancellationTokenSource!.IsCancellationRequested && mySerialPort.IsOpen);
 
 
@@ -292,7 +292,7 @@ namespace AT_SCC
 
                 }
 
-                await Task.Delay(currentDelayint);
+                await Task.Delay(int.Parse(textBoxDELAY!.Text));
             } while (!cancellationTokenSource!.IsCancellationRequested && repeat_check.Checked);
 
 
@@ -390,7 +390,7 @@ namespace AT_SCC
                 logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT STRING]: {textToSend}\n");
             }
 
-            await Task.Delay(currentDelayint);
+            await Task.Delay(int.Parse(textBoxDELAY!.Text));
         }
 
         private async Task ReceiveStringAsync(SerialPort mySerialPort, TextBox receivedTextBox, bool loggingEnabled, string logFilePath)    // task to receive strings
@@ -408,7 +408,7 @@ namespace AT_SCC
                 receivedTextBox.Text = receivedTextBox.Text.Substring(receivedTextBox.TextLength - receivedTextBox.Width * 3);
             }
 
-            await Task.Delay(currentDelayint);
+            await Task.Delay(int.Parse(textBoxDELAY!.Text));
         }
 
         private async Task SendBytesAsync(SerialPort serialPort, string textBoxType, IEnumerable<TextBox> textBoxes) // task to send bytes or byte collections
@@ -442,7 +442,7 @@ namespace AT_SCC
                     }
 
                     serialPort.Write(bytesToSend.ToArray(), 0, bytesToSend.Count);
-                    await Task.Delay(currentDelayint);
+                    await Task.Delay(int.Parse(textBoxDELAY!.Text));
                 }
             }
         }
@@ -494,7 +494,7 @@ namespace AT_SCC
 
 
 
-            await Task.Delay(currentDelayint);
+            await Task.Delay(int.Parse(textBoxDELAY!.Text));
         }
 
         private async Task SendASCIIAsync(byte[] hexBytes, SerialPort mySerialPort, CheckBox logging_check)     // task to send ASCII or hex values
@@ -511,7 +511,7 @@ namespace AT_SCC
 
                 mySerialPort.Write(new byte[] { hexByte }, 0, 1);
 
-                await Task.Delay(currentDelayint);
+                await Task.Delay(int.Parse(textBoxDELAY!.Text));
             }
         }
 
@@ -540,7 +540,7 @@ namespace AT_SCC
             index2++;
 
             // Check if buffer is hit and if overwriting data is wanted by user
-            await Task.Delay(currentDelayint);
+            await Task.Delay(int.Parse(textBoxDELAY!.Text));
         }
         // task to receive ASCII or hex values
 
@@ -732,7 +732,6 @@ namespace AT_SCC
             sendDelay = new ToolStripMenuItem("&Delay (ms)");
             sendDelay.DropDownItems.AddRange(sendDelayOptions.Select(sdelay => new ToolStripMenuItem(sdelay)).ToArray());
             sendDelay.DropDownItemClicked += (s, e) => textBoxDELAY!.Text = e.ClickedItem!.Text;
-            sendDelay.DropDownItemClicked += (s, e) => currentDelayint = int.Parse(textBoxDELAY!.Text);
             sendDelay.DropDownItemClicked += (s, e) => textBoxDELAY!.BackColor = Color.LightGreen; ;
 
 
