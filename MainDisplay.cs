@@ -1,8 +1,6 @@
 using System.IO.Ports;
 using System.Text;
 using System.Globalization;
-using System.Diagnostics;
-
 
 namespace AT_SCC
 {
@@ -29,7 +27,7 @@ namespace AT_SCC
 
         string currentPort = "";
 
-        int currentBaudint, currentdataBitsint = 8, currentDelayint = 1000; // declare integers and strings for default values for settings of port
+        int currentBaudint, currentdataBitsint = 8, currentDelayint; // declare integers and strings for default values for settings of port
 
         Parity currentParityvalue = Parity.None;                      // declaring variables to allow usage of dictionaries
         StopBits currentStopBitvalue = StopBits.One;
@@ -292,8 +290,6 @@ namespace AT_SCC
 
                     }
 
-                    if (!(repeat_check.Checked)) break;
-
                 }
 
                 await Task.Delay(currentDelayint);
@@ -350,7 +346,6 @@ namespace AT_SCC
 
             int index = 0;
             int index2 = 0;
-            bool isRepeated = false;
 
             do
             {
@@ -363,21 +358,15 @@ namespace AT_SCC
                     // If also receiving, receive what is sent and output to the panel
                     if (textBoxreceiveType?.Text == "ASCII" || textBoxreceiveType?.Text == "ASCII-HEX")
                     {
-                        await ReceiveASCIIAsync(mySerialPort, textBoxesPanel2, logging_check, textBoxLocationY, index, index2, overwrite_check);
+                        await ReceiveASCIIAsync(mySerialPort, textBoxesPanel2, logging_check, textBoxLocationY, index, index2);
                     }
-                }
-
-                if (repeat_check.Checked)
-                {
-                    isRepeated = true;
-                    await Task.Delay(currentDelayint);
                 }
 
                 if (index2 >= MAX_BUFFER_SIZE)
                 {
                     index2 = 0;
 
-                    if (!overwrite_check.Checked) isRepeated = false;
+                    if (!overwrite_check.Checked) break;
 
                     else textBoxesPanel2!.Controls.Clear();
 
@@ -385,7 +374,7 @@ namespace AT_SCC
                 textBoxLocationY += 20;
 
 
-            } while (isRepeated && !cancellationTokenSource!.IsCancellationRequested && repeat_check.Checked);
+            } while (!cancellationTokenSource!.IsCancellationRequested && repeat_check.Checked);
 
             mySerialPort.Close();   // auto close the port
             if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
@@ -526,7 +515,7 @@ namespace AT_SCC
             }
         }
 
-        private async Task ReceiveASCIIAsync(SerialPort mySerialPort, Panel textBoxesPanel2, CheckBox logging_check, int textBoxLocationY, int index, int index2, CheckBox overwrite_check)
+        private async Task ReceiveASCIIAsync(SerialPort mySerialPort, Panel textBoxesPanel2, CheckBox logging_check, int textBoxLocationY, int index, int index2)
         {
             var receivedTextBox = new TextBox
             {
@@ -663,10 +652,11 @@ namespace AT_SCC
             });
 
 
-
+            
             exitMenuItem = new ToolStripMenuItem("&Exit", null, (_, _) => Close()) { ShortcutKeys = Keys.Control | Keys.X };
             reloadMenuItem = new ToolStripMenuItem("&Reload", null, (_, _) => OnReload()) { ShortcutKeys = Keys.Control | Keys.L };
             var Help = new ToolStripMenuItem("&Info/Help", null, (_, _) => new Info(this).Show()) { ShortcutKeys = Keys.Control | Keys.H };
+            
 
 
             modeMenuItem = new ToolStripMenuItem("&Select Mode");
@@ -822,8 +812,7 @@ namespace AT_SCC
 
 
             AddLabel("DELAY (ms):", new Point(20, 240), new Font("Arial", 8));
-            SetTextBox(textBoxDELAY, new Point(20, 260), 165, "1000", Color.LightYellow, false);
-            this.textBoxDELAY.MaxLength = 4;
+            SetTextBox(textBoxDELAY, new Point(20, 260), 165, "1000", Color.LightYellow, true);
 
 
             AddLabel("MODE:", new Point(250, 40), new Font("Arial", 8));
