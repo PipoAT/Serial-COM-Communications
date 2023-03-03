@@ -98,7 +98,6 @@ namespace AT_SCC
         };
 
         // DECLARING EVENTS
-
         private void TextBoxBTT_TextChanged(object sender, EventArgs e)     // event to adjust the TX BUFFER SIZE
         {
             List<string> textBoxValues = new List<string>();
@@ -158,29 +157,37 @@ namespace AT_SCC
 
             else if (textBoxMODEDISP?.Text == "Send Mode")
             {
+                if ((textBoxSENDTYPE?.Text != textBoxreceiveType?.Text) && (textBoxreceiveType?.Text != "N/A DISABLED"))
+                {
+                    MessageBox.Show("Misconfigured Settings. Please check settings and modify as needed.", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
 
-                var modeSwitchS = textBoxSENDTYPE?.Text;
-                switch (modeSwitchS)
+                else
                 {
 
-                    case "Byte":
-                    case "Byte Collection":
-                        TX_RX_BYTE();
-                        break;
+                    var modeSwitchS = textBoxSENDTYPE?.Text;
+                    switch (modeSwitchS)
+                    {
 
-                    case "String":
-                        TX_RX_String();
-                        break;
+                        case "Byte":
+                        case "Byte Collection":
+                            TX_RX_BYTE();
+                            break;
 
-                    case "ASCII":
-                    case "ASCII-HEX":
-                        TX_RX_ASCII();
-                        break;
+                        case "String":
+                            TX_RX_String();
+                            break;
 
-                    default:
-                        MessageBox.Show("Misconfigured Settings. Please check settings and modify as needed.", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        break;
+                        case "ASCII":
+                        case "ASCII-HEX":
+                            TX_RX_ASCII();
+                            break;
 
+                        default:
+                            MessageBox.Show("Misconfigured Settings. Please check settings and modify as needed.", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            break;
+
+                    }
                 }
 
             }
@@ -235,7 +242,7 @@ namespace AT_SCC
                 if (textBoxreceiveType?.Text == "String")
                 {
                     var receivedTextBox = textBoxArray[i];
-                    await ReceiveStringAsync(mySerialPort, receivedTextBox, logging_check.Checked, LogFilePath);
+                    await ReceiveStringAsync(mySerialPort, receivedTextBox, logging_check.Checked, LogFilePath); // receives the data and sets to output panel
                     i++;
 
                 }
@@ -269,12 +276,12 @@ namespace AT_SCC
             {
                 if (textBoxSENDTYPE?.Text == "Byte" || textBoxSENDTYPE?.Text == "Byte Collection")
                 {
-                    await SendBytesAsync(mySerialPort, textBoxSENDTYPE.Text, textBoxesPanel.Controls.OfType<TextBox>(), currentDelayint);
+                    await SendBytesAsync(mySerialPort, textBoxSENDTYPE.Text, textBoxesPanel.Controls.OfType<TextBox>()); // sends the data to the port
                 }
 
                 if (textBoxreceiveType?.Text == "Byte" || textBoxreceiveType?.Text == "Byte Collection")
                 {
-                    await ReceiveBytesAsync(mySerialPort, textBoxList, i);
+                    await ReceiveBytesAsync(mySerialPort, textBoxList, i);  // receives data
                     i++;
 
                     if (i >= MAX_BUFFER_SIZE - 1)   // if buffer is hit, check if user wants overwrite
@@ -304,12 +311,6 @@ namespace AT_SCC
             foreach (var textBox in textBoxesPanel!.Controls.OfType<TextBox>())
             {
                 if (!string.IsNullOrEmpty(textBox.Text)) inputValues.AddRange(textBox.Text.Split(' '));
-            }
-
-            if (!inputValues.Any()) // checks for any data
-            {
-                MessageBox.Show("Please input ASCII/HEX values\nIf you are unable to input, please change the desired transfer size", "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
             }
 
             byte[] hexBytes = new byte[0]; // declare the variable as a byte array
@@ -353,13 +354,6 @@ namespace AT_SCC
 
             do
             {
-                // Ensure correct configurations
-                if (textBoxreceiveType?.Text != "N/A - DISABLED" &&
-                    (textBoxreceiveType?.Text != "ASCII" && textBoxreceiveType?.Text != "ASCII-HEX"))
-                {
-                    MessageBox.Show("Misconfiguration Warning. Please adjust settings and try again", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    break;
-                }
 
                 // Send data and check if user needs logging
                 foreach (var hexByte in hexBytes)
@@ -397,7 +391,7 @@ namespace AT_SCC
             if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
         }
 
-        private async Task SendStringAsync(SerialPort mySerialPort, string textToSend, bool loggingEnabled, string logFilePath)
+        private async Task SendStringAsync(SerialPort mySerialPort, string textToSend, bool loggingEnabled, string logFilePath) // task to send strings
         {
             mySerialPort.WriteLine(textToSend);
 
@@ -410,7 +404,7 @@ namespace AT_SCC
             await Task.Delay(currentDelayint);
         }
 
-        private async Task ReceiveStringAsync(SerialPort mySerialPort, TextBox receivedTextBox, bool loggingEnabled, string logFilePath)
+        private async Task ReceiveStringAsync(SerialPort mySerialPort, TextBox receivedTextBox, bool loggingEnabled, string logFilePath)    // task to receive strings
         {
             receivedTextBox.Text = mySerialPort.ReadLine();
 
@@ -428,7 +422,7 @@ namespace AT_SCC
             await Task.Delay(currentDelayint);
         }
 
-        private async Task SendBytesAsync(SerialPort serialPort, string textBoxType, IEnumerable<TextBox> textBoxes, int delay)
+        private async Task SendBytesAsync(SerialPort serialPort, string textBoxType, IEnumerable<TextBox> textBoxes) // task to send bytes or byte collections
         {
             foreach (var textBox in textBoxes)
             {
@@ -459,12 +453,12 @@ namespace AT_SCC
                     }
 
                     serialPort.Write(bytesToSend.ToArray(), 0, bytesToSend.Count);
-                    await Task.Delay(delay);
+                    await Task.Delay(currentDelayint);
                 }
             }
         }
 
-        private async Task ReceiveBytesAsync(SerialPort mySerialPort, List<TextBox> textBoxList, int i)
+        private async Task ReceiveBytesAsync(SerialPort mySerialPort, List<TextBox> textBoxList, int i)     // task to receive bytes or byte collections
         {
 
             var bytesReceived = new List<byte>();
@@ -514,7 +508,7 @@ namespace AT_SCC
             await Task.Delay(currentDelayint);
         }
 
-        private async Task SendASCIIAsync(byte[] hexBytes, SerialPort mySerialPort, CheckBox logging_check)
+        private async Task SendASCIIAsync(byte[] hexBytes, SerialPort mySerialPort, CheckBox logging_check)     // task to send ASCII or hex values
         {
             foreach (var hexByte in hexBytes)
             {
@@ -559,7 +553,7 @@ namespace AT_SCC
             // Check if buffer is hit and if overwriting data is wanted by user
             await Task.Delay(currentDelayint);
         }
-
+        // task to receive ASCII or hex values
 
         public void AddLabel(string labelText, Point location, Font font)      // creates the labels on the MainDisplay form
         {
@@ -672,7 +666,7 @@ namespace AT_SCC
 
             exitMenuItem = new ToolStripMenuItem("&Exit", null, (_, _) => Close()) { ShortcutKeys = Keys.Control | Keys.X };
             reloadMenuItem = new ToolStripMenuItem("&Reload", null, (_, _) => OnReload()) { ShortcutKeys = Keys.Control | Keys.L };
-            var Help = new ToolStripMenuItem("&Info/Help", null, (_, _) => Process.Start(new ProcessStartInfo("cmd", $"/c start https://pipoat.github.io/"))) { ShortcutKeys = Keys.Control | Keys.H };
+            var Help = new ToolStripMenuItem("&Info/Help", null, (_, _) => new Info(this).Show()) { ShortcutKeys = Keys.Control | Keys.H };
 
 
             modeMenuItem = new ToolStripMenuItem("&Select Mode");
@@ -683,7 +677,7 @@ namespace AT_SCC
             fileMenuItem.DropDownItems.AddRange(new ToolStripItem[] { Help, modeMenuItem, loggingMenuItem, reloadMenuItem, exitMenuItem });
 
 
-            currentCom = new ToolStripMenuItem("&COM");
+            currentCom = new ToolStripMenuItem("&COM#");
             foreach (var port in AvailablePorts)
             {
                 currentCom.DropDownItems.Add(port);
@@ -752,12 +746,12 @@ namespace AT_SCC
             sendDelay.DropDownItemClicked += (s, e) => textBoxDELAY!.BackColor = Color.LightGreen; ;
 
 
-            sendingModeMenuItem = new ToolStripMenuItem("&Sending Data Type");
+            sendingModeMenuItem = new ToolStripMenuItem("&TX Data Type");
             sendingModeMenuItem.DropDownItems.AddRange(PossibleTransmitModes.Select(psm => new ToolStripMenuItem(psm)).ToArray());
             sendingModeMenuItem.DropDownItemClicked += (s, e) => textBoxSENDTYPE!.Text = e.ClickedItem?.Text ?? "N/A - DISABLED";
 
 
-            receivingModeMenuItem = new ToolStripMenuItem("&Receiving Data Type");
+            receivingModeMenuItem = new ToolStripMenuItem("&RX Data Type");
             receivingModeMenuItem.DropDownItems.AddRange(PossibleTransmitModes.Select(prm => new ToolStripMenuItem(prm)).ToArray());
             receivingModeMenuItem.DropDownItemClicked += (s, e) => textBoxreceiveType!.Text = e.ClickedItem!.Text;
 
@@ -827,7 +821,7 @@ namespace AT_SCC
             SetTextBox(textBoxHANDSHAKE, new Point(110, 210), 75, "None", Color.LightYellow, true);
 
 
-            AddLabel("SEND DELAY (ms):", new Point(20, 240), new Font("Arial", 8));
+            AddLabel("DELAY (ms):", new Point(20, 240), new Font("Arial", 8));
             SetTextBox(textBoxDELAY, new Point(20, 260), 165, "1000", Color.LightYellow, false);
             this.textBoxDELAY.MaxLength = 4;
 
