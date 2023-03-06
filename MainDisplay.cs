@@ -208,8 +208,8 @@ namespace AT_SCC
             {
                 textBoxArray[k] = new TextBox
                 {
-                    Location = new Point(10, k * 20),
-                    Width = 100,
+                    Location = new Point(0, k * 20),
+                    Width = 120,
                     ReadOnly = true
                 };
                 textBoxesPanel2?.Controls.Add(textBoxArray[k]);
@@ -253,51 +253,64 @@ namespace AT_SCC
 
         }
 
-        private async void TX_RX_BYTE() // sends and/or Reads bytes or byte collections
+        private async void TX_RX_BYTE() // sends and/or reads strings
         {
             cancellationTokenSource = new CancellationTokenSource();
             int i = 0;
-            var receivedBytes = new List<byte>();   // sets up new list of bytes
-
             var mySerialPort = CreateSerialPort();
 
-            if (!mySerialPort.IsOpen) mySerialPort.Open();      // checks for if port is open and status message is set
-            if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
+            if (!mySerialPort.IsOpen) mySerialPort.Open();  // checks if port is open and if not opens it
 
-            var byteCollections = new List<List<byte>>();   // sets up the textbox array and textboxes itself
-            var textBoxList = new List<TextBox>();
+            if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";    // status message
 
-            // get all textboxes from input panel
-
+            var textBoxArray = new TextBox[MAX_BUFFER_SIZE];    // sets up array for textboxes and creates them
+            for (var k = 0; k < textBoxArray.Length; k++)
+            {
+                textBoxArray[k] = new TextBox
+                {
+                    Location = new Point(0, k * 20),
+                    Width = 120,
+                    ReadOnly = true
+                };
+                textBoxesPanel2?.Controls.Add(textBoxArray[k]);
+            }
 
             do
-            {
-                if (textBoxSENDTYPE?.Text == "Byte" || textBoxSENDTYPE?.Text == "Byte Collection")
+            {   // if buffer hits, check if user wants overwrite 
+                if (i >= MAX_BUFFER_SIZE)
                 {
-                    await SendBytesAsync(mySerialPort, textBoxSENDTYPE.Text, textBoxesPanel.Controls.OfType<TextBox>()); // sends the data to the port
+                    if (!overwrite_check.Checked) break;
+
+                    else i = 0;
+                }
+
+                if ((textBoxSENDTYPE?.Text == "Byte" || textBoxSENDTYPE?.Text == "Byte Collection") && mySerialPort.IsOpen)
+                {
+                    foreach (var control in textBoxesPanel!.Controls)
+                    {
+                        if (control is TextBox textBox)
+                        {
+                            // Send the textbox contents as a string
+                            var textToSend = textBox.Text;
+                            await SendBytesAsync(mySerialPort, textBoxSENDTYPE.Text, textBoxesPanel.Controls.OfType<TextBox>());
+                        }
+                    }
                 }
 
                 if (textBoxreceiveType?.Text == "Byte" || textBoxreceiveType?.Text == "Byte Collection")
                 {
-                    await ReceiveBytesAsync(mySerialPort, textBoxList, i);  // receives data
+                    
+                    await ReceiveBytesAsync(mySerialPort, textBoxArray, i); // receives the data and sets to output panel
                     i++;
 
-                    if (i >= MAX_BUFFER_SIZE - 1)   // if buffer is hit, check if user wants overwrite
-                    {
-                        if (!(overwrite_check.Checked)) break;
-
-                        else i = -1;
-
-                    }
-
                 }
-
                 await Task.Delay(int.Parse(textBoxDELAY!.Text));
-            } while (!cancellationTokenSource!.IsCancellationRequested && repeat_check.Checked);
+            } while (repeat_check.Checked && !cancellationTokenSource!.IsCancellationRequested && mySerialPort.IsOpen);
 
 
-            mySerialPort.Close();   // auto closes the port
+            mySerialPort.Close(); // auto closes the port
             if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
+
         }
 
         private async void TX_RX_ASCII() // Sends and/or receives ASCII or ASCII Hex values
@@ -346,6 +359,19 @@ namespace AT_SCC
 
             int index = 0;
             int index2 = 0;
+            int i = 0;
+
+            var textBoxArray = new TextBox[MAX_BUFFER_SIZE];    // sets up array for textboxes and creates them
+            for (var k = 0; k < textBoxArray.Length; k++)
+            {
+                textBoxArray[k] = new TextBox
+                {
+                    Location = new Point(0, k * 20),
+                    Width = 120,
+                    ReadOnly = true
+                };
+                textBoxesPanel2?.Controls.Add(textBoxArray[k]);
+            }
 
             do
             {
@@ -358,7 +384,7 @@ namespace AT_SCC
                     // If also receiving, receive what is sent and output to the panel
                     if (textBoxreceiveType?.Text == "ASCII" || textBoxreceiveType?.Text == "ASCII-HEX")
                     {
-                        await ReceiveASCIIAsync(mySerialPort, textBoxesPanel2, logging_check, textBoxLocationY, index, index2);
+                        await ReceiveASCIIAsync(mySerialPort, textBoxesPanel2!, logging_check, textBoxLocationY, index, index2, textBoxArray, i);
                     }
                 }
 
@@ -372,6 +398,7 @@ namespace AT_SCC
 
                 }
                 textBoxLocationY += 20;
+                i++;
 
 
             } while (!cancellationTokenSource!.IsCancellationRequested && repeat_check.Checked);
@@ -447,11 +474,12 @@ namespace AT_SCC
             }
         }
 
-        private async Task ReceiveBytesAsync(SerialPort mySerialPort, List<TextBox> textBoxList, int i)     // task to receive bytes or byte collections
+        private async Task ReceiveBytesAsync(SerialPort mySerialPort, TextBox[]? textBoxArray, int i)     // task to receive bytes or byte collections
         {
 
             var bytesReceived = new List<byte>();
             var receivedText = new StringBuilder();
+            var receivedTextBox = textBoxArray![i];
 
             // read bytes from port and convert to text
             while (mySerialPort.BytesToRead > 0)
@@ -470,18 +498,10 @@ namespace AT_SCC
 
 
             }
+            receivedTextBox.Text = Convert.ToString(receivedText);
+
 
             // create a new textbox to display the received bytes
-            var receivedTextBox = new TextBox
-            {
-                Location = new Point(10, i * 20),
-                Width = 100,
-                ReadOnly = true,
-                Text = receivedText.ToString().Trim()
-
-            };
-            textBoxList.Add(receivedTextBox);
-            textBoxesPanel2?.Controls.Add(receivedTextBox);
 
             if (logging_check.Checked)
             {
@@ -515,24 +535,18 @@ namespace AT_SCC
             }
         }
 
-        private async Task ReceiveASCIIAsync(SerialPort mySerialPort, Panel textBoxesPanel2, CheckBox logging_check, int textBoxLocationY, int index, int index2)
+        private async Task ReceiveASCIIAsync(SerialPort mySerialPort, Panel textBoxesPanel2, CheckBox logging_check, int textBoxLocationY, int index, int index2, TextBox[] receivedTextBox, int i)
         {
-            var receivedTextBox = new TextBox
-            {
-                Location = new Point(10, textBoxLocationY),
-                Width = 100,
-                ReadOnly = true,
-                Text = mySerialPort.ReadExisting()
-            };
+            
 
-            textBoxesPanel2.Controls.Add(receivedTextBox);
+            receivedTextBox[i].Text = mySerialPort.ReadExisting();
 
             if (logging_check.Checked)
             {
                 var logFilePath = LogFilePath;
 
                 using var logFile = new StreamWriter(logFilePath, true);
-                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED ASCII]: {receivedTextBox.Text}");
+                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED ASCII]: {receivedTextBox[i]!.Text}");
             }
 
 
