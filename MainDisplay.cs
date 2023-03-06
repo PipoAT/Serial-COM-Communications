@@ -250,7 +250,7 @@ namespace AT_SCC
                 if (textBoxreceiveType?.Text == "String")
                 {
                     var receivedTextBox = textBoxArray[i];
-                    await ReceiveStringAsync(mySerialPort, receivedTextBox, logging_check.Checked, LogFilePath); // receives the data and sets to output panel
+                    ReceiveStringAsync(mySerialPort, receivedTextBox, logging_check.Checked, LogFilePath); // receives the data and sets to output panel
                     i++;
 
                 }
@@ -311,7 +311,7 @@ namespace AT_SCC
                 if (textBoxreceiveType?.Text == "Byte" || textBoxreceiveType?.Text == "Byte Collection")
                 {
 
-                    await ReceiveBytesAsync(mySerialPort, textBoxArray, i); // receives the data and sets to output panel
+                    ReceiveBytesAsync(mySerialPort, textBoxArray, i); // receives the data and sets to output panel
                     i++;
 
                 }
@@ -393,7 +393,7 @@ namespace AT_SCC
                     // If also receiving, receive what is sent and output to the panel
                     if (textBoxreceiveType?.Text == "ASCII" || textBoxreceiveType?.Text == "ASCII-HEX")
                     {
-                        await ReceiveASCIIAsync(mySerialPort, textBoxesPanel2!, logging_check, textBoxLocationY, textBoxArray, i);
+                        ReceiveASCIIAsync(mySerialPort, textBoxesPanel2!, logging_check, textBoxLocationY, textBoxArray, i);
                     }
                 }
 
@@ -430,7 +430,7 @@ namespace AT_SCC
             await Task.Delay(int.Parse(textBoxDELAY!.Text));
         }
 
-        private async Task ReceiveStringAsync(SerialPort mySerialPort, TextBox receivedTextBox, bool loggingEnabled, string logFilePath)    // task to receive strings
+        private void ReceiveStringAsync(SerialPort mySerialPort, TextBox receivedTextBox, bool loggingEnabled, string logFilePath)    // task to receive strings
         {
             if (mySerialPort.BytesToRead > 0) {
             receivedTextBox.Text = mySerialPort.ReadLine();
@@ -445,7 +445,6 @@ namespace AT_SCC
                 receivedTextBox.Text = receivedTextBox.Text.Substring(receivedTextBox.TextLength - receivedTextBox.Width * 3);
             }
 
-            await Task.Delay(int.Parse(textBoxDELAY!.Text));
             }
             
         }
@@ -486,7 +485,7 @@ namespace AT_SCC
             }
         }
 
-        private async Task ReceiveBytesAsync(SerialPort mySerialPort, TextBox[]? textBoxArray, int i)     // task to receive bytes or byte collections
+        private void ReceiveBytesAsync(SerialPort mySerialPort, TextBox[]? textBoxArray, int i)     // task to receive bytes or byte collections
         {
             if (mySerialPort.BytesToRead > 0) {
             var bytesReceived = new List<byte>();
@@ -522,10 +521,6 @@ namespace AT_SCC
                 logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE/BYTE COLLECTION]: {receivedText}");
             }
 
-
-
-
-            await Task.Delay(int.Parse(textBoxDELAY!.Text));
             }
         }
 
@@ -547,7 +542,7 @@ namespace AT_SCC
             }
         }
 
-        private async Task ReceiveASCIIAsync(SerialPort mySerialPort, Panel textBoxesPanel2, CheckBox logging_check, int textBoxLocationY, TextBox[] receivedTextBox, int i)
+        private void ReceiveASCIIAsync(SerialPort mySerialPort, Panel textBoxesPanel2, CheckBox logging_check, int textBoxLocationY, TextBox[] receivedTextBox, int i)
         {
 
            
@@ -560,9 +555,6 @@ namespace AT_SCC
                 using var logFile = new StreamWriter(logFilePath, true);
                 logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED ASCII/HEX]: {receivedTextBox[i]!.Text}");
             }
-
-
-            await Task.Delay(int.Parse(textBoxDELAY!.Text));
             
         }
         // task to receive ASCII or hex values
@@ -623,7 +615,7 @@ namespace AT_SCC
         {
             panel.Location = location;
             panel.BackColor = Color.LightBlue;
-            panel.Size = new Size(155, 260);
+            panel.Size = new Size(155, 190);
             panel.AutoScroll = true;
             this.Controls.Add(panel);
         }
@@ -648,7 +640,7 @@ namespace AT_SCC
 
             existingPorts = AvailablePorts.ToList();
             Size = ClientSize;
-            BackColor = Color.WhiteSmoke;
+            BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\AT-SCC_GUI_Background.png");
             FormBorderStyle = FormBorderStyle.FixedSingle;
             ControlBox = true;
             MaximizeBox = false;
@@ -787,9 +779,9 @@ namespace AT_SCC
 
             // DEFINE and DISPLAY transmit buttons
 
-            SetButtons(STRANSMIT, new Point(410, 350), "START TRANSMISSION", Color.LightGreen, new EventHandler(Transmission_Click));
+            SetButtons(STRANSMIT, new Point(410, 280), "START TRANSMISSION", Color.LightGreen, new EventHandler(Transmission_Click));
 
-            SetButtons(ETRANSMIT, new Point(570, 350), "STOP TRANSMISSION", Color.Pink, (sender, e) => cancellationTokenSource?.Cancel());
+            SetButtons(ETRANSMIT, new Point(570, 280), "STOP TRANSMISSION", Color.Pink, (sender, e) => cancellationTokenSource?.Cancel());
 
             // DEFINE INPUT AND OUTPUT PANELS
 
