@@ -27,7 +27,7 @@ namespace AT_SCC
 
         string currentPort = "";
 
-        int currentBaudint, currentdataBitsint = 8; // declare integers and strings for default values for settings of port
+        int currentBaudint, currentdataBitsint = 8, transmitactive = 0; // declare integers and strings for default values for settings of port
 
         Parity currentParityvalue = Parity.None;                      // declaring variables to allow usage of dictionaries
         StopBits currentStopBitvalue = StopBits.One;
@@ -41,6 +41,8 @@ namespace AT_SCC
         CheckBox overwrite_check = new CheckBox(); // define the checkboxes
 
         public string LogFilePath = Path.GetFullPath("SerialLog.txt"); // PATH TO TEXT FILE
+        public string ImagePath = Path.GetFullPath("AT-SCC_GUI_Background.png"); // PATH TO IMAGE FILE
+
         public const int MAX_BUFFER_SIZE = 100;       // MAX BUFFER SIZE
 
         public SerialPort CreateSerialPort()      // CREATES the serial port
@@ -121,50 +123,28 @@ namespace AT_SCC
             this.textBoxesPanel?.Controls.Clear();
             Enumerable.Range(1, btt).ToList().ForEach(i =>
             {
-                TextBox textBox = new TextBox() { Location = new Point(5, 10 + (i - 1) * 20) };
+                TextBox textBox = new TextBox() { Location = new Point(10, 10 + (i - 1) * 20) };
                 if (i <= textBoxValues.Count) textBox.Text = textBoxValues[i - 1];
+                textBox.Width = 120;
                 this.textBoxesPanel?.Controls.Add(textBox);
             });
         }
 
         private void Transmission_Click(object? sender, System.EventArgs e) // event to handle clicking the start transmission button
         {
-
-            textBoxesPanel2?.Controls.Clear();  // clears the output panel each time the button is clicked
-
-            if (textBoxMODEDISP?.Text == "Receive Mode")
+            if (transmitactive == 1)
             {
-                var modeSwitch = textBoxreceiveType?.Text;
-                switch (modeSwitch)
-                {
-
-                    case "Byte":
-                    case "Byte Collection":
-                        TX_RX_BYTE();
-                        break;
-
-                    case "String":
-                        TX_RX_String();
-                        break;
-
-                    default:
-                        MessageBox.Show("Misconfigured Settings. Please check settings and modify as needed.", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        break;
-                }
+                MessageBox.Show("Transmission In Progress. Please stop trasmission before starting another one.", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-
-            else if (textBoxMODEDISP?.Text == "Send Mode")
+            else
             {
-                if ((textBoxSENDTYPE?.Text != textBoxreceiveType?.Text) && (textBoxreceiveType?.Text != "N/A DISABLED"))
-                {
-                    MessageBox.Show("Misconfigured Settings. Please check settings and modify as needed.", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
+                
+                textBoxesPanel2?.Controls.Clear();  // clears the output panel each time the button is clicked
 
-                else
+                if (textBoxMODEDISP?.Text == "Receive Mode")
                 {
-
-                    var modeSwitchS = textBoxSENDTYPE?.Text;
-                    switch (modeSwitchS)
+                    var modeSwitch = textBoxreceiveType?.Text;
+                    switch (modeSwitch)
                     {
 
                         case "Byte":
@@ -176,25 +156,56 @@ namespace AT_SCC
                             TX_RX_String();
                             break;
 
-                        case "ASCII":
-                        case "ASCII-HEX":
-                            TX_RX_ASCII();
-                            break;
-
                         default:
                             MessageBox.Show("Misconfigured Settings. Please check settings and modify as needed.", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             break;
-
                     }
                 }
 
-            }
+                else if (textBoxMODEDISP?.Text == "Send Mode")
+                {
+                    if ((textBoxSENDTYPE?.Text != textBoxreceiveType?.Text) && (textBoxreceiveType?.Text != "N/A DISABLED"))
+                    {
+                        MessageBox.Show("Misconfigured Settings. Please check settings and modify as needed.", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
 
+                    else
+                    {
+
+                        var modeSwitchS = textBoxSENDTYPE?.Text;
+                        switch (modeSwitchS)
+                        {
+
+                            case "Byte":
+                            case "Byte Collection":
+                                TX_RX_BYTE();
+                                break;
+
+                            case "String":
+                                TX_RX_String();
+                                break;
+
+                            case "ASCII":
+                            case "ASCII-HEX":
+                                TX_RX_ASCII();
+                                break;
+
+                            default:
+                                MessageBox.Show("Misconfigured Settings. Please check settings and modify as needed.", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                break;
+
+                        }
+                    }
+
+                }
+
+            }
         }
 
         // DECLARE FUNCTIONS and TASKS
         private async void TX_RX_String() // sends and/or reads strings
         {
+            transmitactive = 1;
             cancellationTokenSource = new CancellationTokenSource();
             int i = 0;
             var mySerialPort = CreateSerialPort();
@@ -208,7 +219,7 @@ namespace AT_SCC
             {
                 textBoxArray[k] = new TextBox
                 {
-                    Location = new Point(0, k * 20),
+                    Location = new Point(10, k * 20),
                     Width = 120,
                     ReadOnly = true
                 };
@@ -247,7 +258,7 @@ namespace AT_SCC
                 await Task.Delay(int.Parse(textBoxDELAY!.Text));
             } while (repeat_check.Checked && !cancellationTokenSource!.IsCancellationRequested && mySerialPort.IsOpen);
 
-
+            transmitactive = 0;
             mySerialPort.Close(); // auto closes the port
             if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
 
@@ -255,6 +266,7 @@ namespace AT_SCC
 
         private async void TX_RX_BYTE() // sends and/or reads strings
         {
+            transmitactive = 1;
             cancellationTokenSource = new CancellationTokenSource();
             int i = 0;
             var mySerialPort = CreateSerialPort();
@@ -268,7 +280,7 @@ namespace AT_SCC
             {
                 textBoxArray[k] = new TextBox
                 {
-                    Location = new Point(0, k * 20),
+                    Location = new Point(10, k * 20),
                     Width = 120,
                     ReadOnly = true
                 };
@@ -299,7 +311,7 @@ namespace AT_SCC
 
                 if (textBoxreceiveType?.Text == "Byte" || textBoxreceiveType?.Text == "Byte Collection")
                 {
-                    
+
                     await ReceiveBytesAsync(mySerialPort, textBoxArray, i); // receives the data and sets to output panel
                     i++;
 
@@ -307,7 +319,7 @@ namespace AT_SCC
                 await Task.Delay(int.Parse(textBoxDELAY!.Text));
             } while (repeat_check.Checked && !cancellationTokenSource!.IsCancellationRequested && mySerialPort.IsOpen);
 
-
+            transmitactive = 0;
             mySerialPort.Close(); // auto closes the port
             if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
 
@@ -315,6 +327,7 @@ namespace AT_SCC
 
         private async void TX_RX_ASCII() // Sends and/or receives ASCII or ASCII Hex values
         {
+            transmitactive = 1;
             cancellationTokenSource = new CancellationTokenSource();
             var inputValues = new List<string>();       // sets up the textboxes
             foreach (var textBox in textBoxesPanel!.Controls.OfType<TextBox>())
@@ -366,7 +379,7 @@ namespace AT_SCC
             {
                 textBoxArray[k] = new TextBox
                 {
-                    Location = new Point(0, k * 20),
+                    Location = new Point(10, k * 20),
                     Width = 120,
                     ReadOnly = true
                 };
@@ -403,6 +416,7 @@ namespace AT_SCC
 
             } while (!cancellationTokenSource!.IsCancellationRequested && repeat_check.Checked);
 
+            transmitactive = 0;
             mySerialPort.Close();   // auto close the port
             if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT CLOSED";
         }
@@ -422,6 +436,7 @@ namespace AT_SCC
 
         private async Task ReceiveStringAsync(SerialPort mySerialPort, TextBox receivedTextBox, bool loggingEnabled, string logFilePath)    // task to receive strings
         {
+            if(mySerialPort.ReadExisting() != "") {
             receivedTextBox.Text = mySerialPort.ReadLine();
 
             if (loggingEnabled)
@@ -436,6 +451,7 @@ namespace AT_SCC
             }
 
             await Task.Delay(int.Parse(textBoxDELAY!.Text));
+            }
         }
 
         private async Task SendBytesAsync(SerialPort serialPort, string textBoxType, IEnumerable<TextBox> textBoxes) // task to send bytes or byte collections
@@ -476,14 +492,13 @@ namespace AT_SCC
 
         private async Task ReceiveBytesAsync(SerialPort mySerialPort, TextBox[]? textBoxArray, int i)     // task to receive bytes or byte collections
         {
-
+            if (mySerialPort.BytesToRead > 0) {
             var bytesReceived = new List<byte>();
             var receivedText = new StringBuilder();
             var receivedTextBox = textBoxArray![i];
 
             // read bytes from port and convert to text
-            while (mySerialPort.BytesToRead > 0)
-            {
+            
                 var b = (byte)mySerialPort.ReadByte();
                 bytesReceived.Add(b);
 
@@ -497,7 +512,7 @@ namespace AT_SCC
                 }
 
 
-            }
+            
             receivedTextBox.Text = Convert.ToString(receivedText);
 
 
@@ -515,6 +530,7 @@ namespace AT_SCC
 
 
             await Task.Delay(int.Parse(textBoxDELAY!.Text));
+            }
         }
 
         private async Task SendASCIIAsync(byte[] hexBytes, SerialPort mySerialPort, CheckBox logging_check)     // task to send ASCII or hex values
@@ -526,7 +542,7 @@ namespace AT_SCC
                     var logFilePath = LogFilePath;
 
                     using var logFile = new StreamWriter(logFilePath, true);
-                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT ASCII]: {hexByte.ToString("X2")}");
+                    logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT ASCII/HEX]: {hexByte.ToString("X2")}");
                 }
 
                 mySerialPort.Write(new byte[] { hexByte }, 0, 1);
@@ -537,8 +553,8 @@ namespace AT_SCC
 
         private async Task ReceiveASCIIAsync(SerialPort mySerialPort, Panel textBoxesPanel2, CheckBox logging_check, int textBoxLocationY, int index, int index2, TextBox[] receivedTextBox, int i)
         {
-            
 
+           
             receivedTextBox[i].Text = mySerialPort.ReadExisting();
 
             if (logging_check.Checked)
@@ -546,7 +562,7 @@ namespace AT_SCC
                 var logFilePath = LogFilePath;
 
                 using var logFile = new StreamWriter(logFilePath, true);
-                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED ASCII]: {receivedTextBox[i]!.Text}");
+                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED ASCII/HEX]: {receivedTextBox[i]!.Text}");
             }
 
 
@@ -555,6 +571,7 @@ namespace AT_SCC
 
             // Check if buffer is hit and if overwriting data is wanted by user
             await Task.Delay(int.Parse(textBoxDELAY!.Text));
+            
         }
         // task to receive ASCII or hex values
 
@@ -614,7 +631,7 @@ namespace AT_SCC
         {
             panel.Location = location;
             panel.BackColor = Color.LightBlue;
-            panel.Size = new Size(155, 190);
+            panel.Size = new Size(155, 260);
             panel.AutoScroll = true;
             this.Controls.Add(panel);
         }
@@ -639,7 +656,7 @@ namespace AT_SCC
 
             existingPorts = AvailablePorts.ToList();
             Size = ClientSize;
-            BackgroundImage = Image.FromFile(Path.GetFullPath("AT-SCC_GUI_Background.png"));
+            BackColor = Color.WhiteSmoke;
             FormBorderStyle = FormBorderStyle.FixedSingle;
             ControlBox = true;
             MaximizeBox = false;
@@ -666,11 +683,11 @@ namespace AT_SCC
             });
 
 
-            
+
             exitMenuItem = new ToolStripMenuItem("&Exit", null, (_, _) => Close()) { ShortcutKeys = Keys.Control | Keys.X };
             reloadMenuItem = new ToolStripMenuItem("&Reload", null, (_, _) => OnReload()) { ShortcutKeys = Keys.Control | Keys.L };
             var Help = new ToolStripMenuItem("&Info/Help", null, (_, _) => new Info(this).Show()) { ShortcutKeys = Keys.Control | Keys.H };
-            
+
 
 
             modeMenuItem = new ToolStripMenuItem("&Select Mode");
@@ -778,9 +795,9 @@ namespace AT_SCC
 
             // DEFINE and DISPLAY transmit buttons
 
-            SetButtons(STRANSMIT, new Point(410, 280), "START TRANSMISSION", Color.LightGreen, new EventHandler(Transmission_Click));
+            SetButtons(STRANSMIT, new Point(410, 350), "START TRANSMISSION", Color.LightGreen, new EventHandler(Transmission_Click));
 
-            SetButtons(ETRANSMIT, new Point(570, 280), "STOP TRANSMISSION", Color.Pink, (sender, e) => cancellationTokenSource?.Cancel());
+            SetButtons(ETRANSMIT, new Point(570, 350), "STOP TRANSMISSION", Color.Pink, (sender, e) => cancellationTokenSource?.Cancel());
 
             // DEFINE INPUT AND OUTPUT PANELS
 

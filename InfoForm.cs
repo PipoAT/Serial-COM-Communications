@@ -18,7 +18,7 @@ public partial class Info : Form
         this.ClientSize = new System.Drawing.Size(800, 950);
         this.Text = "Information/Help Guide";
 
-        string info = "ATech Training Serial COM Communications (AT-SCC)\nv1.0.0\n\nDeveloped by Andrew Pipo\n\nINTERNAL USAGE ONLY";
+        string info = "Serial COM Communications (AT-SCC)\nv1.0.0\n\nDeveloped by Andrew Pipo";
         AddLabel(info, 0, 0);
 
         string sendInfo = "TO SEND:\nUnder 'File' -> 'Select Mode' -> 'Send Mode'\nUnder 'Port Configurations', select desired settings from drop down menu(s)\nUnder 'Send/Receive Configurations', select desired type of data to send\nWithin the light blue panel, type in desired data to send\nSelect the log checkbox if you want to log the transfer\nIf you want to send and receive the data, configure the receive data type to match the send data type\nSelect the repeat checkbox if you want to send multiple times\nWhen ready, hit the 'START TRANSMISSION' button";
