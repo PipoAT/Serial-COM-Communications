@@ -41,7 +41,6 @@ namespace AT_SCC
         CheckBox overwrite_check = new CheckBox(); // define the checkboxes
 
         public string LogFilePath = Path.GetFullPath("SerialLog.txt"); // PATH TO TEXT FILE
-        public string ImagePath = Path.GetFullPath("AT-SCC_GUI_Background.png"); // PATH TO IMAGE FILE
 
         public const int MAX_BUFFER_SIZE = 100;       // MAX BUFFER SIZE
 
@@ -369,9 +368,6 @@ namespace AT_SCC
             if (!mySerialPort.IsOpen) mySerialPort.Open();  // checks for if port is open and sets status message
             if (textBoxSTATUS != null) textBoxSTATUS.Text = "PORT OPEN";
             int textBoxLocationY = textBoxesPanel2!.Controls.Count * 20;    // sets up textbox y location
-
-            int index = 0;
-            int index2 = 0;
             int i = 0;
 
             var textBoxArray = new TextBox[MAX_BUFFER_SIZE];    // sets up array for textboxes and creates them
@@ -397,13 +393,13 @@ namespace AT_SCC
                     // If also receiving, receive what is sent and output to the panel
                     if (textBoxreceiveType?.Text == "ASCII" || textBoxreceiveType?.Text == "ASCII-HEX")
                     {
-                        await ReceiveASCIIAsync(mySerialPort, textBoxesPanel2!, logging_check, textBoxLocationY, index, index2, textBoxArray, i);
+                        await ReceiveASCIIAsync(mySerialPort, textBoxesPanel2!, logging_check, textBoxLocationY, textBoxArray, i);
                     }
                 }
 
-                if (index2 >= MAX_BUFFER_SIZE)
+                if (i >= MAX_BUFFER_SIZE)
                 {
-                    index2 = 0;
+                    i = 0;
 
                     if (!overwrite_check.Checked) break;
 
@@ -551,7 +547,7 @@ namespace AT_SCC
             }
         }
 
-        private async Task ReceiveASCIIAsync(SerialPort mySerialPort, Panel textBoxesPanel2, CheckBox logging_check, int textBoxLocationY, int index, int index2, TextBox[] receivedTextBox, int i)
+        private async Task ReceiveASCIIAsync(SerialPort mySerialPort, Panel textBoxesPanel2, CheckBox logging_check, int textBoxLocationY, TextBox[] receivedTextBox, int i)
         {
 
            
@@ -566,10 +562,6 @@ namespace AT_SCC
             }
 
 
-            index++;
-            index2++;
-
-            // Check if buffer is hit and if overwriting data is wanted by user
             await Task.Delay(int.Parse(textBoxDELAY!.Text));
             
         }
