@@ -164,7 +164,7 @@ namespace AT_SCC
 
                 else if (textBoxMODEDISP?.Text == "Send Mode")
                 {
-                    if ((textBoxSENDTYPE?.Text != textBoxreceiveType?.Text) && (textBoxreceiveType?.Text != "N/A DISABLED"))
+                    if ((textBoxSENDTYPE?.Text != textBoxreceiveType?.Text) && (textBoxreceiveType?.Text != "N/A - DISABLED"))
                     {
                         MessageBox.Show("Misconfigured Settings. Please check settings and modify as needed.", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
@@ -436,9 +436,8 @@ namespace AT_SCC
 
         private async Task ReceiveStringAsync(SerialPort mySerialPort, TextBox receivedTextBox, bool loggingEnabled, string logFilePath)    // task to receive strings
         {
-            if(mySerialPort.ReadExisting() != "") {
+            if (mySerialPort.BytesToRead > 0) {
             receivedTextBox.Text = mySerialPort.ReadLine();
-
             if (loggingEnabled)
             {
                 using var logFile = new StreamWriter(logFilePath, true);
@@ -452,6 +451,7 @@ namespace AT_SCC
 
             await Task.Delay(int.Parse(textBoxDELAY!.Text));
             }
+            
         }
 
         private async Task SendBytesAsync(SerialPort serialPort, string textBoxType, IEnumerable<TextBox> textBoxes) // task to send bytes or byte collections
