@@ -64,7 +64,7 @@ namespace AT_SCC
 
         public readonly string[] PossibleTransmitModes = new string[]
         {
-            "N/A - DISABLED", "Byte", "String", "Byte Collection", "ASCII", "ASCII-HEX"
+            "N/A - DISABLED", "Byte/Byte Collection", "String", "ASCII", "ASCII-HEX"
         };
 
         public readonly Dictionary<string, Parity> ParityOptions = new Dictionary<string, Parity>()
@@ -103,7 +103,6 @@ namespace AT_SCC
 
             if (!int.TryParse(textBoxBTT?.Text, out int btt) || btt < 0)    // if invalid input for TX buffer that does not exceed buffer
             {
-                MessageBox.Show("Desired transfer size needs to be a positive integer.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 textBoxesPanel?.Controls.Clear();
                 textBoxesPanel2?.Controls.Clear();
                 textBoxBTT!.Text = "0";
@@ -145,9 +144,7 @@ namespace AT_SCC
                     var modeSwitch = textBoxreceiveType?.Text;
                     switch (modeSwitch)
                     {
-
-                        case "Byte":
-                        case "Byte Collection":
+                        case "Byte/Byte Collection":
                             TX_RX_BYTE();
                             break;
 
@@ -175,8 +172,7 @@ namespace AT_SCC
                         switch (modeSwitchS)
                         {
 
-                            case "Byte":
-                            case "Byte Collection":
+                            case "Byte/Byte Collection":
                                 TX_RX_BYTE();
                                 break;
 
@@ -234,7 +230,7 @@ namespace AT_SCC
                     else i = 0;
                 }
 
-                if (textBoxSENDTYPE?.Text == "String" && mySerialPort.IsOpen)
+                if (textBoxSENDTYPE?.Text == "String" && mySerialPort.IsOpen && textBoxMODEDISP?.Text == "Send Mode")
                 {
                     foreach (var control in textBoxesPanel!.Controls)
                     {
@@ -247,7 +243,7 @@ namespace AT_SCC
                     }
                 }
 
-                if (textBoxreceiveType?.Text == "String")
+                if (textBoxreceiveType?.Text == "String" && textBoxMODEDISP?.Text == "Receive Mode")
                 {
                     var receivedTextBox = textBoxArray[i];
                     ReceiveStringAsync(mySerialPort, receivedTextBox, logging_check.Checked, LogFilePath); // receives the data and sets to output panel
@@ -295,7 +291,7 @@ namespace AT_SCC
                     else i = 0;
                 }
 
-                if ((textBoxSENDTYPE?.Text == "Byte" || textBoxSENDTYPE?.Text == "Byte Collection") && mySerialPort.IsOpen)
+                if (textBoxSENDTYPE?.Text == "Byte/Byte Collection" && mySerialPort.IsOpen && textBoxMODEDISP?.Text == "Send Mode")
                 {
                     foreach (var control in textBoxesPanel!.Controls)
                     {
@@ -308,7 +304,7 @@ namespace AT_SCC
                     }
                 }
 
-                if (textBoxreceiveType?.Text == "Byte" || textBoxreceiveType?.Text == "Byte Collection")
+                if (textBoxreceiveType?.Text == "Byte/Byte Collection" && textBoxMODEDISP?.Text == "Receive Mode")
                 {
 
                     ReceiveBytesAsync(mySerialPort, textBoxArray, i); // receives the data and sets to output panel
@@ -493,23 +489,11 @@ namespace AT_SCC
             var receivedTextBox = textBoxArray![i];
 
             // read bytes from port and convert to text
-            
-                var b = (byte)mySerialPort.ReadByte();
-                bytesReceived.Add(b);
-
-                if (textBoxreceiveType?.Text == "Byte Collection")
-                {
-                    receivedText.Append(b + " ");
-                }
-                else if (textBoxreceiveType?.Text == "Byte")
-                {
-                    receivedText.Append(b.ToString("X2") + " ");
-                }
-
-
+            var b = (byte)mySerialPort.ReadByte();
+            bytesReceived.Add(b);
+            receivedText.Append(b + " ");
             
             receivedTextBox.Text = Convert.ToString(receivedText);
-
 
             // create a new textbox to display the received bytes
 
@@ -747,7 +731,7 @@ namespace AT_SCC
             sendDelay = new ToolStripMenuItem("&Delay (ms)");
             sendDelay.DropDownItems.AddRange(sendDelayOptions.Select(sdelay => new ToolStripMenuItem(sdelay)).ToArray());
             sendDelay.DropDownItemClicked += (s, e) => textBoxDELAY!.Text = e.ClickedItem!.Text;
-            sendDelay.DropDownItemClicked += (s, e) => textBoxDELAY!.BackColor = Color.LightGreen; ;
+            sendDelay.DropDownItemClicked += (s, e) => textBoxDELAY!.BackColor = Color.LightGreen;
 
 
             sendingModeMenuItem = new ToolStripMenuItem("&TX Data Type");
