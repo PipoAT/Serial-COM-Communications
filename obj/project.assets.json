@@ -1,7 +1,7 @@
 {
   "version": 3,
   "targets": {
-    "net7.0-windows7.0": {
+    "net8.0-windows7.0": {
       "EntityFramework/6.4.4": {
         "type": "package",
         "dependencies": {
@@ -1844,7 +1844,7 @@
     }
   },
   "projectFileDependencyGroups": {
-    "net7.0-windows7.0": [
+    "net8.0-windows7.0": [
       "Microsoft.Extensions.Logging >= 7.0.0",
       "SQLite >= 3.13.0",
       "System.Data.SQLite >= 1.0.117",
@@ -1853,29 +1853,36 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\apipo\\.nuget\\packages\\": {}
+    "C:\\Users\\apmar\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "t:\\APIPO\\Dev\\C#\\AT-SCC\\AT-SCC.csproj",
+      "projectUniqueName": "C:\\Users\\apmar\\OneDrive\\Desktop\\ATech\\AT-SCC\\Serial-COM-Communications\\AT-SCC.csproj",
       "projectName": "AT-SCC",
-      "projectPath": "t:\\APIPO\\Dev\\C#\\AT-SCC\\AT-SCC.csproj",
-      "packagesPath": "C:\\Users\\apipo\\.nuget\\packages\\",
-      "outputPath": "t:\\APIPO\\Dev\\C#\\AT-SCC\\obj\\",
+      "projectPath": "C:\\Users\\apmar\\OneDrive\\Desktop\\ATech\\AT-SCC\\Serial-COM-Communications\\AT-SCC.csproj",
+      "packagesPath": "C:\\Users\\apmar\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\apmar\\OneDrive\\Desktop\\ATech\\AT-SCC\\Serial-COM-Communications\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\apipo\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\apmar\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
-        "net7.0-windows"
+        "net8.0-windows"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
-        "net7.0-windows7.0": {
-          "targetAlias": "net7.0-windows",
+        "net8.0-windows7.0": {
+          "targetAlias": "net8.0-windows",
           "projectReferences": {}
         }
       },
@@ -1883,11 +1890,16 @@
         "warnAsError": [
           "NU1605"
         ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
       }
     },
     "frameworks": {
-      "net7.0-windows7.0": {
-        "targetAlias": "net7.0-windows",
+      "net8.0-windows7.0": {
+        "targetAlias": "net8.0-windows",
         "dependencies": {
           "Microsoft.Extensions.Logging": {
             "target": "Package",
@@ -1929,7 +1941,7 @@
             "privateAssets": "none"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.102\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.204/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
