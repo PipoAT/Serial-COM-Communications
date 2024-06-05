@@ -27,7 +27,7 @@ namespace AT_SCC
 
         List<string>? existingPorts;
 
-        public static string[] AvailablePorts => System.IO.Ports.SerialPort.GetPortNames(); // provides all the ports available
+        public static string[] AvailablePorts => SerialPort.GetPortNames(); // provides all the ports available
 
         string currentPort = "";
 
@@ -162,7 +162,7 @@ namespace AT_SCC
                     }
                 }
 
-                else if (textBoxMODEDISP?.Text == "Send Mode")
+                else if (textBoxMODEDISP?.Text == "Send Mode" || textBoxMODEDISP?.Text == "Send and Receive")
                 {
                     if ((textBoxSENDTYPE?.Text != textBoxreceiveType?.Text) && (textBoxreceiveType?.Text != "N/A - DISABLED"))
                     {
@@ -234,7 +234,7 @@ namespace AT_SCC
                     else i = 0;
                 }
 
-                if (textBoxSENDTYPE?.Text == "String" && mySerialPort.IsOpen && textBoxMODEDISP?.Text == "Send Mode")
+                if (textBoxSENDTYPE?.Text == "String" && mySerialPort.IsOpen && (textBoxMODEDISP?.Text == "Send Mode" || textBoxMODEDISP?.Text == "Send and Receive"))
                 {
                     foreach (var control in textBoxesPanel!.Controls)
                     {
@@ -247,7 +247,7 @@ namespace AT_SCC
                     }
                 }
 
-                if (textBoxreceiveType?.Text == "String" && textBoxMODEDISP?.Text == "Receive Mode")
+                if (textBoxreceiveType?.Text == "String" && (textBoxMODEDISP?.Text == "Receive Mode" || textBoxMODEDISP?.Text == "Send and Receive"))
                 {
                     var receivedTextBox = textBoxArray[i];
                     ReceiveStringAsync(mySerialPort, receivedTextBox, logging_check.Checked, LogFilePath); // receives the data and sets to output panel
@@ -295,7 +295,7 @@ namespace AT_SCC
                     else i = 0;
                 }
 
-                if (textBoxSENDTYPE?.Text == "Byte/Byte Collection" && mySerialPort.IsOpen && textBoxMODEDISP?.Text == "Send Mode")
+                if (textBoxSENDTYPE?.Text == "Byte/Byte Collection" && mySerialPort.IsOpen && (textBoxMODEDISP?.Text == "Send Mode" || textBoxMODEDISP?.Text == "Send and Receive"))
                 {
                     foreach (var control in textBoxesPanel!.Controls)
                     {
@@ -308,7 +308,7 @@ namespace AT_SCC
                     }
                 }
 
-                if (textBoxreceiveType?.Text == "Byte/Byte Collection" && textBoxMODEDISP?.Text == "Receive Mode")
+                if (textBoxreceiveType?.Text == "Byte/Byte Collection" && (textBoxMODEDISP?.Text == "Receive Mode"  || textBoxMODEDISP?.Text == "Send and Receive"))
                 {
 
                     ReceiveBytesAsync(mySerialPort, textBoxArray, i); // receives the data and sets to output panel
@@ -601,7 +601,13 @@ namespace AT_SCC
 
 
             modeMenuItem = new ToolStripMenuItem("&Select Mode");
-            modeMenuItem.DropDownItems.AddRange(new ToolStripItem[] { new ToolStripMenuItem("Send Mode"), new ToolStripMenuItem("Receive Mode"), new ToolStripMenuItem("Idle Mode") });
+            modeMenuItem.DropDownItems.AddRange(new ToolStripItem[] 
+            { 
+                new ToolStripMenuItem("Send Mode"), 
+                new ToolStripMenuItem("Receive Mode"), 
+                new ToolStripMenuItem("Send and Receive"),
+                new ToolStripMenuItem("Idle Mode")
+            });
             modeMenuItem.DropDownItemClicked += (s, e) => textBoxMODEDISP!.Text = e.ClickedItem!.Text;
 
 
