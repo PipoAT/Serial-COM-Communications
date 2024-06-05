@@ -5,6 +5,14 @@ Current Release: AT-SCC v.1.0.0
 
 Next Release: AT-SCC v.1.1.0
 
+## 6/5/2024
+### Added Features
+### Bugs/Issues Addressed
+- Addressed null reference warnings
+- Misc. cleanup/simplification of functions and declarations
+### Other Matters
+- Seperated UI Functions into its own file for readability
+
 ## 6/4/2024
 ### Added Features
 - Added changelog
