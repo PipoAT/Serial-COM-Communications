@@ -122,7 +122,7 @@ namespace AT_SCC
                 }
             }
 
-            this.textBoxesPanel?.Controls.Clear();
+            textBoxesPanel?.Controls.Clear();
             Enumerable.Range(1, btt).ToList().ForEach(i =>
             {
                 TextBox textBox = new() { Location = new Point(10, 10 + (i - 1) * 20) };
@@ -195,9 +195,7 @@ namespace AT_SCC
 
                         }
                     }
-
                 }
-
             }
         }
 
@@ -358,7 +356,7 @@ namespace AT_SCC
                         hexBytesList.Add(hexByte);
                     }
                 }
-                hexBytes = hexBytesList.ToArray(); // convert the List<byte> to a byte array and assign it to hexBytes
+                hexBytes = [.. hexBytesList]; // convert the List<byte> to a byte array and assign it to hexBytes
             }
 
             // now you can use the variable hexBytes outside of the if statemen
@@ -565,7 +563,7 @@ namespace AT_SCC
             _displayHelp = new DisplayHelp();
             // DEFINE THE MAIN OVERALL FORM
 
-            existingPorts = AvailablePorts.ToList();
+            existingPorts = [.. AvailablePorts];
             Size = ClientSize;
             BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\AT-SCC_GUI_Background.png");
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -582,12 +580,12 @@ namespace AT_SCC
             loggingMenuItem = new ToolStripMenuItem("&Log File");
 
             // Set up the logging menu item with lambda expressions
-            loggingMenuItem.DropDownItems.AddRange(new ToolStripItem[]
+            loggingMenuItem.DropDownItems.AddRange(new[]
             {
                 new ToolStripMenuItem("View Logs", null, (s, e) => new Log(this).Show()),
                 new ToolStripMenuItem("Delete Logs", null, (s, e) =>
                 {
-                    System.IO.File.WriteAllText(LogFilePath, string.Empty);
+                    File.WriteAllText(LogFilePath, string.Empty);
                     MessageBox.Show("Logs have been erased", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 })
             });
@@ -601,7 +599,7 @@ namespace AT_SCC
 
 
             modeMenuItem = new ToolStripMenuItem("&Select Mode");
-            modeMenuItem.DropDownItems.AddRange(new ToolStripItem[] 
+            modeMenuItem.DropDownItems.AddRange(new[] 
             { 
                 new ToolStripMenuItem("Send Mode"), 
                 new ToolStripMenuItem("Receive Mode"), 
@@ -611,7 +609,7 @@ namespace AT_SCC
             modeMenuItem.DropDownItemClicked += (s, e) => textBoxMODEDISP!.Text = e.ClickedItem!.Text;
 
 
-            fileMenuItem.DropDownItems.AddRange(new ToolStripItem[] { Help, modeMenuItem, loggingMenuItem, reloadMenuItem, exitMenuItem });
+            fileMenuItem.DropDownItems.AddRange(new[] { Help, modeMenuItem, loggingMenuItem, reloadMenuItem, exitMenuItem });
 
 
             currentCom = new ToolStripMenuItem("&COM#");
@@ -691,12 +689,11 @@ namespace AT_SCC
             receivingModeMenuItem.DropDownItems.AddRange(PossibleTransmitModes.Select(prm => new ToolStripMenuItem(prm)).ToArray());
             receivingModeMenuItem.DropDownItemClicked += (s, e) => textBoxreceiveType!.Text = e.ClickedItem!.Text;
 
+            comPortMenuItem.DropDownItems.AddRange(new[] { currentCom, baudMenuItem, parityMenuItem, dataBitsMenuItem, stopBitsMenuItem, readTimeoutItem, writeTimeoutItem, handshakeItem, sendDelay });
 
-            comPortMenuItem.DropDownItems.AddRange(new ToolStripItem[] { currentCom, baudMenuItem, parityMenuItem, dataBitsMenuItem, stopBitsMenuItem, readTimeoutItem, writeTimeoutItem, handshakeItem, sendDelay });
+            sendMenuItem.DropDownItems.AddRange(new[] { sendingModeMenuItem, receivingModeMenuItem });
 
-            sendMenuItem.DropDownItems.AddRange(new ToolStripItem[] { sendingModeMenuItem, receivingModeMenuItem });
-
-            menuStrip.Items.AddRange(new ToolStripItem[] { fileMenuItem, comPortMenuItem, sendMenuItem });
+            menuStrip.Items.AddRange(new[] { fileMenuItem, comPortMenuItem, sendMenuItem });
 
             MainMenuStrip = menuStrip;
 
