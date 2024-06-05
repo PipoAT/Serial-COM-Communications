@@ -16,6 +16,7 @@
     <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
     <PackageReference Include="System.IO.Ports" Version="7.0.0" />
     <PackageReference Include="System.Speech" Version="7.0.0" />
+    <RuntimeHostConfigurationOption Include="System.Runtime.Loader.UseRidGraph" Value="true" /> 
   </ItemGroup>
 
 </Project>
