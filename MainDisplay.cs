@@ -17,9 +17,7 @@ namespace AT_SCC
 
         private readonly TextBox? clock = new(), textBoxBUFFER = new(), textBoxSTATUS = new();   // sets up the textboxes
 
-        private readonly Panel textBoxesPanel = new();
-        private readonly Panel textBoxesPanel2 = new();
-
+        private readonly Panel textBoxesPanel = new(), textBoxesPanel2 = new();
 
         private readonly MenuStrip? menuStrip;   // sets up the menu strip and its items
 
@@ -39,12 +37,9 @@ namespace AT_SCC
         StopBits currentStopBitvalue = StopBits.One;
         Handshake currentHandshakevalue = Handshake.None;
 
-        readonly Button STRANSMIT = new();
-        readonly Button ETRANSMIT = new();
+        readonly Button STRANSMIT = new(), ETRANSMIT = new();
 
-        readonly CheckBox logging_check = new();
-        readonly CheckBox repeat_check = new();
-        readonly CheckBox overwrite_check = new(); // define the checkboxes
+        readonly CheckBox logging_check = new(), repeat_check = new(), overwrite_check = new(); // define the checkboxes
 
         public string LogFilePath = Path.GetFullPath("SerialLog.txt"); // PATH TO TEXT FILE
 
@@ -68,10 +63,7 @@ namespace AT_SCC
             "75","110","134","150","300","600","1200","1800","2400","4800","7200","9600","14400","19200","38400","57600","115200","128000"
         ];
 
-        public readonly string[] PossibleTransmitModes =
-        [
-            "N/A - DISABLED", "Byte/Byte Collection", "String", "ASCII", "ASCII-HEX"
-        ];
+        public readonly string[] PossibleTransmitModes = [ "N/A - DISABLED", "Byte/Byte Collection", "String", "ASCII", "ASCII-HEX" ];
 
         public readonly Dictionary<string, Parity> ParityOptions = new()
         {
@@ -118,7 +110,7 @@ namespace AT_SCC
                 TextBox textBox = new() { Location = new Point(10, 10 + (i - 1) * 20) };
                 if (i <= textBoxValues.Count) textBox.Text = textBoxValues[i - 1];
                 textBox.Width = 120;
-                this.textBoxesPanel?.Controls.Add(textBox);
+                textBoxesPanel?.Controls.Add(textBox);
             });
         }
 
@@ -457,8 +449,6 @@ namespace AT_SCC
             reloadMenuItem = new ToolStripMenuItem("&Reload", null, (_, _) => OnReload()) { ShortcutKeys = Keys.Control | Keys.L };
             var Help = new ToolStripMenuItem("&Info/Help", null, (_, _) => new Info(this).Show()) { ShortcutKeys = Keys.Control | Keys.H };
 
-
-
             modeMenuItem = new ToolStripMenuItem("&Select Mode");
             modeMenuItem.DropDownItems.AddRange(new[] 
             { 
@@ -469,15 +459,10 @@ namespace AT_SCC
             });
             modeMenuItem.DropDownItemClicked += (s, e) => textBoxMODEDISP!.Text = e.ClickedItem!.Text;
 
-
             fileMenuItem.DropDownItems.AddRange(new[] { Help, modeMenuItem, loggingMenuItem, reloadMenuItem, exitMenuItem });
 
-
             currentCom = new ToolStripMenuItem("&COM#");
-            foreach (var port in AvailablePorts)
-            {
-                currentCom.DropDownItems.Add(port);
-            }
+            foreach (var port in AvailablePorts) { currentCom.DropDownItems.Add(port); }
             currentCom.DropDownItemClicked += (s, e) => textBoxCOM!.Text = currentPort = e.ClickedItem!.Text!;
             currentCom.DropDownItemClicked += (s, e) => textBoxCOM!.BackColor = Color.LightGreen;
 
@@ -497,33 +482,24 @@ namespace AT_SCC
 
 
             dataBitsMenuItem = new ToolStripMenuItem("&Data Bits");
-            foreach (var item in Enumerable.Range(5, 4))
-            {
-                dataBitsMenuItem.DropDownItems.Add(item.ToString());
-            }
+            foreach (var item in Enumerable.Range(5, 4)) { dataBitsMenuItem.DropDownItems.Add(item.ToString());}
             dataBitsMenuItem.DropDownItemClicked += (s, e) => textBoxDATABITS!.Text = e.ClickedItem!.Text;
             dataBitsMenuItem.DropDownItemClicked += (s, e) => currentdataBitsint = int.Parse(textBoxDATABITS!.Text);
-            dataBitsMenuItem.DropDownItemClicked += (s, e) => textBoxDATABITS!.BackColor = Color.LightGreen; ;
+            dataBitsMenuItem.DropDownItemClicked += (s, e) => textBoxDATABITS!.BackColor = Color.LightGreen;
 
 
             stopBitsMenuItem = new ToolStripMenuItem("&Stop Bits");
             stopBitsMenuItem.DropDownItemClicked += (s, e) => textBoxSTOPBITS!.Text = e.ClickedItem!.Text;
             stopBitsMenuItem.DropDownItemClicked += (s, e) => currentStopBitvalue = StopBitOptions[textBoxSTOPBITS!.Text];
-            stopBitsMenuItem.DropDownItemClicked += (s, e) => textBoxSTOPBITS!.BackColor = Color.LightGreen; ;
+            stopBitsMenuItem.DropDownItemClicked += (s, e) => textBoxSTOPBITS!.BackColor = Color.LightGreen;
             stopBitsMenuItem.DropDownItems.AddRange(StopBitOptions.Keys.Select(s => new ToolStripMenuItem(s)).ToArray());
 
-            readTimeoutItem = new ToolStripMenuItem("&Read Timeout")
-            {
-                DropDownItems = { "-1", "500" }
-            };
+            readTimeoutItem = new ToolStripMenuItem("&Read Timeout") { DropDownItems = { "-1", "500" }};
             readTimeoutItem.DropDownItemClicked += (s, e) => textBoxRTIMEOUT!.Text = e.ClickedItem!.Text;
             readTimeoutItem.DropDownItemClicked += (s, e) => textBoxRTIMEOUT!.BackColor = Color.LightGreen;
 
 
-            writeTimeoutItem = new ToolStripMenuItem("&Write Timeout")
-            {
-                DropDownItems = { "-1", "500" }
-            };
+            writeTimeoutItem = new ToolStripMenuItem("&Write Timeout") { DropDownItems = { "-1", "500" } };
             writeTimeoutItem.DropDownItemClicked += (s, e) => textBoxWTIMEOUT!.Text = e.ClickedItem!.Text;
             writeTimeoutItem.DropDownItemClicked += (s, e) => textBoxWTIMEOUT!.BackColor = Color.LightGreen;
 
