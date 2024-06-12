@@ -117,7 +117,23 @@ namespace AT_SCC
         {
             if (transmitactive == 1)
             {
-                MessageBox.Show("Transmission In Progress. Please stop trasmission before starting another one.", "WARNING", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                var result = MessageBox.Show("Transmission Already In Progress. Do you want to cancel the transmission?", "Cancel Transmission", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                if (result == DialogResult.OK)
+                {
+                    cancellationTokenSource?.Cancel();
+                    transmitactive = 0;
+                
+                    foreach (string portName in SerialPort.GetPortNames())
+                    {
+                        using SerialPort port = new(portName);
+                        if (port.IsOpen)
+                        {
+                            port.Close();
+                        }
+                    }
+
+                    textBoxSTATUS!.Text = "PORT CLOSED";
+                }
             }
             else
             {
@@ -385,7 +401,6 @@ namespace AT_SCC
         }
 
         private void OnReload() // function to reload the ports/program
-
         {
             existingPorts = [.. AvailablePorts];
             currentCom?.DropDownItems.Clear();
@@ -394,6 +409,15 @@ namespace AT_SCC
             TextBox? textBox = textBoxesPanel2?.Controls.OfType<TextBox>().FirstOrDefault();
             if (textBox != null) textBox.Text = "";
             textBoxesPanel2?.Controls.Clear();
+        }
+
+        private void OnCOMReload(object sender, EventArgs e)
+        {
+            existingPorts = [.. AvailablePorts];
+            currentCom?.DropDownItems.Clear();
+            existingPorts.ForEach(port => currentCom?.DropDownItems.Add(port));
+            // Adds a blank option to prevent bug of having only one dropdown item
+            if (AvailablePorts.Length ==  1) { currentCom?.DropDownItems.Add(""); } 
         }
 
         public MainDisplay()  // main form with design components
@@ -448,6 +472,7 @@ namespace AT_SCC
             foreach (var port in AvailablePorts) { currentCom.DropDownItems.Add(port); }
             currentCom.DropDownItemClicked += (s, e) => textBoxCOM!.Text = currentPort = e.ClickedItem!.Text!;
             currentCom.DropDownItemClicked += (s, e) => textBoxCOM!.BackColor = Color.LightGreen;
+            currentCom.Click += OnCOMReload!;
 
 
             baudMenuItem = new ToolStripMenuItem("&Baud");
