@@ -86,12 +86,11 @@ namespace AT_SCC
         private void TextBoxBTT_TextChanged(object sender, EventArgs e)     // event to adjust the TX BUFFER SIZE
         {
             List<string> textBoxValues = [];
-
-            if (!int.TryParse(textBoxBTT?.Text, out int btt) || btt < 0)    // if invalid input for TX buffer that does not exceed buffer
+            if (string.IsNullOrWhiteSpace(textBoxBTT?.Text) || int.Parse(textBoxBTT.Text.ToString()) < 0 || int.Parse(textBoxBTT.Text.ToString()) > 100) 
             {
                 textBoxesPanel?.Controls.Clear();
                 textBoxesPanel2?.Controls.Clear();
-                textBoxBTT!.Text = "0";
+                textBoxBTT!.Text = "";
                 return;
             }
 
@@ -105,7 +104,7 @@ namespace AT_SCC
             }
 
             textBoxesPanel?.Controls.Clear();
-            Enumerable.Range(1, btt).ToList().ForEach(i =>
+            Enumerable.Range(1, int.Parse(textBoxBTT.Text.ToString())).ToList().ForEach(i =>
             {
                 TextBox textBox = new() { Location = new Point(10, 10 + (i - 1) * 20) };
                 if (i <= textBoxValues.Count) textBox.Text = textBoxValues[i - 1];
@@ -157,7 +156,6 @@ namespace AT_SCC
                         var modeSwitchS = textBoxSENDTYPE?.Text;
                         switch (modeSwitchS)
                         {
-
                             case "Byte/Byte Collection":
                                 TX_RX_BYTE();
                                 break;
@@ -174,7 +172,6 @@ namespace AT_SCC
                             default:
                                 MessageBox.Show("Misconfigured Settings. Please check settings and modify as needed.", "ATTENTION", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                 break;
-
                         }
                     }
                 }
@@ -271,7 +268,6 @@ namespace AT_SCC
                 if (i >= MAX_BUFFER_SIZE)
                 {
                     if (!overwrite_check.Checked) break;
-
                     else i = 0;
                 }
 
@@ -279,21 +275,15 @@ namespace AT_SCC
                 {
                     foreach (var control in textBoxesPanel!.Controls)
                     {
-                        if (control is TextBox textBox)
-                        {
-                            // Send the textbox contents as a string
-                            var textToSend = textBox.Text;
-                            await _serialHelp.SendBytesAsync(mySerialPort, textBoxesPanel.Controls.OfType<TextBox>(), logging_check, LogFilePath, textBoxDELAY!);
-                        }
+                        // Send the textbox contents as a string
+                        await _serialHelp.SendBytesAsync(mySerialPort, textBoxesPanel.Controls.OfType<TextBox>(), logging_check, LogFilePath, textBoxDELAY!);
                     }
                 }
 
                 if (textBoxreceiveType?.Text == "Byte/Byte Collection" && (textBoxMODEDISP?.Text == "Receive Mode"  || textBoxMODEDISP?.Text == "Send and Receive"))
                 {
-
                     _serialHelp.ReceiveBytesAsync(mySerialPort, textBoxArray, i, logging_check, LogFilePath); // receives the data and sets to output panel
                     i++;
-
                 }
                 await Task.Delay(int.Parse(textBoxDELAY!.Text));
             } while (repeat_check.Checked && !cancellationTokenSource!.IsCancellationRequested && mySerialPort.IsOpen);
@@ -364,7 +354,6 @@ namespace AT_SCC
 
             do
             {
-
                 // Send data and check if user needs logging
                 foreach (var hexByte in hexBytes)
                 {
@@ -388,8 +377,6 @@ namespace AT_SCC
                 }
                 textBoxLocationY += 20;
                 i++;
-
-
             } while (!cancellationTokenSource!.IsCancellationRequested && repeat_check.Checked);
 
             transmitactive = 0;
@@ -417,7 +404,6 @@ namespace AT_SCC
             // DEFINE THE MAIN OVERALL FORM
 
             existingPorts = [.. AvailablePorts];
-            Size = ClientSize;
             BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\AT-SCC_GUI_Background.png");
             FormBorderStyle = FormBorderStyle.FixedSingle;
             ControlBox = true;
@@ -425,7 +411,6 @@ namespace AT_SCC
             MinimizeBox = true;
 
             // DEFINE THE MENU BAR
-
             menuStrip = new MenuStrip{Parent = this};
             fileMenuItem = new ToolStripMenuItem("&File");
             comPortMenuItem = new ToolStripMenuItem("&Port Configurations");
@@ -443,11 +428,9 @@ namespace AT_SCC
                 })
             });
 
-
-
-            exitMenuItem = new ToolStripMenuItem("&Exit", null, (_, _) => Close()) { ShortcutKeys = Keys.Control | Keys.X };
-            reloadMenuItem = new ToolStripMenuItem("&Reload", null, (_, _) => OnReload()) { ShortcutKeys = Keys.Control | Keys.L };
-            var Help = new ToolStripMenuItem("&Info/Help", null, (_, _) => new Info(this).Show()) { ShortcutKeys = Keys.Control | Keys.H };
+            exitMenuItem = new ToolStripMenuItem("&Exit", null, (_, _) => Close()) { ShortcutKeys = Keys.Control | Keys.E };
+            reloadMenuItem = new ToolStripMenuItem("&Reload", null, (_, _) => OnReload()) { ShortcutKeys = Keys.Control | Keys.R };
+            var Help = new ToolStripMenuItem("&Info/Help", null, (_, _) => new Info(this).Show()) { ShortcutKeys = Keys.Control | Keys.I };
 
             modeMenuItem = new ToolStripMenuItem("&Select Mode");
             modeMenuItem.DropDownItems.AddRange(new[] 
@@ -608,7 +591,6 @@ namespace AT_SCC
 
             _displayHelp.AddLabel("SET TX BUFER:", new Point(250, 190), new Font("Arial", 8), this);
             _displayHelp.SetTextBox(textBoxBTT, new Point(250, 210), 125, "0", Color.LightBlue, false, this);
-            textBoxBTT.MaxLength = 2;
             textBoxBTT.TextChanged += TextBoxBTT_TextChanged!; // Add event handler
 
             _displayHelp.AddLabel("MAX RX BUFFER:", new Point(250, 240), new Font("Arial", 8), this);
