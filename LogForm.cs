@@ -13,15 +13,11 @@ public partial class Log : Form
 
     private void LogConfig()
     {
-        this.ClientSize = new System.Drawing.Size(800, 500);
-        this.Text = "Logs";
-        RichTextBox LOGS = new RichTextBox();   // establishes the textbox in the form and sets the file to be the contents
-        LOGS.Dock = DockStyle.Fill;
-        LOGS.ReadOnly = true;
+        ClientSize = new Size(800, 500);
+        Text = "Logs";
+        RichTextBox LOGS = new() { Dock = DockStyle.Fill,ReadOnly = true};   // establishes the textbox in the form and sets the file to be the contents
         LOGS.LoadFile(Path.GetFullPath("SerialLog.txt"), RichTextBoxStreamType.PlainText);  // finds the file and opens up
         LOGS.Font = new Font("Times New Roman", 12);
-        this.Controls.Add(LOGS);
+        Controls.Add(LOGS);
     }
 }
-
-

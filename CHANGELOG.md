@@ -5,6 +5,19 @@ Current Release: AT-SCC v.1.0.0
 
 Next Release: AT-SCC v.1.1.0
 
+## 6/12/2024
+### Added Features
+- Added COM Port checking on COM setting change
+- Added ability to cancel an current transmission if attempting to start a new tranmission while another one is going
+### Bugs/Issues Addressed
+- Cleanup of initializations and declarations
+- Cleanup of Log Form for readability
+- Logic Cleanup
+- Seperated Serial tasks and functions into its own file for readability
+### Other Matters
+- Adjusted logging to have most recent log on top instead of bottom
+
+
 ## 6/5/2024
 ### Added Features
 - Added send and receive mode

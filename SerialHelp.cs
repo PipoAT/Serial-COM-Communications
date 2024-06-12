@@ -13,8 +13,9 @@ public class SerialHelp {
 
         if (loggingEnabled)
         {
-            using var logFile = new StreamWriter(logFilePath, true);
-            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT STRING]: {textToSend}\n");
+            var lines = File.ReadAllLines(logFilePath).ToList();
+            lines.Insert(0, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT STRING]: {textToSend}\n");
+            File.WriteAllLines(logFilePath, lines);
         }
 
         await Task.Delay(int.Parse(textBox!.Text));
@@ -26,8 +27,9 @@ public class SerialHelp {
         receivedTextBox.Text = mySerialPort.ReadLine();
         if (loggingEnabled)
         {
-            using var logFile = new StreamWriter(logFilePath, true);
-            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED STRING]: {receivedTextBox.Text}\n");
+            var lines = File.ReadAllLines(logFilePath).ToList();
+            lines.Insert(0, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED STRING]: {receivedTextBox.Text}\n");
+            File.WriteAllLines(logFilePath, lines);
         }
 
         if (receivedTextBox.TextLength >= receivedTextBox.Width * 3)
@@ -47,8 +49,9 @@ public class SerialHelp {
             {
                 var logFilePath = LogFilePath;
 
-                using var logFile = new StreamWriter(logFilePath, true);
-                logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT ASCII/HEX]: {hexByte:X2}");
+                var lines = File.ReadAllLines(logFilePath).ToList();
+                lines.Insert(0, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT ASCII/HEX]: {hexByte:X2}\n");
+                File.WriteAllLines(logFilePath, lines);
             }
 
             mySerialPort.Write(new byte[] { hexByte }, 0, 1);
@@ -67,8 +70,9 @@ public class SerialHelp {
         {
             var logFilePath = LogFilePath;
 
-            using var logFile = new StreamWriter(logFilePath, true);
-            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED ASCII/HEX]: {receivedTextBox[i]!.Text}");
+            var lines = File.ReadAllLines(logFilePath).ToList();
+            lines.Insert(0, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED ASCII/HEX]: {receivedTextBox[i]!.Text}\n");
+            File.WriteAllLines(logFilePath, lines);
         }
         
     }
@@ -97,9 +101,10 @@ public class SerialHelp {
                     if (logging_check.Checked)
                     {
                         var logFilePath = LogFilePath;
-
-                        using var logFile = new StreamWriter(logFilePath, true);
-                        logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE/BYTE COLLECTION]: {byteValue}");
+                        var lines = File.ReadAllLines(logFilePath).ToList();
+                        lines.Insert(0, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [SENT BYTE/BYTE COLLECTION]: {byteValue}\n");
+                        File.WriteAllLines(logFilePath, lines);
+                        
                     }
                 }
 
@@ -128,9 +133,9 @@ public class SerialHelp {
         if (logging_check.Checked)
         {
             var logFilePath = LogFilePath;
-
-            using var logFile = new StreamWriter(logFilePath, true);
-            logFile.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE/BYTE COLLECTION]: {receivedText}");
+            var lines = File.ReadAllLines(logFilePath).ToList();
+            lines.Insert(0, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [RECEIVED BYTE/BYTE COLLECTION]: {receivedText}\n");
+            File.WriteAllLines(logFilePath, lines);
         }
 
         }
