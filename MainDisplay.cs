@@ -117,8 +117,23 @@ namespace AT_SCC
         {
             if (transmitactive == 1)
             {
-                MessageBox.Show("Transmission In Progress. Please stop transmission before starting another one.", "WARNING", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
-                // cancellationTokenSource?.Cancel();
+                var result = MessageBox.Show("Transmission Already In Progress. Do you want to cancel the transmission?", "Cancel Transmission", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                if (result == DialogResult.OK)
+                {
+                    cancellationTokenSource?.Cancel();
+                    transmitactive = 0;
+                
+                    foreach (string portName in SerialPort.GetPortNames())
+                    {
+                        using SerialPort port = new(portName);
+                        if (port.IsOpen)
+                        {
+                            port.Close();
+                        }
+                    }
+
+                    textBoxSTATUS!.Text = "PORT CLOSED";
+                }
             }
             else
             {
@@ -398,12 +413,11 @@ namespace AT_SCC
 
         private void OnCOMReload(object sender, EventArgs e)
         {
-            // TODO: Bug to which if there is only one com port, it delocates from the menu
-            if (AvailablePorts.Length > 1) {
-                existingPorts = [.. AvailablePorts];
-                currentCom?.DropDownItems.Clear();
-                existingPorts.ForEach(port => currentCom?.DropDownItems.Add(port));
-            }
+            existingPorts = [.. AvailablePorts];
+            currentCom?.DropDownItems.Clear();
+            existingPorts.ForEach(port => currentCom?.DropDownItems.Add(port));
+            // Adds a blank option to prevent bug of having only one dropdown item
+            if (AvailablePorts.Length ==  1) { currentCom?.DropDownItems.Add(""); } 
         }
 
         public MainDisplay()  // main form with design components
