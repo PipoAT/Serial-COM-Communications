@@ -1,0 +1,21 @@
+name: Merge branches
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  merge-branches:
+    name: Merge dev into main
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test Local Action
+        uses: DerTimonius/merge-branches@v1
+        with:
+          token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          branches: main
+          force: true
